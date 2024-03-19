@@ -12,18 +12,18 @@ Address List
 (2/1)   [0xC - 0xD]             nodeQValue              (6)
 (2/1)   [0xE - 0xF]             deadNodes               (7)
 (2/1)   [0x10 - 0x11]           energyThreshold         (8)
-(2/16)  [0x12 - 0x21]           knownClusterHead        (9-24)
-(2/16)  [0x22 - 0x31]           numberOfHops            (25-40)
-(2/16)  [0x31 - 0x42]           chQValue                (41-56)
-(2/32)  [0x42 - 0x61]           neighborID              (57-88)
-(2/32)  [0x62 - 0x81]           clusterID               (89-120)
-(2/32)  [0x82 - 0xA1]           energyLeft              (121-152)
-(2/32)  [0xA2 - 0xC1]           neighborQValue          (153-164)
-(2/8*32)[0xC2 - 0x191]          chIDs                   (165-420)
-(2/1)   [0x192 - 0x193]         knownCHcount            (421)
-(2/1)   [0x194 - 0x195]         neighborCount           (422)
-(2/1)   [0x196 - 0x197]         chosenClusterHead       (423)
-(2/32)  [0x198 - 0x1B7]         chIDCount               (424-455)
+(2/16)  [0x12 - 0x31]           knownClusterHead        (9-24)
+(2/16)  [0x32 - 0x51]           numberOfHops            (25-40)
+(2/16)  [0x51 - 0x72]           chQValue                (41-56)
+(2/32)  [0x72 - 0xB1]           neighborID              (57-88)
+(2/32)  [0xB2 - 0xF1]           clusterID               (89-120)
+(2/32)  [0xF2 - 0x131]          energyLeft              (121-152)
+(2/32)  [0x132 - 0x171]         neighborQValue          (153-164)
+(2/8*32)[0x172 - 0x271]         chIDs                   (165-420)
+(2/1)   [0x272 - 0x273]         knownCHcount            (421)
+(2/1)   [0x274 - 0x275]         neighborCount           (422)
+(2/1)   [0x276 - 0x277]         chosenClusterHead       (423)
+(2/32)  [0x278 - 0x2B7]         chIDCount               (424-455)
 
 Internal Flags
 
@@ -87,6 +87,42 @@ module memory(clock, address, wr_en, data_in, data_out);
         
         memory['hE] = 0;
         memory['hF] = 0;        // deadNodes = 0
+        
+        memory['h10] = 8'h33;
+        memory['h11] = 8'h33;   // energyThreshold = 0.8
+        
+        //knownClusterHeads
+        
+        memory['h12] = ;
+        memory['h13] = ;
+        
+        memory['h14] = ;
+        memory['h15] = ;
+        
+        memory['h16] = ;
+        memory['h17] = ;
+        
+        memory['h18] = ;
+        memory['h19] = ;
+        
+        memory['h1A] = ;
+        memory['h1B] = ;
+        
+        memory['h1C] = ;
+        memory['h1D] = ;
+        
+        memory['h1E] = ;
+        memory['h1F] = ;
+        
+        memory['h20] = ;
+        memory['h21] = ;
+        
+        memory['h22] = ;
+        memory['h23] = ;
+        
+        memory['h24] = ;
+        memory['h25] = ;
+        
         
 */
         end
