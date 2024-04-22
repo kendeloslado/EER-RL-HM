@@ -22,11 +22,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module QTableUpdate(clock, nrst, en, start, data_in, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
+module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
         input                           clock;
         input                           nrst;
         input                           en;
-        input                           start;
+        //input                           start;
         input   [`WORD_WIDTH-1:0]       data_in;
         input   [`WORD_WIDTH-1:0]       fSourceID;
         input   [`WORD_WIDTH-1:0]       fEnergyLeft;
@@ -131,7 +131,7 @@ module QTableUpdate(clock, nrst, en, start, data_in, fSourceID, fEnergyLeft, fQV
                                                 data_out_buf = k;
                                                 address_count <= 12'h278 + 2*k; //chIDcount address
                                                 wr_en_buf <= 1;
-                                                state <= ;
+                                                state <= 8;
                                         end
                                         else begin
                                                 address_count <= 12'h12 + 2*k
@@ -176,14 +176,14 @@ module QTableUpdate(clock, nrst, en, start, data_in, fSourceID, fEnergyLeft, fQV
                                 11: begin
                                         if(found) begin
                                                 if(reinit) begin
-                                                        data_out_buf 
+                                                        state <= 20 
                                                 end
                                                 else
-                                                        state <= s_done;
+                                                        state <= 21;
 
                                         end
                                         else
-                                                state <= s_done;
+                                                state <= 21;
                                 end
                                 12: begin
                                         address_count <= 12'h72 + neighborCount*2; // neighborID address
@@ -255,7 +255,7 @@ module QTableUpdate(clock, nrst, en, start, data_in, fSourceID, fEnergyLeft, fQV
                                         if(en) begin
                                                 done_buf <= 0;
                                                 address_count <= 0;
-                                                state <= 22;
+                                                state <= 0;
                                                 wr_en_buf <= 0;
                                                 data_out_buf = 0;
                                                 neighborCount <= 0;
