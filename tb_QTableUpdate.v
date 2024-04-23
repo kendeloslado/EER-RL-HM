@@ -25,5 +25,38 @@ module tb_QTableUpdate();
     // Initial Values
 
     initial begin
-        
+    // add new neighbour.
+        fSourceID = 11;
+        fEnergyLeft = 2;
+        fQValue = 0.75;
+        fclusterID = 2;
+    end
+
+    // clock
+    initial begin
+        clock = 0
+        forever #10 clock = ~clock;
+    end
+
+    // Reset
+
+    initial begin
+        en = 0;
+        nrst = 1;
+        #5 nrst = 0;
+        #10 nrst = 1;
+        #50
+        en = 1;
+        #20
+        en = 0;
+        #
+    end
+    // Write waveform
+    initial begin
+        $vcdplusfile("tb_learnCosts.vpd"); //$dumpfile("tb_randomGenerator.vcd");
+        $vcdpluson;
+	    $sdf_annotate("../mapped/learnCosts.sdf", learnCosts);
+	    //$dumpvars(0, tb_randomGenerator);
+        #1200
+        $finish;
     end

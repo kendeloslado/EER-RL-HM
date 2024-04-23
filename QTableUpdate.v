@@ -22,7 +22,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
+module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
         input                           clock;
         input                           nrst;
         input                           en;
@@ -91,12 +91,12 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                         case (state) 
                                 0: begin        // neighborCount index
                                         state <= 1;
-                                        address_count <= 12'h274; //neighborCount address
+                                        address_count <= 11'h274; //neighborCount address
                                 end
                                 1: begin        // write to memory neighborCount, change index to knownCHcount
                                         neighborCount <= data_in;
                                         state <= 2;
-                                        address_count <= 12'h272; //knownCHcount address
+                                        address_count <= 11'h272; //knownCHcount address
                                 end
                                 2: begin        // write to memory knownCHcount
                                         knownCHcount <= data_in;
@@ -107,7 +107,7 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                         if (n == neighborCount)
                                                 state <= ; // add a new neighbor state
                                         else   begin
-                                                address_count <= 12'h72 + 2*n; //neighborID address
+                                                address_count <= 11'h72 + 2*n; //neighborID address
                                                 state <= 4;
                                         end
                                 end
@@ -129,12 +129,12 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                 5: begin
                                         if (k == knownCHcount) begin
                                                 data_out_buf = k;
-                                                address_count <= 12'h278 + 2*k; //chIDcount address
+                                                address_count <= 11'h278 + 2*k; //chIDcount address
                                                 wr_en_buf <= 1;
                                                 state <= 8;
                                         end
                                         else begin
-                                                address_count <= 12'h12 + 2*k
+                                                address_count <= 11'h12 + 2*k
                                                 state <= 6;
                                         end
                                 end
@@ -152,13 +152,13 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                 end
                                 8: begin        // write energyLeft
                                         data_out_buf <= fEnergyLeft;
-                                        address_count <= 12'hF2 + n*2; // fEnergyLeft address
+                                        address_count <= 11'hF2 + n*2; // fEnergyLeft address
                                         wr_en_buf <= 1;                
                                         state <= 9;
                                 end
                                 9: begin        // write qValue
                                         wr_en_buf <= 0;
-                                        address_count <= 12'h52 + n*2; // chQValue address
+                                        address_count <= 11'h52 + n*2; // chQValue address
                                         state <= 10;
                                 end
                                 10: begin
@@ -186,25 +186,25 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                                 state <= 21;
                                 end
                                 12: begin
-                                        address_count <= 12'h72 + neighborCount*2; // neighborID address
+                                        address_count <= 11'h72 + neighborCount*2; // neighborID address
                                         data_out_buf <= fSourceID;
                                         wr_en_buf <= 1;
                                         state <= 13;
                                 end
                                 13: begin
-                                        address_count <= 12'hF2 + neighborCount*2; // energyLeft address
+                                        address_count <= 11'hF2 + neighborCount*2; // energyLeft address
                                         data_out_buf <= fEnergyLeft;
                                         wr_en_buf <= 1;
                                         state <= 14;
                                 end
                                 14: begin
-                                        address_count <= 12'h132 + neighborCount*2; // neighborQValue address
+                                        address_count <= 11'h132 + neighborCount*2; // neighborQValue address
                                         data_out_buf <= fQValue;
                                         wr_en_buf <= 1;
                                         state <= 15;
                                 end
                                 15: begin
-                                        address_count <= 12'hB2 + neighborCount*2; // clusterID address
+                                        address_count <= 11'hB2 + neighborCount*2; // clusterID address
                                         data_out_buf <= fclusterID;
                                         wr_en_buf <= 1;
                                         k = 0;
@@ -216,12 +216,12 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                 16: begin
                                         if(k == knownCHcount) begin
                                                 state <= 19;
-                                                address_count <= 12'h278 + 2*neighborCount; // chIDCount address
+                                                address_count <= 11'h278 + 2*neighborCount; // chIDCount address
                                                 data_out_buf = k;
                                                 wr_en_buf <= 1;
                                         end
                                         else begin
-                                                address_count <= 12'h12 + 2*k; //knownCH address
+                                                address_count <= 11'h12 + 2*k; //knownCH address
                                                 state <= 17;
                                         end
                                 end
@@ -239,7 +239,7 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                 end
                                 19: begin
                                         data_out_buf = neighborCount + 1;
-                                        address_count <= 12'h274;
+                                        address_count <= 11'h274;
                                         wr_en_buf <= 1;
                                         state <= 20;
                                 end
@@ -276,7 +276,7 @@ module QTableUpdate(clock, nrst, en, , data_in, fSourceID, fEnergyLeft, fQValue,
                                         end
                                 end
 
-                                default: state <= s_idle;
+                                default: state <= 22;
                         endcase
                 end
         end
