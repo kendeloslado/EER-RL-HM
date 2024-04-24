@@ -9,8 +9,8 @@ module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDest
     input                           nrst;
     input                           en;
     input                           start;
-    input [WORD_WIDTH-1:0]          MY_NODE_ID;
-    input [WORD_WIDTH-1:0]          destinationID;
+    input [`WORD_WIDTH-1:0]          MY_NODE_ID;
+    input [`WORD_WIDTH-1:0]          destinationID;
     output                          iamDestination;
     output                          done;
 
@@ -21,6 +21,7 @@ module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDest
 
         reg iamDestination_buf;
         reg done;
+        reg [1:0] state;
 
     // code proper
 
@@ -64,5 +65,5 @@ module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDest
 
     assign iamDestination = iamDestination_buf;
     assign done = done_buf;
-    
+
 endmodule
