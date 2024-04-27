@@ -100,7 +100,7 @@ module amICH(clock, nrst, en, start, data_in, address, wr_en, data_out, forAggre
                     else
                         state = 4;
                 end
-            
+                default: state = 4;
             endcase
         end
     end

@@ -12,7 +12,7 @@ output [10:0]                       address;
 output                              wr_en, done;   
 
 // Pseudocode
-/*
+/* Simple
 Wait for Start signal
 
 Check if knownCH is in chIDs list
@@ -23,6 +23,16 @@ for (n=0, n<num_chIDs, n++)
     else
         Add entry to chIDs list
 
+Detailed pseudocode
+
+if(!nrst)
+    state <= s_idle
+    neighborCount = 11'h274
+    all_other_variables = 0;
+else
+    case(state)
+        s_idle:
+    endcase
 */
 
 // Registers
@@ -36,6 +46,21 @@ reg [`WORD_WIDTH-1:0]               i, j, k;
 // j = knownCHs, numberOfHops
 // k = chID_index
 reg [3:0]                           state;
+
+// Parameter States
+
+// These parameters indicate the address_count's supposed destination.
+
+parameter s_idle = ;
+parameter s_neighborCount = ;
+parameter s_knownCHcount = ;
+parameter s_chIDcount = ;
+parameter s_knownCH = ;
+parameter s_compCHID = ;
+parameter s_nHops = ;
+parameter s_qValue = ;
+parameter s_update_qValue = ;
+parameter s_start = ;
 
 // Program Flow Proper
 
@@ -58,36 +83,56 @@ always@(posedge clock) begin
     end
     else begin
         case(state)
-            0: begin
-                if (start) begin // check neighborCount
-                    state = 1;
+            s_idle: begin   // change to respective number
+                if(en) begin
+                    done_buf = 0;
+                    wr_en_buf = 0;
+                    address_count = 11'h0;
+                    state = s_neighborCount;
+                    knownCHcount = 0;
+                    knownCHs = 0;
+                    neighborCount = 0;
+                    chQValue = 0;
+                    chIDcount = 0;
+                    chIDs = 0;
+                    numberOfHops = 0;
+                end
+                else
+                    state = s_idle;
+            end
+            s_neighborCount: begin                // s_neighborCount
+                if (start) begin    // set address to neighborCount's address
+                    state = s_knownCHcount;      // 1
                     address_count = 11'h274; // neighborCount address
                 end
                 else
                     state = 0;
             end
-            1: begin // load neighborCount, set addr to knownCHcount
-                neighborCount = data_in;
-                state = 2;
+            s_knownCHcount: begin // load neighborCount, set addr to knownCHcount
+                neighborCount = data_in;        // 
+                state = s_knownCH;
                 address_count = 11'h272; // knownCHcount address
             end
-            2: begin // write knownCHcount reg, set to
+            s_knownCH: begin // write knownCHcount reg, set to knownCH
                 knownCHcount = data_in;
-                state = 3;
+                state = s_knownCH; //3
                 address_count = 11'h12 + 2*j; //knownCH address
             end
-            3: begin // write to knownCHs register and set addr to chIDcount
+            s_knownCH: begin // write to knownCHs register and set addr to chIDcount
                 knownCHs = data_in;
-                state = 4;
+                state = s_chIDcount; //4
                 address_count = 11'h278 + 2*i; // chIDcount address
             end
-            4: begin
+            s_chIDcount: begin      
                 chIDcount = data_in;
-                state = 5;
+                state = s_chIDs; //5
                 address_count = 11'h172 + 16*i + 2*k; // chIDs address
             end
-            5: begin
-                chIDs = data_in
+            // i = chQValue, chIDcount
+            // j = knownCHs, numberOfHops
+            // k = chID_index
+            s_chIDs: begin      // stopped here. 2:54am
+                chIDs = data_in;
                 if(knownCHs == chIDs) begin
                     i = i + 1;
                     k = 0;
@@ -123,23 +168,7 @@ always@(posedge clock) begin
                     end
                 end
             end
-            s_idle: begin   // change to respective number
-                if(en) begin
-                    done_buf = 0;
-                    wr_en_buf = 0;
-                    address_count = 11'h0;
-                    state = 0;
-                    knownCHcount = 0;
-                    knownCHs = 0;
-                    neighborCount = 0;
-                    chQValue = 0;
-                    chIDcount = 0;
-                    chIDs = 0;
-                    numberOfHops = 0;
-                end
-                else
-                    state = s_idle;
-            end
+            
             default: state = s_idle; // tentative. pls change to respective number.
         endcase
     end
