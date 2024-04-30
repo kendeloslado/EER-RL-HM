@@ -61,7 +61,7 @@ parameter s_nHops = ;
 parameter s_qValue = ;
 parameter s_update_qValue = ;
 parameter s_start = ;
-
+parameter s_done = ;
 // Program Flow Proper
 
 always@(posedge clock) begin
@@ -83,7 +83,7 @@ always@(posedge clock) begin
     end
     else begin
         case(state)
-            s_idle: begin   // change to respective number
+            s_idle: begin   // change to respective number; 0
                 if(en) begin
                     done_buf = 0;
                     wr_en_buf = 0;
@@ -100,30 +100,30 @@ always@(posedge clock) begin
                 else
                     state = s_idle;
             end
-            s_neighborCount: begin                // s_neighborCount
+            s_start: begin                // s_neighborCount; 1
                 if (start) begin    // set address to neighborCount's address
-                    state = s_knownCHcount;      // 1
+                    state = s_neighborCount;      // 1
                     address_count = 11'h274; // neighborCount address
                 end
                 else
                     state = 0;
             end
-            s_knownCHcount: begin // load neighborCount, set addr to knownCHcount
+            s_neighborCount: begin // load neighborCount, set addr to knownCHcount; 2
                 neighborCount = data_in;        // 
-                state = s_knownCH;
+                state = s_knownCHcount;
                 address_count = 11'h272; // knownCHcount address
             end
-            s_knownCH: begin // write knownCHcount reg, set to knownCH
+            s_knownCHcount: begin // write knownCHcount reg, set to knownCH; 3
                 knownCHcount = data_in;
                 state = s_knownCH; //3
                 address_count = 11'h12 + 2*j; //knownCH address
             end
-            s_knownCH: begin // write to knownCHs register and set addr to chIDcount
+            s_knownCH: begin // write to knownCHs register and set addr to chIDcount; 4
                 knownCHs = data_in;
                 state = s_chIDcount; //4
                 address_count = 11'h278 + 2*i; // chIDcount address
             end
-            s_chIDcount: begin      
+            s_chIDcount: begin      // 5
                 chIDcount = data_in;
                 state = s_chIDs; //5
                 address_count = 11'h172 + 16*i + 2*k; // chIDs address
@@ -131,7 +131,7 @@ always@(posedge clock) begin
             // i = chQValue, chIDcount
             // j = knownCHs, numberOfHops
             // k = chID_index
-            s_chIDs: begin      // stopped here. 2:54am
+            s_chIDs: begin      // stopped here. 2:54am 6
                 chIDs = data_in;
                 if(knownCHs == chIDs) begin
                     i = i + 1;
@@ -143,15 +143,15 @@ always@(posedge clock) begin
                         k = 0;
                         
                         if (j == knownCHcount) begin
-
+                            state = s_done;
                         end
                         else begin
-                            state = 3;
+                            state = s_knownCHcount; //3
                             address_count = 11'h12 + 2*j;
                         end
                     end
                     else begin
-                        state = 4;
+                        state = s_knownCH; // 4
                         address_count = 11'h278 + 2*i; // chIDcount address
                     end
                 end
@@ -168,7 +168,13 @@ always@(posedge clock) begin
                     end
                 end
             end
-            
+            6: begin
+
+            end
+            s_done: begin
+                done_buf = 1;
+                state = s_idle;
+            end
             default: state = s_idle; // tentative. pls change to respective number.
         endcase
     end
