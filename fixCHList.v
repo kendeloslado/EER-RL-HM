@@ -131,7 +131,7 @@ always@(posedge clock) begin
             // i = chQValue, chIDcount
             // j = knownCHs, numberOfHops
             // k = chID_index
-            s_chIDs: begin      // stopped here. 2:54am 6
+            s_chIDs: begin      
                 chIDs = data_in;
                 if(knownCHs == chIDs) begin
                     i = i + 1;
@@ -161,15 +161,60 @@ always@(posedge clock) begin
                     if (k == chIDcount) begin
                         state = 6;
                         data_out_buf = knownCHs;
-                        
+                        address_count = 11'h172 + 16*i + 2*k;
+                        wr_en_buf = 1;
+                        $display ("Add knownCH to chID")
                     end
                     else begin
-
+                        address_count = 11'h172 + 16*i + 2*k;
+                        // state = s_chIDs;
                     end
                 end
             end
-            6: begin
+            s_appendchID: begin    // add chID sequence; 6
+                wr_en_buf = 0;
+                state = s_appendnHops;
+                address_count = 11'h32 + 2*j;   // nHops address
+            end
+            s_appendnHops: begin    // 7
+                numberOfHops = data_in;
+                state = s_chQValue;
+                address_count = 11'h52 + 2*i;   // chQValue address
+            end
+            s_chQValue: begin // 8
+                qValue = data_in;
+                state = s_update_qValue;
+                address_count = 11'h52 + 2*i;
+                data_out_buf = qValue; // + something
+                wr_en_buf = 1; 
+            end
+            s_update_qValue: begin  // 9
+                state = s_compare2;
+                address_count = 11'h278 + 2*i;
+                data_out_buf = chIDcount + 1;
+            end
+            s_compare2: begin
+                wr_en_buf = 0;
+                i = i + 1;
+                k = 0;
 
+                if(i == neighborCount) begin
+                    j = j + 1;
+                    i = 0;
+                    k = 0;
+                    
+                    if(j == knownCHcount) begin
+                        state = s_done;
+                    end
+                    else begin
+                        state = s_knownCHcount;
+                        address_count = 11'h12 + 2*j;
+                    end
+                end
+                else begin
+                    state = s_knownCH;
+                    address_count = 11'h278 + 2*i;
+                end
             end
             s_done: begin
                 done_buf = 1;
