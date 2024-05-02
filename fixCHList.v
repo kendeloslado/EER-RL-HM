@@ -51,17 +51,20 @@ reg [3:0]                           state;
 
 // These parameters indicate the address_count's supposed destination.
 
-parameter s_idle = ;
-parameter s_neighborCount = ;
-parameter s_knownCHcount = ;
-parameter s_chIDcount = ;
-parameter s_knownCH = ;
-parameter s_compCHID = ;
-parameter s_nHops = ;
-parameter s_qValue = ;
-parameter s_update_qValue = ;
-parameter s_start = ;
-parameter s_done = ;
+parameter s_idle = 4'd0;
+parameter s_start = 4'd1;
+parameter s_neighborCount = 4'd2;
+parameter s_knownCHcount = 4'd3;
+parameter s_knownCH = 4'd4;
+parameter s_chIDcount = 4'd5;
+parameter s_chIDs = 4'd6;
+parameter s_appendchID = 4'd7;
+parameter s_appendnHops = 4'd8;
+parameter s_chQValue = 4'd9;
+parameter s_update_qValue = 4'd10;
+parameter s_compare2 = 4'd11;
+parameter s_done = 4'd12;
+
 // Program Flow Proper
 
 always@(posedge clock) begin
@@ -131,7 +134,7 @@ always@(posedge clock) begin
             // i = chQValue, chIDcount
             // j = knownCHs, numberOfHops
             // k = chID_index
-            s_chIDs: begin      
+            s_chIDs: begin      // 6
                 chIDs = data_in;
                 if(knownCHs == chIDs) begin
                     i = i + 1;
@@ -171,29 +174,29 @@ always@(posedge clock) begin
                     end
                 end
             end
-            s_appendchID: begin    // add chID sequence; 6
+            s_appendchID: begin    // add chID sequence; 7
                 wr_en_buf = 0;
                 state = s_appendnHops;
                 address_count = 11'h32 + 2*j;   // nHops address
             end
-            s_appendnHops: begin    // 7
+            s_appendnHops: begin    // 8
                 numberOfHops = data_in;
                 state = s_chQValue;
                 address_count = 11'h52 + 2*i;   // chQValue address
             end
-            s_chQValue: begin // 8
+            s_chQValue: begin // 9
                 qValue = data_in;
                 state = s_update_qValue;
                 address_count = 11'h52 + 2*i;
                 data_out_buf = qValue; // + something
                 wr_en_buf = 1; 
             end
-            s_update_qValue: begin  // 9
+            s_update_qValue: begin  // 10
                 state = s_compare2;
                 address_count = 11'h278 + 2*i;
                 data_out_buf = chIDcount + 1;
             end
-            s_compare2: begin
+            s_compare2: begin   // 11
                 wr_en_buf = 0;
                 i = i + 1;
                 k = 0;
@@ -216,7 +219,7 @@ always@(posedge clock) begin
                     address_count = 11'h278 + 2*i;
                 end
             end
-            s_done: begin
+            s_done: begin   // 12
                 done_buf = 1;
                 state = s_idle;
             end
