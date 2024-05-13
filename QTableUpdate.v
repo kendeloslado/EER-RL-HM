@@ -340,7 +340,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                         neighborCount <= data_in;
                                         state <= s_checknID;     // 3
                                 end
-                                s_checknID: begin
+                                s_checknID: begin       //3
                                         if(n == neighborCount) begin
                                                 state <= s_addnID;
                                         end
@@ -349,7 +349,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                                 address_count <= 11'h72 + 2*n;
                                         end
                                 end
-                                s_updatenID: begin
+                                s_updatenID: begin      //4
                                         cur_nID = data_in;
 
                                         if(cur_nID == fSourceID) begin  // start updating entries
@@ -363,7 +363,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                                 state <= s_checknID;
                                         end
                                 end
-                                s_foundnID: begin
+                                s_foundnID: begin       //5
                                         if (k == knownCHCount) begin
                                                 data_out_buf = k;
                                                 address_count = 11'h2B8 + 2*k;
@@ -375,12 +375,33 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                                 state <= s_checkKCH;
                                         end
                                 end
-                                s_checkKCH: begin
+                                s_checkKCH: begin       //6
                                         cur_knownCH = data_in;
                                         data_out_buf = cur_knownCH;
                                         address_count = chID_address_buf + k*2;
                                         wr_en_buf = 1;
                                         state <= s_incrementK;
+                                end
+                                s_incrementK: begin     // 7
+                                        wr_en_buf = 0;
+                                        k = k + 1;
+                                        state = s_foundnID;
+                                end
+                                s_updateEnergy: begin
+                                        data_out_buf <= fEnergyLeft;
+                                        address_count <= 11'hF2 + n*2;
+                                        wr_en_buf <= 1;
+                                        state <= s_updateQValue;
+                                end
+                                s_setQValueaddr: begin
+                                        wr_en_buf <= 0;
+                                        address_count <= 11'h52 + n*2;
+                                        state <= s_updateQValue;
+                                end
+                                s_updateQValue: begin
+                                        cur_qValue = data_in;
+                                        data_out_buf = cur_qValue;
+                                        wr_en_bufs
                                 end
                                 s_addnID: begin
 
