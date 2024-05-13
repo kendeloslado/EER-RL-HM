@@ -22,7 +22,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
+module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, fClusterID, fSourceHops, address, data_out, done);
         input                           clock;
         input                           nrst;
         input                           en;
@@ -31,20 +31,21 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
         input   [`WORD_WIDTH-1:0]       fSourceID;
         input   [`WORD_WIDTH-1:0]       fEnergyLeft;
         input   [`WORD_WIDTH-1:0]       fQValue;
-        input   [`WORD_WIDTH-1:0]       fclusterID;
+        input   [`WORD_WIDTH-1:0]       fClusterID;
+        input   [`WORD_WIDTH-1:0]       fSourceHops;
         output  [10:0]                  address;
         output  [`WORD_WIDTH-1:0]       data_out;
         output                          done;
         
         // Registers
         reg [10:0] address_count;
-        reg [`WORD_WIDTH-1:0] data_out_buf, neighborCount, knownCHcount, cur_nID, cur_knownCH, cur_qValue, chID_address_buf;
+        reg [`WORD_WIDTH-1:0] data_out_buf, neighborCount, knownCHcount, cur_nID, cur_knownCH, cur_qValue, cur_nHops, chID_address_buf;
         reg done_buf, found, reinit, wr_en_buf;
         reg [`WORD_WIDTH-1:0] n, k;
         reg [4:0] state; 
         
         
-        /*
+/*
         Some notes on reading and writing from memory
         
         You will use data_in to write into various registers in the program flow proper
@@ -67,10 +68,10 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
         wr_en_buf ->  signal to enable writing to memory
         n -> this is essentially a counter to navigate indexes for neighbor nodes
         k -> counter to navigate knownCH indexes
-        */
+*/
         
         // Program Flow Proper
-        
+ /*       
         always@(posedge clock) begin
                 if(!nrst) begin
                         done_buf <= 0;
@@ -83,6 +84,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                         cur_nID <= 0;
                         cur_knownCH <= 0;
                         cur_qValue <= 0;
+                        cur_nHops <= 0;
                         found <= 0;
                         reinit <= 0;
                         wr_en_buf <= 0;
@@ -205,7 +207,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                 end
                                 15: begin
                                         address_count <= 11'hB2 + neighborCount*2; // clusterID address
-                                        data_out_buf <= fclusterID;
+                                        data_out_buf <= fClusterID;
                                         wr_en_buf <= 1;
                                         k = 0;
 
@@ -274,13 +276,119 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                                 n = 0;
                                                 k = 0;
                                         end
+                                        else begin
+                                                state <= s_idle;
+                                        end
                                 end
 
                                 default: state <= 22;
                         endcase
                 end
         end
+*/
+        always@(posedge clock) begin
+                if(!nrst) begin
+                        done_buf <= 0;
+                        address_count <= 0;
+                        state <= s_idle;
+                        wr_en_buf <= 0;
+                        data_out_buf <= 0;
+                        neighborCount <= 0;
+                        knownCHcount <= 0;
+                        cur_nID <= 0;
+                        cur_knownCH <= 0;
+                        cur_qValue <= 0;
+                        cur_nHops <= 0;
+                        found <= 0;
+                        reinit <= 0;
+                        wr_en_buf <= 0;
+                end
+                else begin
+                        case(state)
+                                s_idle: begin   // 0
+                                        if(en) begin
+                                                done_buf <= 0;
+                                                address_count <= 0;
+                                                state <= s_neighborCount;
+                                                wr_en_buf <= 0;
+                                                data_out_buf = 0;
+                                                neighborCount <= 0;
+                                                knownCHcount <= 0;
+                                                cur_nID <= 0;
+                                                cur_knownCH <= 0;
+                                                cur_qValue <= 0;
+                                                found <= 0;
+                                                reinit <= 0;
+                                                wr_en_buf <= 0;
+                                                cur_nID = 16'h2b8;
+                                                cur_knownCH = 16'h2b8;
+                                                cur_qValue = 16'd0;
+                                                chID_address_buf = 0;
+                                                data_out_buf = 0;
+                                                n = 0;
+                                                k = 0;
+                                        end
+                                        else begin
+                                                state = s_idle;
+                                        end
+                                end
+                                s_neighborCount: begin  // 1
+                                        state <= s_knownCHcount;
+                                        address_count <= 11'h2B3;
+                                end
+                                s_knownCHcount: begin // 2
+                                        neighborCount <= data_in;
+                                        state <= s_checknID;     // 3
+                                end
+                                s_checknID: begin
+                                        if(n == neighborCount) begin
+                                                state <= s_addnID;
+                                        end
+                                        else begin
+                                                state <= s_updatenID;
+                                                address_count <= 11'h72 + 2*n;
+                                        end
+                                end
+                                s_updatenID: begin
+                                        cur_nID = data_in;
 
+                                        if(cur_nID == fSourceID) begin  // start updating entries
+                                                found <= 1;
+                                                state <= s_foundnID;
+
+                                                chID_address_buf = 16'h1B2 + 16*n;
+                                        end
+                                        else begin      // check next entry
+                                                n = n + 1;
+                                                state <= s_checknID;
+                                        end
+                                end
+                                s_foundnID: begin
+                                        if (k == knownCHCount) begin
+                                                data_out_buf = k;
+                                                address_count = 11'h2B8 + 2*k;
+                                                wr_en_buf <= 1;
+                                                state <= s_updateEnergy;
+                                        end
+                                        else begin
+                                                address_count = 11'h12 + 2*k;
+                                                state <= s_checkKCH;
+                                        end
+                                end
+                                s_checkKCH: begin
+                                        cur_knownCH = data_in;
+                                        data_out_buf = cur_knownCH;
+                                        address_count = chID_address_buf + k*2;
+                                        wr_en_buf = 1;
+                                        state <= s_incrementK;
+                                end
+                                s_addnID: begin
+
+                                end
+                                default: state <= s_idle;
+                        endcase
+                end
+        end
         assign done = done_buf;
         assign address = address_count;
         assign data_out = data_out_buf;  

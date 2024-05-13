@@ -24,7 +24,28 @@ Address List
 (2/1)   [0x274 - 0x275]         neighborCount           (422)
 (2/1)   [0x276 - 0x277]         chosenClusterHead       (423)
 (2/32)  [0x278 - 0x2B7]         chIDCount               (424-455)
-
+*/
+/*
+(2/4)   [0x0 - 0x7]             Internal Flags          (0-3)
+(2/1)   [0x8 - 0x9]             nodeID                  (4)
+(2/1)   [0xA - 0xB]             nodeEnergy              (5)
+(2/1)   [0xC - 0xD]             nodeQValue              (6)
+(2/1)   [0xE - 0xF]             deadNodes               (7)
+(2/1)   [0x10 - 0x11]           energyThreshold         (8)
+(2/16)  [0x12 - 0x31]           knownClusterHead        (9-24)
+(2/16)  [0x32 - 0x51]           numberOfHops            (25-40)
+(2/16)  [0x51 - 0x72]           chQValue                (41-56)
+(2/32)  [0x72 - 0xB1]           neighborID              (57-88)
+(2/32)  [0xB2 - 0xF1]           clusterID               (89-120)
+(2/32)  [0xF2 - 0x131]          energyLeft              (121-152)
+(2/32)  [0x132 - 0x171]         neighborQValue          (153-184)
+(2/32)  [0x172 - 0x1B1]         neighborHops            (185-216)
+(2/8*32)[0x1B2 - 0x2B1]         chIDs                   (217-472)
+(2/1)   [0x2B2 - 0x2B3]         knownCHcount            (473)
+(2/1)   [0x2B4 - 0x2B5]         neighborCount           (474)
+(2/1)   [0x2B6 - 0x2B7]         chosenClusterHead       (475)
+(2/32)  [0x2B8 - 0x2F7]         chIDCount               (476-507)
+*/
 Internal Flags
 
         [0x0]                   hopsFromSink
