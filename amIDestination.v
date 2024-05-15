@@ -9,8 +9,8 @@ module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDest
     input                           nrst;
     input                           en;
     input                           start;
-    input [`WORD_WIDTH-1:0]          MY_NODE_ID;
-    input [`WORD_WIDTH-1:0]          destinationID;
+    input [`WORD_WIDTH-1:0]         MY_NODE_ID;
+    input [`WORD_WIDTH-1:0]         destinationID;
     output                          iamDestination;
     output                          done;
 

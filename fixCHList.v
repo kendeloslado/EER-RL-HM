@@ -49,7 +49,7 @@ reg [3:0]                           state;
 
 // Parameter States
 
-// These parameters indicate the address_count's supposed destination.
+// These parameters indicate the program's states.
 
 parameter s_idle = 4'd0;
 parameter s_start = 4'd1;
@@ -106,7 +106,7 @@ always@(posedge clock) begin
             s_start: begin                // s_neighborCount; 1
                 if (start) begin    // set address to neighborCount's address
                     state = s_neighborCount;      // 1
-                    address_count = 11'h274; // neighborCount address
+                    address_count = 11'h2B4; // neighborCount address
                 end
                 else
                     state = 0;
@@ -114,7 +114,7 @@ always@(posedge clock) begin
             s_neighborCount: begin // load neighborCount, set addr to knownCHcount; 2
                 neighborCount = data_in;        // 
                 state = s_knownCHcount;
-                address_count = 11'h272; // knownCHcount address
+                address_count = 11'h2B2; // knownCHcount address
             end
             s_knownCHcount: begin // write knownCHcount reg, set to knownCH; 3
                 knownCHcount = data_in;
@@ -124,12 +124,12 @@ always@(posedge clock) begin
             s_knownCH: begin // write to knownCHs register and set addr to chIDcount; 4
                 knownCHs = data_in;
                 state = s_chIDcount; //4
-                address_count = 11'h278 + 2*i; // chIDcount address
+                address_count = 11'h2B8 + 2*i; // chIDcount address
             end
             s_chIDcount: begin      // 5
                 chIDcount = data_in;
                 state = s_chIDs; //5
-                address_count = 11'h172 + 16*i + 2*k; // chIDs address
+                address_count = 11'h1B2 + 16*i + 2*k; // chIDs address
             end
             // i = chQValue, chIDcount
             // j = knownCHs, numberOfHops
@@ -164,12 +164,12 @@ always@(posedge clock) begin
                     if (k == chIDcount) begin
                         state = 6;
                         data_out_buf = knownCHs;
-                        address_count = 11'h172 + 16*i + 2*k;
+                        address_count = 11'h1B2 + 16*i + 2*k;
                         wr_en_buf = 1;
                         $display ("Add knownCH to chID")
                     end
                     else begin
-                        address_count = 11'h172 + 16*i + 2*k;
+                        address_count = 11'h1B2 + 16*i + 2*k;
                         // state = s_chIDs;
                     end
                 end
@@ -193,7 +193,7 @@ always@(posedge clock) begin
             end
             s_update_qValue: begin  // 10
                 state = s_compare2;
-                address_count = 11'h278 + 2*i;
+                address_count = 11'h2B8 + 2*i;
                 data_out_buf = chIDcount + 1;
             end
             s_compare2: begin   // 11
@@ -216,7 +216,7 @@ always@(posedge clock) begin
                 end
                 else begin
                     state = s_knownCH;
-                    address_count = 11'h278 + 2*i;
+                    address_count = 11'h2B8 + 2*i;
                 end
             end
             s_done: begin   // 12

@@ -62,7 +62,7 @@ module amICH(clock, nrst, en, start, data_in, address, wr_en, data_out, forAggre
                 0: begin
                     if (start) begin
                         state <= 1;
-                        address_count <= 11'h1; // internal flags address
+                        address_count <= 11'h1; // role internal flag address
                     end
                     else   state <= 0
                 end

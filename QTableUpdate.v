@@ -46,6 +46,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
         
         // Parameters
 
+        
         parameter s_idle = 5'd0;
         parameter s_start= 5'd1;
         parameter s_neighborCount = 5'd2;
@@ -71,6 +72,8 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
         parameter s_incrementnC = 5'd22;
         parameter s_wren_zero = 5'd23;
         parameter s_done = 5'd24;
+
+        
         
 /*
         Some notes on reading and writing from memory
