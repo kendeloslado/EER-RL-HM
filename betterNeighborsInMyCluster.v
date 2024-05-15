@@ -145,3 +145,4 @@ module betterNeighborsInMyCluster(clock, nrst, en, start, data_in, nodeID, mybes
             endcase
         end
     end
+endmodule
