@@ -64,6 +64,29 @@ always@(posedge clock) begin
                     state <= s_wait;
                 end
             end
+            s_start: begin
+                if(start) begin
+                    address_count <= 11'h72 + 2*n;  // set address to neighborID
+                    state <= s_neighborID;  // transition to this state to fetch neighborID
+                end
+                else begin
+                    state <= s_start;       // no start signal, keep waiting
+                end
+            end
+            s_neighborID: begin
+                neighborID = data_in;       // read from memory neighborID
+                address_count <= 11'h132 + 2*n;     // set address to neighborHops (0x132 - 0x171)
+                state <= s_neighborHops;            // set state to read neighborHops from memory
+            end
+            s_neighborHops: begin
+                neighborHops = data_in;             // read from memory (neighborHops)
+                address_count <= 11'h172 + 2*n;     // set address to neighborQValue (0x172 - 0x1B1)
+                state <= s_neighborQValues;         // set state to s_neighborQValues
+            end
+            s_neighborQValues: begin
+                neighborQValue = data_in;
+                state <= s_compare
+            end
             s_bestout: begin
                 besthop_buf = 
             end
