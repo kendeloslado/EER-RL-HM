@@ -5,10 +5,10 @@
 
 /*  States
     s_wait: Wait for start, mybestQ, mybestH from previous module
-    s_start: Start fetching node information
-    s_nID: get neighborID
-    s_nHops: get neighborHops
-    s_nQ: get neighbor node QValue
+    s_start: Start fetching node information. Set address to neighborID
+    s_nID: get neighborID from memory. Set address to get nHops
+    s_nHops: get neighborHops from memory. Set address to get nQValue
+    s_nQ: get neighbor node QValue. 
     s_compare: Compare neighborHops and neighborQValue to mybestH, mybestQ
     s_bestout: Output besthop, bestneighborID, bestQValue
 */
@@ -21,6 +21,7 @@ module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, 
     output  [10:0]                      address;
     output  [`WORD_WIDTH-1:0]           besthop, bestneighborID;
     output  [`WORD_WIDTH-1:0]           bestQValue;
+    output  [`WORD_WIDTH-1:0]           data_out;
 
 
 // Registers
@@ -29,8 +30,9 @@ module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, 
     reg     [10:0]                          address_count;
     reg     [`WORD_WIDTH-1:0]               besthop_buf, bestneighborID_buf;
     reg     [`WORD_WIDTH-1:0]               bestQValue_buf;
-    reg     [`WORD_WIDTH-1:0]               neighborID, neighborHops, neighborQValue;
-    reg     [`WORD_WIDTH-1:0]               n;      // indexer
+    reg     [`WORD_WIDTH-1:0]               bestNeighborsCount;
+    reg     [`WORD_WIDTH-1:0]               neighborID, neighborHops, neighborQValue, neighborCount;
+    reg     [`WORD_WIDTH-1:0]               n, b;      // indexer
 // Program Proper
 
 always@(posedge clock) begin
@@ -47,7 +49,7 @@ always@(posedge clock) begin
     end
     else begin
         case(state)
-            s_wait: begin
+            s_wait: begin       // 0
                 if(en) begin
                     state <= s_start;
                     done_buf = 0;
@@ -64,30 +66,68 @@ always@(posedge clock) begin
                     state <= s_wait;
                 end
             end
-            s_start: begin
+            s_start: begin      // 1
                 if(start) begin
-                    address_count <= 11'h72 + 2*n;  // set address to neighborID
-                    state <= s_neighborID;  // transition to this state to fetch neighborID
+                    address_count <= 11'h2C4;  // set address to neighborCount
+                    state <= s_neighborCount;  // transition to this state to fetch neighborCount
                 end
                 else begin
-                    state <= s_start;       // no start signal, keep waiting
+                    state <= s_start;       // no start signal, keep waiting for start signal
                 end
             end
-            s_neighborID: begin
+            s_neighborCount: begin
+                neighborCount <= data_in;       // get neighborCount from memory
+                address_count <= 11'h72 + 2*n;  // set address to neighborID
+                state <= s_neighborID;  // transition to this state to fetch neighborID
+            end
+            s_neighborID: begin         // 
                 neighborID = data_in;       // read from memory neighborID
                 address_count <= 11'h132 + 2*n;     // set address to neighborHops (0x132 - 0x171)
                 state <= s_neighborHops;            // set state to read neighborHops from memory
             end
-            s_neighborHops: begin
+            s_neighborHops: begin       // 
                 neighborHops = data_in;             // read from memory (neighborHops)
                 address_count <= 11'h172 + 2*n;     // set address to neighborQValue (0x172 - 0x1B1)
                 state <= s_neighborQValues;         // set state to s_neighborQValues
             end
-            s_neighborQValues: begin
-                neighborQValue = data_in;
-                state <= s_compare
+            s_neighborQValues: begin        // 
+                neighborQValue = data_in;           // read neighborQValue from memory (neighborQValue)
+                state <= s_compare;                 // start comparing Q value
             end
-            s_bestout: begin
+            s_compare: begin                // 
+                // if neighborQValue >= mybestQ,
+                // add neighborID as an entry to bestneighbors
+                if(neighborQValue >= mybestQ) begin
+                    address_count <= 11'h2B2 + 2*b;
+                    state <= s_addbestneighbor;
+                end
+                else begin
+                    n = n + 1;  // go to next neighbor
+                    if (n == neighborCount) begin
+                        state <= s_bestout;
+                    end
+                    else begin
+                        address_count = 11'h72 + 2*n; 
+                        state <= s_neighborID;
+                    end
+                end
+            end
+            s_addbestneighbor: begin
+                data_out_buf = neighborID;
+                b = b + 1;
+                address_count = 11'h2C8;    // set bestNeighborsCount address
+                wr_en_buf = 1;
+                state <= s_incr_bNeighC;
+            end
+            s_incr_bNeighC: begin
+                bestNeighborsCount = b;
+                data_out_buf = bestNeighborsCount;
+                wr_en_buf = 0;
+                n = n + 1;
+                address_count = 11'h132 + 2*n;
+                state = s_neighborID;
+            end
+            s_bestout: begin                // final
                 besthop_buf = 
             end
             default: state <= s_wait;
@@ -99,6 +139,6 @@ end
 assign besthop = besthop_buf;
 assign bestneighborID = bestneighborID_buf;
 assign bestQValue = bestQValue_buf;
-
+assign data_out = data_out_buf;
 
 endmodule

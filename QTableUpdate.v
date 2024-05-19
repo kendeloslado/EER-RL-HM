@@ -364,12 +364,12 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                 end
                                 s_start: begin  // 1
                                         state <= s_neighborCount;
-                                        address_count <= 11'h2B4; // neighborCount's address
+                                        address_count <= 11'h2C4; // neighborCount's address
                                 end
                                 s_neighborCount: begin // 2
                                         neighborCount <= data_in;
                                         state <= s_knownCHcount;     // 3
-                                        address_count <= 11'h2B2;       // knownCHcount address
+                                        address_count <= 11'h2C2;       // knownCHcount address
                                 end
                                 s_knownCHcount: begin   // 3
                                         knownCHcount <= data_in;
@@ -401,7 +401,7 @@ module QTableUpdate(clock, nrst, en, data_in, fSourceID, fEnergyLeft, fQValue, f
                                 s_foundnID: begin       // 6
                                         if (k == knownCHCount) begin    // new knownCH
                                                 data_out_buf = k;
-                                                address_count = 11'h2B8 + 2*k;  // chIDcount addr
+                                                address_count = 11'h2CA + 2*k;  // chIDcount addr
                                                 wr_en_buf <= 1;
                                                 state <= s_updateEnergy;
                                         end

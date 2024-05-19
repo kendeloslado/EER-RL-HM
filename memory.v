@@ -25,6 +25,7 @@ Address List
 (2/1)   [0x276 - 0x277]         chosenClusterHead       (423)
 (2/32)  [0x278 - 0x2B7]         chIDCount               (424-455)
 */
+
 /*
 (2/4)   [0x0 - 0x7]             Internal Flags          (0-3)
 (2/1)   [0x8 - 0x9]             nodeID                  (4)
@@ -41,10 +42,12 @@ Address List
 (2/32)  [0x132 - 0x171]         neighborHops            (153-184)
 (2/32)  [0x172 - 0x1B1]         neighborQValue          (185-216)
 (2/8*32)[0x1B2 - 0x2B1]         chIDs                   (217-472)
-(2/1)   [0x2B2 - 0x2B3]         knownCHcount            (473)
-(2/1)   [0x2B4 - 0x2B5]         neighborCount           (474)
-(2/1)   [0x2B6 - 0x2B7]         chosenClusterHead       (475)
-(2/32)  [0x2B8 - 0x2F7]         chIDCount               (476-507)
+(2/8)   [0x2B2 - 0x2C1]         bestNeighbors           (473-480)
+(2/1)   [0x2C2 - 0x2C3]         knownCHcount            (481)
+(2/1)   [0x2C4 - 0x2C5]         neighborCount           (482)
+(2/1)   [0x2C6 - 0x2C7]         chosenClusterHead       (483)
+(2/1)   [0x2C8 - 0x2C9]         bestNeighborsCount      (484)
+(2/32)  [0x2C8 - 0x307]         chIDCount               (485-516)
 */
 Internal Flags
 

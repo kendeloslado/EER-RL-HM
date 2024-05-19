@@ -180,7 +180,7 @@ module findMyBest(clock, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_
             case(state)
                 s_wait: begin               // 0
                     if(en) begin    // enable module
-                        address_count = 11'h2B4;
+                        address_count = 11'h2C4;    // neighborCount addr
                         //data_out_buf = 0;
                         mybestQ_buf = 16'h0;
                         mybestH_buf = 16'h7;    // worst case scenario hop
@@ -195,7 +195,7 @@ module findMyBest(clock, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_
                 s_start: begin              // 1
                     if(start) begin
                         state <= s_fetchnC;
-                        address_count = 11'h2B4;
+                        address_count = 11'h2C4;
                         nC_index = 0;
                     end
                     else begin
