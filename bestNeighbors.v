@@ -32,7 +32,7 @@ module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, 
     reg     [`WORD_WIDTH-1:0]               bestQValue_buf;
     reg     [`WORD_WIDTH-1:0]               bestNeighborsCount;
     reg     [`WORD_WIDTH-1:0]               neighborID, neighborHops, neighborQValue, neighborCount;
-    reg     [`WORD_WIDTH-1:0]               n, b;      // indexer
+    reg     [`WORD_WIDTH-1:0]               n, b;      // indexers
 // Program Proper
 
 always@(posedge clock) begin
@@ -98,7 +98,7 @@ always@(posedge clock) begin
                 // if neighborQValue >= mybestQ,
                 // add neighborID as an entry to bestneighbors
                 if(neighborQValue >= mybestQ) begin
-                    address_count <= 11'h2B2 + 2*b;
+                    address_count <= 11'h2F8 + 2*b;     // set address to bestNeighbors
                     state <= s_addbestneighbor;
                 end
                 else begin
@@ -112,23 +112,41 @@ always@(posedge clock) begin
                     end
                 end
             end
+            
             s_addbestneighbor: begin
                 data_out_buf = neighborID;
-                b = b + 1;
-                address_count = 11'h2C8;    // set bestNeighborsCount address
+                //b = b + 1;
+                //address_count = 11'h2C8;    // set bestNeighborsCount address
+                address_count = 11'h308 + 2*b;      // set to bestNeighborHops' address
                 wr_en_buf = 1;
-                state <= s_incr_bNeighC;
+                state <= s_addbestneighborhop;
+            end
+            s_addbestneighborhop: begin
+                data_out_buf = neighborHops;        // write bestNeighborHops with neighborHops
+                wr_en_buf = 1;
+                address_count = 11'h318 + 2*b;      // set to bestNeighborQ's address
+                state = s_addbestneighborQ;
+            end
+            s_addbestneighborQ: begin
+                data_out_buf = neighborQValue;      // write bestNeighborQ with 
+                wr_en_buf = 1;
+                address_count = 11'h2B8;            // set address to bestNeighborsCount
+                state = s_incr_bNeighC;
+            end
+            s_compareH: begin
+                
             end
             s_incr_bNeighC: begin
+                b = b + 1;
                 bestNeighborsCount = b;
                 data_out_buf = bestNeighborsCount;
                 wr_en_buf = 0;
-                n = n + 1;
+                //n = n + 1;
                 address_count = 11'h132 + 2*n;
                 state = s_neighborID;
             end
-            s_bestout: begin                // final
-                besthop_buf = 
+            s_bestout: begin                // not-final
+                
             end
             default: state <= s_wait;
         endcase
