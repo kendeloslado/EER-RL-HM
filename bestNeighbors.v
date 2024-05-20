@@ -130,23 +130,49 @@ always@(posedge clock) begin
             s_addbestneighborQ: begin
                 data_out_buf = neighborQValue;      // write bestNeighborQ with 
                 wr_en_buf = 1;
+                
+                //state = s_incr_bNeighC;
+                state = s_compareH;
+            end
+            s_compareH: begin
+                wr_en_buf = 0;
+                if(neighborHops <= mybestH) begin
+                    state = s_addcloseneighbor;
+                    address_count = 11'h328 + 2*c;  // set address to closeNeighbors
+                end
+                else begin
+                    state = s_incr_bNeighC;
+                end
+            end
+            s_addcloseneighbor: begin
+                wr_en_buf = 1;
+                data_out_buf = neighborHops;                // write neighborHops to closeNeighbors
+                address_count = 11'h338;                    // set address to closeNeighborsCount
+                state = s_inc_cNcount;
+            end
+            s_inc_cNcount: begin
+                data_out_buf = neighborCount + 1;           // increment neighborCount
+                c = c + 1;                                  // increase c index
+                wr_en_buf = 0;
                 address_count = 11'h2B8;            // set address to bestNeighborsCount
                 state = s_incr_bNeighC;
             end
-            s_compareH: begin
-                
-            end
             s_incr_bNeighC: begin
-                b = b + 1;
-                bestNeighborsCount = b;
-                data_out_buf = bestNeighborsCount;
+                b = b + 1;                                  // increase b index
+                //bestNeighborsCount = b;
+                data_out_buf = bestNeighborsCount + 1;      // increase bestNeighborsCount by 1
                 wr_en_buf = 0;
                 //n = n + 1;
                 address_count = 11'h132 + 2*n;
                 state = s_neighborID;
             end
             s_bestout: begin                // not-final
-                
+                if(bestNeighborsCount == 1) begin
+
+                end
+                else begin
+
+                end
             end
             default: state <= s_wait;
         endcase
