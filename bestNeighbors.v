@@ -13,14 +13,14 @@
     s_bestout: Output besthop, bestneighborID, bestQValue
 */
 
-module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, done, wr_en);
+module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, done, wr_en, address, besthop, bestneighborID, data_out);
 
     input                               clock, nrst, en, start;
     input   [`WORD_WIDTH-1:0]           data_in, nodeID, mybestQ, mybestH;
     output                              done, wr_en;
     output  [10:0]                      address;
-    output  [`WORD_WIDTH-1:0]           besthop, bestneighborID;
-    output  [`WORD_WIDTH-1:0]           bestQValue;
+//    output  [`WORD_WIDTH-1:0]           besthop, bestneighborID;
+//    output  [`WORD_WIDTH-1:0]           bestQValue;
     output  [`WORD_WIDTH-1:0]           data_out;
 
 
@@ -29,10 +29,27 @@ module bestNeighbors(clock, nrst, en, start, data_in, nodeID, mybestQ, mybestH, 
     reg                                     done_buf, wr_en_buf;
     reg     [10:0]                          address_count;
     reg     [`WORD_WIDTH-1:0]               besthop_buf, bestneighborID_buf;
-    reg     [`WORD_WIDTH-1:0]               bestQValue_buf;
+//    reg     [`WORD_WIDTH-1:0]               bestQValue_buf;
     reg     [`WORD_WIDTH-1:0]               bestNeighborsCount;
     reg     [`WORD_WIDTH-1:0]               neighborID, neighborHops, neighborQValue, neighborCount;
     reg     [`WORD_WIDTH-1:0]               n, b;      // indexers
+// Parameters
+
+parameter s_wait =  4'd0;
+parameter s_start =  4'd1;
+parameter s_neighborCount =  4'd2;
+parameter s_neighborID =  4'd3;
+parameter s_neighborHops =  4'd4;
+parameter s_neighborQValues =  4'd5;
+parameter s_compare =  4'd6;
+parameter s_addbestneighbor =  4'd7;
+parameter s_addbestneighborhop =  4'd8;
+parameter s_addneighborQ =  4'd9;
+parameter s_compareH =  4'd10;
+parameter s_addcloseneighbor =  4'd11;
+parameter s_inc_cNcount =  4'd12;
+parameter s_incr_bNeighC =  4'd13;
+parameter s_done =  4'd14;
 // Program Proper
 
 always@(posedge clock) begin
@@ -46,6 +63,8 @@ always@(posedge clock) begin
         neighborHops = 16'h0;
         neighborQValue = 16'h0;
         n = 0;
+        state <= s_wait;
+        
     end
     else begin
         case(state)
@@ -104,7 +123,8 @@ always@(posedge clock) begin
                 else begin
                     n = n + 1;  // go to next neighbor
                     if (n == neighborCount) begin
-                        state <= s_bestout;
+                        //state <= s_bestout;
+                        state <= s_done;
                     end
                     else begin
                         address_count = 11'h72 + 2*n; 
@@ -120,25 +140,28 @@ always@(posedge clock) begin
                 address_count = 11'h308 + 2*b;      // set to bestNeighborHops' address
                 wr_en_buf = 1;
                 state <= s_addbestneighborhop;
+                //state <= ;
             end
             s_addbestneighborhop: begin         // state 8
                 data_out_buf = neighborHops;        // write bestNeighborHops with neighborHops
                 wr_en_buf = 1;
-                address_count = 11'h318 + 2*b;      // set to bestNeighborQ's address
-                state = s_addbestneighborQ;
+                //address_count = 11'h318 + 2*b;      // set to bestNeighborQ's address
+                //state = s_addbestneighborQ;
+                state <= s_compareH;                    // compare mybestH next for closeNeighbors
             end
-            s_addbestneighborQ: begin           // 9
+/*            s_addbestneighborQ: begin           // 9
                 data_out_buf = neighborQValue;      // write bestNeighborQ with 
                 wr_en_buf = 1;
                 
                 //state = s_incr_bNeighC;
                 state = s_compareH;
             end
+*/
             s_compareH: begin                   // 10
                 wr_en_buf = 0;
                 if(neighborHops <= mybestH) begin
                     state = s_addcloseneighbor;
-                    address_count = 11'h328 + 2*c;  // set address to closeNeighbors
+                    address_count = 11'h318 + 2*c;  // set address to closeNeighbors
                 end
                 else begin
                     state = s_incr_bNeighC;
@@ -166,7 +189,7 @@ always@(posedge clock) begin
                 address_count = 11'h132 + 2*n;
                 state = s_neighborID;
             end
-            s_bestout: begin                    // 14
+/*            s_bestout: begin                    // 14
             // compare bestNeighborsCount first, here's what I want to happen:
             // 0: pick closest neighbor as your besthop, bestnID, and bestQV. More than one neighbor? tiebreak it
             // 1: pick the singular bestNeighbor as besthop, bestnID, and bestQV
@@ -190,13 +213,14 @@ always@(posedge clock) begin
                 end
             end
             s_pick_closest: begin               // 15
-            /*
-            In this state, you have conditions to check similar to s_bestout.
-            Checking if closeNeighborCount has 1 or more entry.
-            If you only have 1 entry
-            */
+            
+            //In this state, you have conditions to check similar to s_bestout.
+            //Checking if closeNeighborCount has 1 or more entry.
+            //If you only have 1 entry
+            
             end
-            s_done: begin                       // final (lagyan ng number after this)
+*/
+            s_done: begin                       // 14 (lagyan ng number after this)
                 done_buf <= 1;
                 state <= s_wait;
             end
