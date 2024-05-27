@@ -13,11 +13,18 @@
     fSourceID, fClusterID, fEnergyLeft, fQValue, packetType
 
     Check fSourceID if it's in the neighborID list (read to memory)
-        details:
+        for(n = 0; n < mNeighborCount ; n + 1;);
             check if fSourceID has an entry in memory (index through neighborIDs with indexing)
+                if(found)
+                    update node information
+                else
+                    (do nothing)
+        for loop ends, add node
+            add local node information
+            neighborCount = neighborCount + 1
             
     if(fSourceID is NOT in memory)
-        add contents to memory
+        check mNeighborCount
     else (fSourceID is in memory)
         update contents in memory
 */
@@ -36,6 +43,7 @@ module QTableUpdatev2();
     // Registers
 
     reg     [`WORD_WIDTH-1:0]               nodeID_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output registers
+    //reg     [`WORD_WIDTH-1:0]               cur_QValue;
     reg     [`WORD_WIDTH-1:0]               n, neighborCount_buf;      // index
     reg                                     done_buf, found, wr_en_buf; // output signals in register
     reg     [2:0]                           packetType_buf;
@@ -58,7 +66,7 @@ module QTableUpdatev2();
         end
         else begin
             case(state)
-                s_idle: begin
+                s_idle: begin               // 0
                     // wait for a new packet, an enable signal tells us a new packet arrived
                     if(en) begin
                         found <= 0;
@@ -72,7 +80,7 @@ module QTableUpdatev2();
                         state <= s_checknCount;         // start checking for neighbors
                     end
                     else begin
-                        state <= s_idle
+                        state <= s_idle;
                     end
                 end
                 // Information is already extracted when enable is asserted, so start
@@ -90,28 +98,29 @@ module QTableUpdatev2();
                 end
                 s_addnode: begin
                     // add node local information into memory. Use the index to correctly write memory
-                    fSourceID <= nodeID_buf;
-                    fClusterID <= nodeClusterID_buf;
-                    fEnergyLeft <= nodeEnergy_buf;
-                    fQValue <= nodeQValue_buf;
-                    wr_en_buf <= 1;
-                    neighborCount_buf <= neighborCount_buf + 1; 
+                    fSourceID <= nodeID_buf;                            // add nodeID
+                    fClusterID <= nodeClusterID_buf;                    // add clusterID
+                    fEnergyLeft <= nodeEnergy_buf;                      // add nodeEnergy
+                    fQValue <= nodeQValue_buf;                          // add nodeQValue
+                    wr_en_buf <= 1;                                     // write to memory
+                    neighborCount_buf <= neighborCount_buf + 1;         // increment neighborCount 
                 end
-                s_checknID: begin
+                s_checknID: begin       // compare fSourceID with mSourceID. mSourceID is iterated per mNeighborCount
                     if (fSourceID == mSourceID) begin
-                        found <= 1;
-                        state <= s_updatenID;
+                        found <= 1;                     // para saan tong found?
+                        state <= s_updatenID;           
                     end
                     else begin
                         n = n + 1;
-                        state <= s_checknID;
+                        state <= s_checknCount;         // check back with neighborCount
                     end
                 end
                 s_updatenID: begin
-                    fClusterID <= nodeClusterID_buf;
-                    fEnergyLeft <= nodeEnergy_buf;
-                    fQValue <= nodeQValue_buf;
-                    wr_en_buf <= 1;
+                    fClusterID <= nodeClusterID_buf;    // update nodeClusterID
+                    fEnergyLeft <= nodeEnergy_buf;      // update nodeEnergy
+                    fQValue <= nodeQValue_buf;          // update nodeQValue
+                    wr_en_buf <= 1;                     // write to memory
+                    state <= s_update_done;             // go to update 
                 end
                 default: state <= state;
             endcase
