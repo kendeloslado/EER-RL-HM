@@ -49,6 +49,7 @@ Address List
 (2/1)   [0x2C8 - 0x2C9]         bestNeighborsCount      (484)
 (2/32)  [0x2C8 - 0x307]         chIDCount               (485-516)
 */
+/*
 Internal Flags
 
         [0x0]                   hopsFromSink
@@ -89,7 +90,7 @@ neighborID, clusterID, energyLeft, neighborQValue, chIDs, neighborCount,
 chIDcount not added yet
 */        
         // this part is for preloading memory with existing data 
-        /*FLAGS
+/*      FLAGS
         memory['h0] = 2;
         memory['h1] = 4'b0000;  // not a cluster head, not for aggregation, SOS not needed, sinkID 0
         
@@ -117,8 +118,8 @@ chIDcount not added yet
         
         memory['h10] = 8'h33;
         memory['h11] = 8'h33;   // energyThreshold = 0.8
-        */
-        /*
+*/
+/*
         
         knownClusterHeads
         
@@ -152,8 +153,8 @@ chIDcount not added yet
         memory['h12 + 18] = 8'h1E;
         memory['h12 + 19] = 8'h00;      //chID = 30;
         
-        */
-        /*
+*/
+/*
         numberOfHops
         
         memory['h32 + 0] = 1;
@@ -186,9 +187,9 @@ chIDcount not added yet
         memory['h32 + 18] = 2;
         memory['h32 + 19] = 0;
         
-        */
+*/
         
-        /*
+/*
         chQValue
        
         memory['h52 + 0] = 8'h10;
@@ -221,9 +222,9 @@ chIDcount not added yet
         memory['h52 + 18] = 8'h0C;
         memory['h52 + 19] = 8'h00;               // Q = 0.75
         
-        */
+*/
         
-        /*
+/*
         //neighborID
         
         memory['h72 + 0] = ;
@@ -322,9 +323,9 @@ chIDcount not added yet
         memory['h72 + 62] = ;
         memory['h72 + 63] = ;
         
-        */
+*/
         
-        /*
+/*
         //clusterID
         
         memory['hB2 + 0] = ;
@@ -423,9 +424,9 @@ chIDcount not added yet
         memory['hB2 + 62] = ;
         memory['hB2 + 63] = ;
         
-        */
+*/
         
-        /*
+/*
         //energyLeft 
         
         memory['hF2 + 0] = ;
@@ -525,9 +526,9 @@ chIDcount not added yet
         memory['hF2 + 63] = ;
         
         
-        */
+*/
         
-        /*
+/*
         //neighborQValue
         
         memory['h132 + 0] = ;
@@ -626,8 +627,8 @@ chIDcount not added yet
         memory['h132 + 62] = ;
         memory['h132 + 63] = ;
         
-        */
-        /*
+*/
+/*
         //knownCHCount
         
         memory['h272 + 0] = 8'h0A;
@@ -642,7 +643,7 @@ chIDcount not added yet
         
         memory['h276 + 0] = 8'h63;
         memory['h276 + 1] = 8'h00;              // CHID = 99;
-        */
+*/
         end
         
 
