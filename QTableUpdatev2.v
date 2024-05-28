@@ -122,6 +122,11 @@ module QTableUpdatev2();
                     wr_en_buf <= 1;                     // write to memory
                     state <= s_update_done;             // go to update 
                 end
+                s_update_done: begin
+                    wr_en_buf <= 0;
+                    done <= 1;
+                    state <= s_idle;
+                end
                 default: state <= state;
             endcase
         end
