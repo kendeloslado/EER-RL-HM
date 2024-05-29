@@ -7,7 +7,7 @@ module tb_QTableUpdatev2();
 
 reg clock, nrst, en;
 
-    
+
 
 
 endmodule
