@@ -273,8 +273,10 @@ module QTableUpdatev3();
                         k <= k;
                     end
                 end
-                s_
-                default: k <= 0;
+                s_incrementK: begin
+                    k = k + 1;
+                end
+                default: k <= k;
             endcase
         end
     end
