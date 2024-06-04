@@ -13,7 +13,7 @@
     fSourceID, fClusterID, fEnergyLeft, fQValue, packetType
 
     Check fSourceID if it's in the neighborID list (read to memory)
-        for(n = 0; n < mNeighborCount ; n + 1;);
+        for(n = 0; n < mNeighborCount ; n + 1)
             check if fSourceID has an entry in memory (index through neighborIDs with indexing)
                 if(found)
                     update node information
@@ -27,6 +27,18 @@
         check mNeighborCount
     else (fSourceID is in memory)
         update contents in memory
+
+    Check knownCH for knownCHcounts
+        (for k=0; k < knownCHCount; k=k+1)
+            if(k == knownCHcount)
+                CHIDcount <= k;
+                wr_en_buf <= 1;
+                state <= something;
+            else 
+                CHIDs <= knownCH;
+                wr_en_buf <= 1;
+                state <= incrementK;
+
 */
 
 module QTableUpdatev2();
@@ -34,6 +46,7 @@ module QTableUpdatev2();
     input                                   clock, nrst, en;
     input   [`WORD_WIDTH-1:0]               fSourceID, fClusterID, fEnergyLeft, fQValue;    // feedback packet inputs
     input   [`WORD_WIDTH-1:0]               mSourceID, mClusterID, mEnergyLeft, mQValue;    // inputs from memory
+
     input   [`WORD_WIDTH-1:0]               mNeighborCount;
     input   [2:0]                           packetType;
     output  [`WORD_WIDTH-1:0]               nodeID, nodeClusterID, nodeEnergy, nodeQValue;
@@ -44,13 +57,17 @@ module QTableUpdatev2();
 
     reg     [`WORD_WIDTH-1:0]               nodeID_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output registers
     //reg     [`WORD_WIDTH-1:0]               cur_QValue;
-    reg     [`WORD_WIDTH-1:0]               n, neighborCount_buf;      // index
+    reg     [`WORD_WIDTH-1:0]               n, neighborCount_buf, k;      // index
     reg                                     done_buf, found, wr_en_buf; // output signals in register
     reg     [2:0]                           packetType_buf;
     reg     [4:0]                           state;  // state register for program flow
 
     // Parameters
 
+    parameter s_idle = 4'd0; // wait for a new packet
+    parameter s_checknCount = 4'd1; // Check neighborCount before checking nodeIDs
+    parameter s_addnode = 4'd2; // add node and its node information
+    
 
     // Program Proper
     always@(posedge clock) begin
@@ -98,12 +115,13 @@ module QTableUpdatev2();
                 end
                 s_addnode: begin
                     // add node local information into memory. Use the index to correctly write memory
-                    fSourceID <= nodeID_buf;                            // add nodeID
-                    fClusterID <= nodeClusterID_buf;                    // add clusterID
-                    fEnergyLeft <= nodeEnergy_buf;                      // add nodeEnergy
-                    fQValue <= nodeQValue_buf;                          // add nodeQValue
+                    nodeID_buf <= fSourceID;                            // add nodeID
+                    nodeClusterID_buf <= fClusterID;                    // add clusterID
+                    nodeEnergy_buf <= fEnergyLeft;                      // add nodeEnergy
+                    nodeQValue_buf <= fQValue;                          // add nodeQValue
                     wr_en_buf <= 1;                                     // write to memory
                     neighborCount_buf <= neighborCount_buf + 1;         // increment neighborCount 
+                    state <= ; //
                 end
                 s_checknID: begin       // compare fSourceID with mSourceID. mSourceID is iterated per mNeighborCount
                     if (fSourceID == mSourceID) begin
@@ -111,7 +129,7 @@ module QTableUpdatev2();
                         state <= s_updatenID;           
                     end
                     else begin
-                        n = n + 1;
+                        n <= n + 1;
                         state <= s_checknCount;         // check back with neighborCount
                     end
                 end
@@ -122,8 +140,8 @@ module QTableUpdatev2();
                     wr_en_buf <= 1;                     // write to memory
                     state <= s_update_done;             // go to update 
                 end
-                s_update_KCH: begin
-                    
+                s_checkKCH: begin
+                    if(k == knownCHCount)
                 end
                 s_update_done: begin
                     wr_en_buf <= 0;
