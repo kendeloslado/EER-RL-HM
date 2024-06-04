@@ -15,7 +15,7 @@ Check if CH information is in the knownCH list.
     found:
 */
 module QTableUpdatev3();
-    input                           clock, nrst, en;    // standard signals
+    input                           clk, nrst, en;    // standard signals
     // Packet Input Information
     input   [`WORD_WIDTH-1:0]       fSourceID, fClusterID, fEnergyLeft, fQValue;
     input   [2:0]                   fPacketType;
@@ -59,7 +59,7 @@ module QTableUpdatev3();
 
     // Program Proper
 
-    always@(posedge clock) begin    // always block for state register
+    always@(posedge clk) begin    // always block for state register
         if(!nrst) begin
             state <= s_idle;
         end
@@ -116,7 +116,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for nodeID_buf;
+    always@(posedge clk) begin    // always block for nodeID_buf;
         if(!nrst) begin
             nodeID_buf <= 16'h0;
         end
@@ -137,7 +137,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for nodeClusterID_buf
+    always@(posedge clk) begin    // always block for nodeClusterID_buf
         if(!nrst) begin
             nodeClusterID_buf <= 16'h0;
         end
@@ -161,7 +161,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for nodeEnergy_buf
+    always@(posedge clk) begin    // always block for nodeEnergy_buf
         if(!nrst) begin
             nodeEnergy_buf <= 16'h0;
         end
@@ -185,7 +185,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for nodeQValue_buf
+    always@(posedge clk) begin    // always block for nodeQValue_buf
         if(!nrst) begin
             nodeQValue_buf <= 16'h0;
         end
@@ -209,7 +209,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for neighborCount_buf
+    always@(posedge clk) begin    // always block for neighborCount_buf
         if(!nrst) begin
             neighborCount_buf <= 16'h0;
         end
@@ -230,7 +230,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for n. Remember that n is used to check for neighbor checking.
+    always@(posedge clk) begin    // always block for n. Remember that n is used to check for neighbor checking.
         if(!nrst) begin
             n <= 16'h0;
         end
@@ -256,7 +256,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for k. k is another index for knownCH checking
+    always@(posedge clk) begin    // always block for k. k is another index for knownCH checking
     // currently unfinished
         if(!nrst) begin
             k <= 16'h0;
@@ -276,7 +276,7 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for done
+    always@(posedge clk) begin    // always block for done
         if(!nrst) begin
             done <= 0;
         end
@@ -293,12 +293,14 @@ module QTableUpdatev3();
             endcase
         end
     end
-    always@(posedge clock) begin    // always block for wr_en_buf
+    always@(posedge clk) begin    // always block for wr_en_buf
         if(!nrst) begin
-
+            wr_en_buf <= 0;
         end
         else begin
-
+            case(state)
+                
+            endcase
         end
     end
 endmodule

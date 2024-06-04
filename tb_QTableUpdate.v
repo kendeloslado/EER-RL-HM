@@ -1,11 +1,11 @@
 `define MEM_DEPTH 2048
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
-`define CLOCK_PD 20
+`define clk_PD 20
 
 module tb_QTableUpdate();
 
-    reg clock, nrst, en;
+    reg clk, nrst, en;
 
     //Memory Module
     
@@ -13,14 +13,14 @@ module tb_QTableUpdate();
     wire [`WORD_WIDTH-1:0] mem_data_in, mem_data_out;
     wire [10:0] address;
 
-    mem mem1(clock, address, wr_en, mem_data_in, mem_data_out);
+    mem mem1(clk, address, wr_en, mem_data_in, mem_data_out);
 
     //QTableUpdate Module
 
     reg[`WORD_WIDTH-1:0] fSourceID, fEnergyLeft, fQValue, fclusterID;
     wire reinit, done;
 
-    QTableUpdate qt1(clock, nrst, en, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
+    QTableUpdate qt1(clk, nrst, en, fSourceID, fEnergyLeft, fQValue, fclusterID, address, data_out, done);
 
     // Initial Values
 
@@ -32,10 +32,10 @@ module tb_QTableUpdate();
         fclusterID = 2;
     end
 
-    // clock
+    // clk
     initial begin
-        clock = 0
-        forever #10 clock = ~clock;
+        clk = 0
+        forever #10 clk = ~clk;
     end
 
     // Reset

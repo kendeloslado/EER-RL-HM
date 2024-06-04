@@ -67,9 +67,9 @@ Internal Flags
 */
 
 
-module memory(clock, address, wr_en, data_in, data_out);
+module memory(clk, address, wr_en, data_in, data_out);
 
-        input clock, wr_en;
+        input clk, wr_en;
         input [10:0] address;
         input [`WORD_WIDTH-1:0] data_in;
         input [`WORD_WIDTH-1:0] data_out;
@@ -657,7 +657,7 @@ chIDcount not added yet
         assign data_out = data_out_buffer;
         
         
-        always@(posedge clock) begin
+        always@(posedge clk) begin
                 if(wr_en) begin
                         memory[address] = data_in[15:8];
                         memory[address+1] = data_in[7:0];

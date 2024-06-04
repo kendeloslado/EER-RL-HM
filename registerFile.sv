@@ -18,7 +18,7 @@ module registerFile #(
 
 logic [REG_COUNT-1:0][DATA_WIDTH-1:0]   register_file;
 
-always_ff@(negedge clock) begin
+always_ff@(negedge clk) begin
     if(!nrst) begin
         register_file[0] <= 0;
         register_file[1] <= 0;

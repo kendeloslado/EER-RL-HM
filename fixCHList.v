@@ -3,9 +3,9 @@
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
 
-module fixCHList(clock, nrst, en, start, address, wr_en, data_in, data_out, done);
+module fixCHList(clk, nrst, en, start, address, wr_en, data_in, data_out, done);
 
-input                               clock, nrst, en, start;
+input                               clk, nrst, en, start;
 input   [`WORD_WIDTH-1:0]            data_in;
 output  [`WORD_WIDTH-1:0]            data_out;
 output [10:0]                       address;
@@ -67,7 +67,7 @@ parameter s_done = 4'd12;
 
 // Program Flow Proper
 
-always@(posedge clock) begin
+always@(posedge clk) begin
     if(!nrst) begin
         done_buf = 0;
         wr_en_buf = 0;

@@ -3,9 +3,9 @@
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
 
-module amICH(clock, nrst, en, start, data_in, address, wr_en, data_out, forAggregation, done);
+module amICH(clk, nrst, en, start, data_in, address, wr_en, data_out, forAggregation, done);
 
-    input                           clock;
+    input                           clk;
     input                           nrst;
     input                           en;
     input                           start;
@@ -48,7 +48,7 @@ module amICH(clock, nrst, en, start, data_in, address, wr_en, data_out, forAggre
 
     // Program Flow Proper
 
-    always@(posedge clock) begin
+    always@(posedge clk) begin
         if(!nrst) begin
             forAggregation_buf = 0;
             done_buf = 0;

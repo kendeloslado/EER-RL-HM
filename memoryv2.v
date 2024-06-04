@@ -80,6 +80,14 @@ output  [`WORD_WIDTH-1:0]       closeNeighbors,
 output  [`WORD_WIDTH-1:0]       closeNeighborsCount,
 output  [`WORD_WIDTH-1:0]       maxQ
 
+// initialize memory array
+        reg [`MEM_WIDTH-1:0] memory [0: `MEM_DEPTH-1];
+// initialize with zeros
 
-
+    integer i;
+    initial begin
+        for(i=0; i< `MEM_DEPTH; i = i + 1) begin
+            memory[i] = 0;
+        end
+    end
 endmodule
