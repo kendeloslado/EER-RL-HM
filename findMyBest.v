@@ -3,9 +3,9 @@
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
 
-module findMyBest(clock, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_en, mybest, done);
+module findMyBest(clk, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_en, mybest, done);
 
-    input                               clock, nrst, en, start;
+    input                               clk, nrst, en, start;
     input   [`WORD_WIDTH-1:0]           data_in;
     input   [`WORD_WIDTH-1:0]           nodeEnergy;
     output  [10:0]                      address;
@@ -100,7 +100,7 @@ module findMyBest(clock, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_
 
     // Program Proper
 /*
-    always@(posedge clock) begin
+    always@(posedge clk) begin
         if(!nrst) begin
             address_count = 11'h2B4;
             data_out_buf = 0;
@@ -164,7 +164,7 @@ module findMyBest(clock, nrst, en, start, data_in, MY_BATTERY_STAT, address, wr_
     end
 */
 
-    always@(posedge clock) begin
+    always@(posedge clk) begin
         if(!nrst) begin
             address_count <= 11'h2B4;
             //data_out_buf = 0;

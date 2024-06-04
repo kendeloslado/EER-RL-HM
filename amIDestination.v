@@ -3,9 +3,9 @@
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
 
-module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDestination, done);
+module amIDestination(clk, nrst, en, start, MY_NODE_ID, destinationID, iamDestination, done);
 
-    input                           clock;
+    input                           clk;
     input                           nrst;
     input                           en;
     input                           start;
@@ -25,7 +25,7 @@ module amIDestination(clock, nrst, en, start, MY_NODE_ID, destinationID, iamDest
 
     // code proper
 
-    always@(posedge clock) begin
+    always@(posedge clk) begin
         if(!nrst) begin
             iamDestination_buf = 0;
             done_buf = 0;

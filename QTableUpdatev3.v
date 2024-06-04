@@ -55,7 +55,9 @@ module QTableUpdatev3();
     parameter s_checknID = 4'd3;    // check fSourceID with neighborID
     parameter s_updatenID = 4'd4;   // update node information when node ID is found
     parameter s_checkKCH = 4'd5;    // check cluster head information
-    parameter s_update_done = 4'd6; // node has finished updating Q-values. Assert done signal.
+    parameter s_addKCH = 4'd6;      // add knownCH
+    parameter s_incrementK = 4'd7;  // check the next CH
+    parameter s_update_done = 4'd8; // node has finished updating Q-values. Assert done signal.
 
     // Program Proper
 
@@ -299,7 +301,25 @@ module QTableUpdatev3();
         end
         else begin
             case(state)
-                
+                s_addnode: begin
+                    wr_en_buf <= 1;
+                end
+                s_updatenID: begin
+                    wr_en_buf <= 1;
+                end
+                s_checkKCH: begin
+                    wr_en_buf <= 1;
+                end
+                s_addKCH: begin
+                    wr_en_buf <= 1;
+                end
+                s_incrementK: begin
+                    wr_en_buf <= 0;
+                end
+                s_update_done: begin
+                    wr_en_buf <= 0;
+                end
+                default: wr_en_buf <= 0;
             endcase
         end
     end
