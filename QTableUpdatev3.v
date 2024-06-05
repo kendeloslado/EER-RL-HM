@@ -37,8 +37,8 @@ module QTableUpdatev3();
     output                          done;
 
     // Register Buffers
-    reg     [`WORD_WIDTH-1:0]       nodeID_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf;
-    reg     [`WORD_WIDTH-1:0]       neighborCount_buf        // index registers
+    reg     [`WORD_WIDTH-1:0]       nodeID_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output register buffers
+    reg     [`WORD_WIDTH-1:0]       neighborCount_buf;          // index registers
     reg     [`WORD_WIDTH-1:0]       n;      // different index for neighborCount
     reg     [`WORD_WIDTH-1:0]       k;      // different index for knownCH
     reg                             done_buf, wr_en_buf;
@@ -49,7 +49,7 @@ module QTableUpdatev3();
 
     // Parameters
 
-    parameter s_idle = 4'd0;        // wait for a new packet to arrive. change state once you receive
+    parameter s_idle = 4'd0;        // wait for a new packet to arrive. change state once you receive a packet
     parameter s_checknCount = 4'd1; // check neighborCount before updating/appending node info
     parameter s_addnode = 4'd2;     // add node information
     parameter s_checknID = 4'd3;    // check fSourceID with neighborID
@@ -69,7 +69,7 @@ module QTableUpdatev3();
             case(state)
                 s_idle: begin
                     if(en) begin
-                        state <= checknCount;
+                        state <= checknCount;   // start checking neighbors
                     end
                     else begin
                         state <= s_idle;
@@ -78,20 +78,27 @@ module QTableUpdatev3();
                 s_checknCount: begin
                     if(n == mNeighborCount) begin
                         state <= s_addnode;
+                        // on first iteration, the node will be guaranteed
+                        // to add node information.
                     end
                     else begin
                         state <= s_checknID;
+                        // module hasn't checked everything, keep checking
                     end
                 end
                 s_addnode: begin
                     state <= s_checkKCH;
+                    // check Cluster Head information next
                 end
                 s_checknID: begin
                     if(fSourceID == mSourceID) begin
                         state <= s_updatenID;
+                        // found fSource as an existing entry, update node
+                        // information
                     end
                     else begin
                         state <= s_checknCount;
+                        // not found, check next node
                     end
                 end
                 s_updatenID: begin

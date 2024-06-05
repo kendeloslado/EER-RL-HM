@@ -72,7 +72,7 @@ module memory(clk, address, wr_en, data_in, data_out);
         input clk, wr_en;
         input [10:0] address;
         input [`WORD_WIDTH-1:0] data_in;
-        input [`WORD_WIDTH-1:0] data_out;
+        output [`WORD_WIDTH-1:0] data_out;
 
 // initialize memory array
         reg [`MEM_WIDTH-1:0] memory [0: `MEM_DEPTH-1];

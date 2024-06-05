@@ -141,7 +141,18 @@ module QTableUpdatev2();
                     state <= s_update_done;             // go to update 
                 end
                 s_checkKCH: begin
-                    if(k == knownCHCount)
+                    if(k == knownCHCount) begin
+                        CHIDCount <= k;
+                        wr_en_buf <= 1;
+                        state <= s_update_done;
+                    end
+                    else begin
+                        state <= s_addKCH;
+                    end
+                end
+                s_addKCH: begin
+                    knownCH <= fKnownCH;
+                    state <= s_checkKCH;
                 end
                 s_update_done: begin
                     wr_en_buf <= 0;
