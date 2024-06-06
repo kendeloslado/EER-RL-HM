@@ -32,4 +32,67 @@ module tb_QTableUpdatev3();
     qValue memorybankNode(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeQValue), .data_out(mQValue));
     
 
+    // packet information
+
+    initial begin
+        // Add new neighbour
+
+        fSourceID = 1;
+        fClusterID = 2;
+        fEnergyLeft = 16'h8000;         // fEnergyLeft = 2
+        fQValue = 16'h3000;             // fQValue = 0.75
+        fPacketType = 3'b101;           // packetType = data
+        // Information from memory
+        mSourceID = 0;
+        mClusterID = 0;
+        mEnergyLeft = 0;
+        mQValue = 0;
+        mNeighborCount = 0;
+
+        // Update neighbor
+    /*
+        fSourceID = 1;
+        fClusterID = 3;
+        fEnergyLeft = 16'h599a;
+    */
+    end
+
+    // clock PD
+    
+    initial begin
+        clock = 0;
+        forever #10 clock = ~clock;
+    end
+
+    // Reset
+
+    initial begin
+        // standard reset stuff
+        en = 0;
+        nrst = 1;
+        #15
+        nrst = 0;
+        #40
+        // module start
+        en = 1;
+        #20
+        en = 0;
+        // stuff should keep running
+        #50
+        #500
+        #50
+        // sige, dito muna for now.
+
+    end
+
+    // Synopsys stuff
+
+    $vcdplusfile("tb_QTableUpdatev3.vpd");
+    $vcdpluson;
+    $sdf_annotate("../mapped/QTableUpdatev3.sdf", QTableUpdatev3);
+    
+    #3000
+    $finish;
+
+
 endmodule
