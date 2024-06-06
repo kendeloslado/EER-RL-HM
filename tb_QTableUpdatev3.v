@@ -53,7 +53,9 @@ module tb_QTableUpdatev3();
     /*
         fSourceID = 1;
         fClusterID = 3;
-        fEnergyLeft = 16'h599a;
+        fEnergyLeft = 16'h1800;         // fEnergyLeft = 1.5
+        fQValue = 16'hB800;             // fQValue = 11.5
+        fPacketType = 3'b101;
     */
     end
 
@@ -91,7 +93,7 @@ module tb_QTableUpdatev3();
     $vcdpluson;
     $sdf_annotate("../mapped/QTableUpdatev3.sdf", QTableUpdatev3);
     
-    #3000
+    #1500
     $finish;
 
 
