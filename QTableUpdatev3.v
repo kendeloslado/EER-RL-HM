@@ -17,17 +17,17 @@ Check if CH information is in the knownCH list.
 module QTableUpdatev3();
     input                           clk, nrst, en;    // standard signals
     // Packet Input Information
-    input   [`WORD_WIDTH-1:0]       fSourceID, fClusterID, fEnergyLeft, fQValue;
+    input   [`WORD_WIDTH-1:0]       fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue;
     input   [2:0]                   fPacketType;
     // Memory Input Information
 
-    input   [`WORD_WIDTH-1:0]       mSourceID, mClusterID, mEnergyLeft, mQValue;
+    input   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
     input   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
     // knownCH-related information
     input   [`WORD_WIDTH-1:0]       mKnownCH;
     input   [`WORD_WIDTH-1:0]       mKnownCHCount;
     // Local node information output to write into memory
-    output  [`WORD_WIDTH-1:0]       nodeID, nodeClusterID, nodeEnergy, nodeQValue;
+    output  [`WORD_WIDTH-1:0]       nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue;
     output  [`WORD_WIDTH-1:0]       neighborCount;
     // knownCH-related information (outgoing)
     output  [`WORD_WIDTH-1:0]       knownCH;
@@ -37,10 +37,12 @@ module QTableUpdatev3();
     output                          done;
 
     // Register Buffers
-    reg     [`WORD_WIDTH-1:0]       nodeID_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output register buffers
+    reg     [`WORD_WIDTH-1:0]       nodeID_buf, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output register buffers
     reg     [`WORD_WIDTH-1:0]       neighborCount_buf;          // index registers
     reg     [`WORD_WIDTH-1:0]       n;      // different index for neighborCount
     reg     [`WORD_WIDTH-1:0]       k;      // different index for knownCH
+    reg     [`WORD_WIDTH-1:0]       knownCH_buf;
+    reg     [`WORD_WIDTH-1:0]       knownCHCount_buf;
     reg                             done_buf, wr_en_buf;
     reg                             found;  // signal for finding neighborNode
     reg     [4:0]                   state;  // state register for program flow
@@ -143,6 +145,27 @@ module QTableUpdatev3();
                     nodeID_buf <= fSourceID;
                 end
             default: nodeID_buf <= nodeID_buf;
+            endcase
+        end
+    end
+    always@(posedge clk) begin    // always block for nodeHops_buf;
+        if(!nrst) begin
+            nodeHops_buf <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_idle: begin
+                    if(en) begin
+                        nodeHops_buf <= 16'h0;
+                    end
+                    else begin
+                        nodeHops_buf <= nodeHops_buf;
+                    end
+                end
+                s_addnode: begin
+                    nodeHops_buf <= fSourceHops;
+                end
+            default: nodeHops_buf <= nodeHops_buf;
             endcase
         end
     end
@@ -331,5 +354,32 @@ module QTableUpdatev3();
                 default: wr_en_buf <= 0;
             endcase
         end
+    end
+    always@(posedge clk) begin      // always block for knownCH
+        if(!nrst) begin
+            knownCH_buf <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_idle: begin
+                    if(en) begin
+                        knownCH_buf <= 16'h0;
+                    end
+                    else begin
+                        knownCH_buf <= knownCH_buf;
+                    end
+                end
+                /*s_checkKCH: begin
+
+                end*/
+                s_addKCH: begin
+                    knownCH_buf <= fKnownCH;
+                end
+                default: knownCH_buf <= knownCH_buf;
+            endcase
+        end
+    end
+    always@(posedge clk) begin      // always block for knownCHCount
+
     end
 endmodule
