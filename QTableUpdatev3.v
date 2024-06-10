@@ -18,6 +18,7 @@ module QTableUpdatev3();
     input                           clk, nrst, en;    // standard signals
     // Packet Input Information
     input   [`WORD_WIDTH-1:0]       fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue;
+    input   [`WORD_WIDTH-1:0]       fKnownCH; // CH information contained from the node
     input   [2:0]                   fPacketType;
     // Memory Input Information
 
@@ -104,10 +105,17 @@ module QTableUpdatev3();
                     end
                 end
                 s_updatenID: begin
+                    // update node information, write to memory bank
+                    // after node update, check knownCH information
                     state <= s_checkKCH;
                 end
                 s_checkKCH: begin
-                    if(k == knownCHcount) begin
+                    // check knownCH information
+                    // this current version doesn't say about finding KCH...
+                    // all it does is like, keep adding CHs until it's up to
+                    // knownCHCount
+                    if(k == knownCHCount) begin
+                    // all CH information is now known
                         state <= s_update_done;
                     end
                     else begin
