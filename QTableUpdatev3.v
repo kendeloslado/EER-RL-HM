@@ -1,4 +1,4 @@
-`timesclae 1ns / 1ps
+`timescale 1ns / 1ps
 `define MEM_DEPTH 2048
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
@@ -388,6 +388,6 @@ module QTableUpdatev3();
         end
     end
     always@(posedge clk) begin      // always block for knownCHCount
-
+        // do you actually need this?
     end
 endmodule
