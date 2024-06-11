@@ -72,7 +72,7 @@ module QTableUpdatev3();
             case(state)
                 s_idle: begin
                     if(en) begin
-                        state <= checknCount;   // start checking neighbors
+                        state <= s_checknCount;   // start checking neighbors
                     end
                     else begin
                         state <= s_idle;
