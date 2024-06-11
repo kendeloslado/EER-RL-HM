@@ -55,6 +55,7 @@ module QTableUpdatev3(
     reg                             done_buf, wr_en_buf;
     reg                             found;  // signal for finding neighborNode
     reg     [4:0]                   state;  // state register for program flow
+    
 
 
 
@@ -326,20 +327,20 @@ module QTableUpdatev3(
             endcase
         end
     end
-    always@(posedge clk) begin    // always block for done
+    always@(posedge clk) begin    // always block for done_buf
         if(!nrst) begin
-            done <= 0;
+            done_buf <= 0;
         end
         else begin
             case(state)
                 s_idle: begin
-                    if(en) done <= 0;
-                    else done <= done;
+                    if(en) done_buf <= 0;
+                    else done_buf <= done_buf;
                 end
                 s_update_done: begin
-                    done <= 1;
+                    done_buf <= 1;
                 end
-                default: done <= 0;
+                default: done_buf <= 0;
             endcase
         end
     end
@@ -395,7 +396,24 @@ module QTableUpdatev3(
             endcase
         end
     end
+/*
     always@(posedge clk) begin      // always block for knownCHCount
         // do you actually need this?
     end
+*/
+
+// Assign outputs
+// nodeID_buf, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf, neighborCount_buf
+// done_buf, wr_en_buf, knownCHCount_buf, knownCH_buf
+    assign nodeID = nodeID_buf;
+    assign nodeHops = nodeHops_buf;
+    assign nodeClusterID = nodeClusterID_buf;
+    assign nodeEnergy = nodeEnergy_buf;
+    assign nodeQValue = nodeQValue_buf;
+    assign neighborCount = neighborCount_buf;
+    assign done = done_buf;
+    assign wr_en = wr_en_buf;
+    assign knownCHCount = knownCHCount_buf;
+    assign knownCH = knownCH_buf;
+
 endmodule
