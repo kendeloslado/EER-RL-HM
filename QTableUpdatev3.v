@@ -321,7 +321,7 @@ module QTableUpdatev3(
                     end
                 end
                 s_incrementK: begin
-                    k = k + 1;
+                    k <= k + 1;
                 end
                 default: k <= k;
             endcase
