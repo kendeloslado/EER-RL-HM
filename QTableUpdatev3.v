@@ -14,7 +14,15 @@ Check if CH information is in the knownCH list.
     not found: add to knownCH and CHID list
     found:
 */
-module QTableUpdatev3();
+module QTableUpdatev3(
+    clk, nrst, en,
+    fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue,
+    fKnownCH, fPacketType,
+    mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue,
+    mNeighborCount, mKnownCH, mKnownCHCount,
+    nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue,
+    neighborCount, knownCH, knownCHCount, wr_en, done
+);
     input                           clk, nrst, en;    // standard signals
     // Packet Input Information
     input   [`WORD_WIDTH-1:0]       fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue;
