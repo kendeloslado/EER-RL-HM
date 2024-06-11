@@ -71,6 +71,20 @@ module QTableUpdatev3(
     parameter s_incrementK = 4'd7;  // check the next CH
     parameter s_update_done = 4'd8; // node has finished updating Q-values. Assert done signal.
 
+    // Parameter Details
+/*
+    s_idle: 
+        if(en) 
+            state <= s_checknCount;
+            (set most variables to 0)
+            variables involved: nodeID_buf, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf,
+            nodeQValue_buf, neighborCount_buf, n, k, knownCH_buf, knownCHCount_buf, done_buf,
+            wr_en_buf, found, state
+        else
+            state <= s_idle;
+    s_checknCount:
+        
+*/
     // Program Proper
 
     always@(posedge clk) begin    // always block for state register
