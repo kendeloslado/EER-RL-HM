@@ -30,7 +30,7 @@ module memorybankCH(
     reg [`WORD_WIDTH-1:0] data_out_buf;
 
     always@(*)
-        data_out_buf <= {memory[index], memory[index+1]}
+        data_out_buf <= {memory[index], memory[index+1]};
     
     
 
