@@ -19,7 +19,7 @@ module memorybankCandidate(
     integer i;
 
     initial begin
-        for(i=0;i<16<i=i+1) begin
+        for(i=0;i<16;i=i+1) begin
             memory[i] = 0;
         end
     end
