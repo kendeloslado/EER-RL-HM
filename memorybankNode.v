@@ -32,7 +32,7 @@ module memorybankCH(
     always@(*)
         data_out_buf <= {memory[index], memory[index+1]}
     
-    assign data_out = data_out_buf;
+    
 
     always@(posedge clk) begin
         if(wr_en) begin
@@ -40,4 +40,6 @@ module memorybankCH(
             memory[index+1] <= data_in[7:0];
         end
     end
+
+    assign data_out = data_out_buf;
 endmodule
