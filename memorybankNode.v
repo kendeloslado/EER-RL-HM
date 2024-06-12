@@ -6,7 +6,7 @@
 
 
 
-module memorybankCH(
+module memorybankNode(
     clk, wr_en, index, data_in, data_out
 );
 
