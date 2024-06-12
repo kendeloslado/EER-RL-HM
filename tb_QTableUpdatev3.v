@@ -26,6 +26,16 @@ module tb_QTableUpdatev3();
 
     wire                            wr_en, done;
 
+    QTableUpdatev3 UUT(
+        clk, nrst, en,
+        fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue,
+        fKnownCH, fPacketType,
+        mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue,
+        mNeighborCount, mKnownCH, mKnownCHCount,
+        nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue,
+        neighborCount, knownCH, knownCHCount, wr_en, done
+    );
+
     memorybankCH knownCHbank(.clk(clk), .wr_en(wr_en), .index(knownCHCount), .data_in(knownCH), .data_out(mKnownCH));
     memorybankNode neighborIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeID), .data_out(mSourceID));
     memorybankNode clusterIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeClusterID), .data_out(mClusterID));
