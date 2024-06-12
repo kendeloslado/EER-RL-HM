@@ -62,8 +62,8 @@ module tb_QTableUpdatev3();
     // clock PD
     
     initial begin
-        clock = 0;
-        forever #10 clock = ~clock;
+        clk = 0;
+        forever #10 clk = ~clk;
     end
 
     // Reset
