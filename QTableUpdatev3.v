@@ -86,16 +86,21 @@ module QTableUpdatev3(
         (check neighborCount, this is iterative, it uses n as an index, n == neighborCount would indicate that
         all nodes have been checked and it's still not found so the node will add node information)
         (when the index is not equal to neighborCount, node will start checking node ID. It's a for loop essentially)
-        if (n == neighborCount), add nodeID
-        else, check nodeID entry
+            if (n == neighborCount), add nodeID
+            else, check nodeID entry
     s_addnode:
+        (variables involved: nodeID_buf, nodeHops_buf, nodeClusterID_buf,
+        nodeEnergy_buf, nodeQValue_buf)
         add node information
         check CH information
     s_checknID:
+        (variables involved: mSourceID, fSourceID)
         check nodeID [if(fSourceID == mSourceID)]
             found node. update node information
         else, increment index by 1, check neighborcount
     s_updatenID:
+        (variables involved: nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf,
+        nodeQValue_buf)
         update node information, write to memory bank
     s_checkKCH:
         index using k, if k == knownCHCount, update CHIDCount with k, write to memory
