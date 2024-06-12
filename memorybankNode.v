@@ -6,7 +6,9 @@
 
 
 
-module memorybankCH();
+module memorybankCH(
+    clk, wr_en, index, data_in, data_out
+);
 
     input                           clk, wr_en;
     input   [5:0]                   index;
