@@ -25,11 +25,11 @@ module tb_QTableUpdatev3();
 
     wire                            wr_en, done;
 
-    knownCH memorybankCH(.clk(clk), .wr_en(wr_en), .index(knownCHCount), .data_in(knownCH), .data_out(mKnownCH));
-    neighborID memorybankNode(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeID), .data_out(mSourceID));
-    clusterID memorybankNode(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeClusterID), .data_out(mClusterID));
-    energyLeft memorybankNode(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeEnergy), .data_out(mEnergyLeft));
-    qValue memorybankNode(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeQValue), .data_out(mQValue));
+    memorybankCH knownCH(.clk(clk), .wr_en(wr_en), .index(knownCHCount), .data_in(knownCH), .data_out(mKnownCH));
+    memorybankNode neighborID(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeID), .data_out(mSourceID));
+    memorybankNode clusterID(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeClusterID), .data_out(mClusterID));
+    memorybankNode energyLeft(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeEnergy), .data_out(mEnergyLeft));
+    memorybankNode qValue(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeQValue), .data_out(mQValue));
     
 
     // packet information
