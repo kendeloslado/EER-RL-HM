@@ -70,6 +70,9 @@ module tb_QTableUpdatev3();
     // Reset
 
     initial begin
+        $vcdplusfile("tb_QTableUpdatev3.vpd");
+        $vcdpluson;
+        $sdf_annotate("../mapped/QTableUpdatev3_mapped.sdf", UUT);
         // standard reset stuff
         en = 0;
         nrst = 1;
