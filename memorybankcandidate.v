@@ -3,7 +3,9 @@
 `define WORD_WIDTH 16
 `define MEM_DEPTH 32
 
-module memorybankCandidate();
+module memorybankCandidate(
+    clk, wr_en, index, data_in, data_out
+);
 
     input                           clk, wr_en;
     input   [3:0]                   index;
