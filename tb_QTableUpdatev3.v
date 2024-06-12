@@ -85,7 +85,7 @@ module tb_QTableUpdatev3();
         #50
         // sige, dito muna for now.
 
-    end
+    
 
     // Synopsys stuff
 
@@ -95,6 +95,6 @@ module tb_QTableUpdatev3();
     
     #1500
     $finish;
-
+    end
 
 endmodule
