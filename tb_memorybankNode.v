@@ -38,7 +38,7 @@ initial begin
     wr_en = 1;
     #20
     wr_en = 0;
-    
+    #80
     $finish;
 end
 endmodule
