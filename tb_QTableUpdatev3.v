@@ -103,8 +103,8 @@ module tb_QTableUpdatev3();
 
     // Synopsys stuff
 
-    $vcdplusfile("tb_QTableUpdatev3.vpd");
-    $vcdpluson;
+    //$vcdplusfile("tb_QTableUpdatev3.vpd");
+    //$vcdpluson;
     //$sdf_annotate("../mapped/QTableUpdatev3.sdf", QTableUpdatev3);
     
     #1500
