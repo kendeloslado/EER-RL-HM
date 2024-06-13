@@ -49,17 +49,21 @@ module tb_QTableUpdatev3();
         // Add new neighbour
 
         fSourceID = 1;
+        fSourceHops = 2;
         fClusterID = 2;
         fEnergyLeft = 16'h8000;         // fEnergyLeft = 2
         fQValue = 16'h3000;             // fQValue = 0.75
         fPacketType = 3'b101;           // packetType = data
+        fKnownCH = 15;
         // Information from memory
         mSourceID = 0;
+        mSourceHops = 0;
         mClusterID = 0;
         mEnergyLeft = 0;
         mQValue = 0;
         mNeighborCount = 0;
-
+        mKnownCH = 0;
+        mKnownCHCount = 0;
         // Update neighbor
     /*
         fSourceID = 1;
@@ -104,7 +108,7 @@ module tb_QTableUpdatev3();
     // Synopsys stuff
 
     //$vcdplusfile("tb_QTableUpdatev3.vpd");
-    //$vcdpluson;
+    //  $vcdpluson;
     //$sdf_annotate("../mapped/QTableUpdatev3.sdf", QTableUpdatev3);
     
     #1500
