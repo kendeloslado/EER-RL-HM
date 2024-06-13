@@ -54,7 +54,7 @@ module QTableUpdatev3(
     reg     [`WORD_WIDTH-1:0]       knownCHCount_buf;
     reg                             done_buf, wr_en_buf;
     reg                             found;  // signal for finding neighborNode
-    reg     [4:0]                   state;  // state register for program flow
+    reg     [3:0]                   state;  // state register for program flow
     
 
 
@@ -377,7 +377,7 @@ module QTableUpdatev3(
             case(state)
                 s_idle: begin
                     if(en) done_buf <= 0;
-                    else done_buf <= done_buf;
+                    else done_buf <= 0;
                 end
                 s_update_done: begin
                     done_buf <= 1;

@@ -65,14 +65,18 @@ module tb_QTableUpdatev3();
         mNeighborCount = 0;
         mKnownCH = 0;
         mKnownCHCount = 0;
-        // Update neighbor
-    /*
-        fSourceID = 1;
-        fClusterID = 3;
+
+    
+        // add another neighbour
+        #800
+        fSourceID = 17;
+        fSourceHops = 2;
+        fClusterID = 2;
         fEnergyLeft = 16'h1800;         // fEnergyLeft = 1.5
         fQValue = 16'hB800;             // fQValue = 11.5
         fPacketType = 3'b101;
-    */
+        
+        // Update neighbor    
     end
 
     // clock PD
@@ -90,9 +94,13 @@ module tb_QTableUpdatev3();
         $sdf_annotate("../mapped/QTableUpdatev3_mapped.sdf", UUT);
         // standard reset stuff
         en = 0;
-        nrst = 1;
-        #15
         nrst = 0;
+        #15
+        nrst = 1;
+        #40
+        nrst = 0;
+        #40
+        nrst = 1;
         #40
         // module start
         en = 1;
@@ -102,6 +110,10 @@ module tb_QTableUpdatev3();
         #50
         #500
         #50
+        #300
+        en = 1;
+        #20
+        en = 0;
         // sige, dito muna for now.
 
     
