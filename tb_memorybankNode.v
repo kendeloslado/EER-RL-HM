@@ -54,6 +54,10 @@ initial begin
     wr_en = 0;
     #80
     //wait.
+    #20
+    // read second entry in memory
+    index = 2;
+    #20
     $finish;
 end
 endmodule
