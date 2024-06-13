@@ -25,12 +25,14 @@ initial begin
     $vcdplusfile("tb_memorybank.vpd");
     $vcdpluson;
     $sdf_annotate("../mapped/memorybankNode_mapped.sdf", UUT);
+    // first memory write
     wr_en = 0;
     index = 0;
     data_in = 3;
     #20
     wr_en = 1;
     #20
+    // second memory write
     wr_en = 0;
     index = 2;
     data_in = 15;
@@ -39,8 +41,19 @@ initial begin
     #20
     wr_en = 0;
     #80
+    // read first memory test
     index = 0;
     #40
+    // third memory write
+    index = 4;
+    #40
+    data_in = 16'd45;
+    #20
+    wr_en = 1;
+    #20
+    wr_en = 0;
+    #80
+    //wait.
     $finish;
 end
 endmodule
