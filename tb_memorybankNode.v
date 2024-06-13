@@ -32,7 +32,7 @@ initial begin
     wr_en = 1;
     #20
     wr_en = 0;
-    index = 1;
+    index = 2;
     data_in = 15;
     #40
     wr_en = 1;
