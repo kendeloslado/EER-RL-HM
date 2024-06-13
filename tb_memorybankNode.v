@@ -3,9 +3,7 @@
 `define WORD_WIDTH 16
 `define MEM_DEPTH 64
 
-module tb_memorybankNode(
-    clk, wr_en, index, data_in, data_out
-);
+module tb_memorybankNode();
 
 reg                             clk, wr_en;
 reg     [5:0]                   index;
