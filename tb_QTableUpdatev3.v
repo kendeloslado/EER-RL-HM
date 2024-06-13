@@ -10,10 +10,11 @@ module tb_QTableUpdatev3();
 
     reg clk, nrst, en;
 
-    reg [`WORD_WIDTH-1:0]           fSourceID, fClusterID, fEnergyLeft, fQValue;
+    reg [`WORD_WIDTH-1:0]           fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue;
+    reg [`WORD_WIDTH-1:0]           fKnownCH;
     reg [2:0]                       fPacketType;
 
-    reg [`WORD_WIDTH-1:0]           mSourceID, mClusterID, mEnergyLeft, mQValue;
+    reg [`WORD_WIDTH-1:0]           mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
     reg [`WORD_WIDTH-1:0]           mNeighborCount;
 
     reg [`WORD_WIDTH-1:0]           mKnownCH, mKnownCHCount;
