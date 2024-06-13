@@ -19,7 +19,7 @@ module tb_QTableUpdatev3();
 
     reg [`WORD_WIDTH-1:0]           mKnownCH, mKnownCHCount;
 
-    wire [`WORD_WIDTH-1:0]          nodeID, nodeClusterID, nodeEnergy, nodeQValue;
+    wire [`WORD_WIDTH-1:0]          nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue;
     wire [`WORD_WIDTH-1:0]          neighborCount;
 
     wire [`WORD_WIDTH-1:0]          knownCH;
