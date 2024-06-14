@@ -153,8 +153,6 @@ module tb_QTableUpdatev3();
         en = 0;
         #800
         // sige, dito muna for now.
-Wr1oth$leyYyy
-    
 
     // Synopsys stuff
 
