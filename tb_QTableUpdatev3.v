@@ -41,46 +41,46 @@ module tb_QTableUpdatev3();
     memorybankCH    knownCHbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (knownCHCount[4:0]),
+        .index      (knownCHCount),
         .data_in    (knownCH),
         .data_out   (mKnownCH)
     );
     memorybankNode    neighborIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount[5:0]),
+        .index      (neighborCount),
         .data_in    (nodeID),
         .data_out   (mSourceID)
     );
     memorybankNode    neighborHopsbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount[5:0]),
+        .index      (neighborCount),
         .data_in    (nodeHops),
         .data_out   (mSourceHops)
     );
     memorybankNode    clusterIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount[5:0]),
+        .index      (neighborCount),
         .data_in    (nodeClusterID),
         .data_out   (mClusterID)
     );
     memorybankNode    energyLeftbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount[5:0]),
+        .index      (neighborCount),
         .data_in    (nodeEnergy),
         .data_out   (mEnergyLeft)
     );
     memorybankNode    qValuebank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount[5:0]),
+        .index      (neighborCount),
         .data_in    (nodeQValue),
         .data_out   (mQValue)
     );
-    
+
     // packet information
 
     initial begin
