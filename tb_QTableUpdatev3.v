@@ -37,7 +37,7 @@ module tb_QTableUpdatev3();
         neighborCount, knownCH, knownCHCount, wr_en, done
     );
 
-
+/*
     memorybankCH    knownCHbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
@@ -80,6 +80,7 @@ module tb_QTableUpdatev3();
         .data_in    (nodeQValue),
         .data_out   (mQValue)
     );
+    */
     // packet information
 
     initial begin
