@@ -11,7 +11,8 @@ module memorybankCH(
 );
 
     input                           clk, wr_en;
-    input   [4:0]                   index;
+    //input   [4:0]                   index;
+    input   [`WORD_WIDTH-1:0]       index;
     input   [`WORD_WIDTH-1:0]       data_in;
     output  [`WORD_WIDTH-1:0]       data_out;
 
