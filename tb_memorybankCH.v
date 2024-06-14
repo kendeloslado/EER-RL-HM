@@ -1,18 +1,18 @@
 `timescale 1ns / 1ps
 `define MEM_DEPTH 8
 `define WORD_WIDTH 16
-`define MEM_DEPTH 64
+`define MEM_DEPTH 32
 
-module tb_memorybankNode();
+module tb_memorybankCH();
 
 reg                             clk, wr_en;
-reg     [5:0]                   index;
+reg     [4:0]                   index;
 reg     [`WORD_WIDTH-1:0]       data_in;
 wire    [`WORD_WIDTH-1:0]       data_out;
 
 // initialization 
 // testbench for inserting nodeID information
-memorybankNode UUT(.clk(clk), .wr_en(wr_en), .index(index), .data_in(data_in), .data_out(data_out));
+memorybankCH UUT(.clk(clk), .wr_en(wr_en), .index(index), .data_in(data_in), .data_out(data_out));
 
 
 
@@ -22,20 +22,20 @@ initial begin
 end
 
 initial begin
-    $vcdplusfile("tb_memorybankNode.vpd");
+    $vcdplusfile("tb_memorybankCH.vpd");
     $vcdpluson;
-    $sdf_annotate("../mapped/memorybankNode_mapped.sdf", UUT);
+    $sdf_annotate("../mapped/memorybankCH_mapped.sdf", UUT);
     // first memory write
     wr_en = 0;
     index = 0;
-    data_in = 3;
+    data_in = 16'd87;
     #20
     wr_en = 1;
     #20
     // second memory write
     wr_en = 0;
     index = 2;
-    data_in = 15;
+    data_in = 16'd15;
     #40
     wr_en = 1;
     #20
@@ -47,7 +47,7 @@ initial begin
     // third memory write
     index = 4;
     #40
-    data_in = 16'd45;
+    data_in = 16'd23;
     #20
     wr_en = 1;
     #20
