@@ -14,6 +14,7 @@ Check if CH information is in the knownCH list.
     not found: add to knownCH and CHID list
     found:
 */
+
 module QTableUpdatev3(
     clk, nrst, en,
     fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue,
@@ -60,42 +61,42 @@ module QTableUpdatev3(
     memorybankCH    knownCHbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (knownCHCount),
+        .index      (knownCHCount[4:0]),
         .data_in    (knownCH),
         .data_out   (mKnownCH)
     );
     memorybankNode    neighborIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount),
+        .index      (neighborCount[5:0]),
         .data_in    (nodeID),
         .data_out   (mSourceID)
     );
     memorybankNode    neighborHopsbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount),
+        .index      (neighborCount[5:0]),
         .data_in    (nodeHops),
         .data_out   (mSourceHops)
     );
     memorybankNode    clusterIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount),
+        .index      (neighborCount[5:0]),
         .data_in    (nodeClusterID),
         .data_out   (mClusterID)
     );
     memorybankNode    energyLeftbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount),
+        .index      (neighborCount[5:0]),
         .data_in    (nodeEnergy),
         .data_out   (mEnergyLeft)
     );
     memorybankNode    qValuebank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
-        .index      (neighborCount),
+        .index      (neighborCount[5:0]),
         .data_in    (nodeQValue),
         .data_out   (mQValue)
     );
