@@ -25,6 +25,7 @@ initial begin
     $vcdplusfile("tb_memorybankNode.vpd");
     $vcdpluson;
     $sdf_annotate("../mapped/memorybankNode_mapped.sdf", UUT);
+    $vcdplusmemon;
     // first memory write
     wr_en = 0;
     index = 0;
