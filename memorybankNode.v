@@ -17,7 +17,7 @@ module memorybankNode(
 
     // initialize memory array
 
-    reg [`MEM_WIDTH-1:0] memory [0:`MEM_DEPTH-1];
+    output reg [`MEM_WIDTH-1:0] memory [0:`MEM_DEPTH-1];
 
     integer i;
     initial begin
