@@ -129,7 +129,7 @@ module tb_QTableUpdatev3();
     initial begin
         $vcdplusfile("tb_QTableUpdatev3.vpd");
         $vcdpluson;
-        $vcdplusmemon;
+        //$vcdplusmemon;
         $sdf_annotate("../mapped/QTableUpdatev3_mapped.sdf", UUT);
         // standard reset stuff
         en = 0;
