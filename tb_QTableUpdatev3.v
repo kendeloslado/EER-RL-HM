@@ -37,12 +37,50 @@ module tb_QTableUpdatev3();
         neighborCount, knownCH, knownCHCount, wr_en, done
     );
 
-    memorybankCH knownCHbank(.clk(clk), .wr_en(wr_en), .index(knownCHCount), .data_in(knownCH), .data_out(mKnownCH));
-    memorybankNode neighborIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeID), .data_out(mSourceID));
-    memorybankNode clusterIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeClusterID), .data_out(mClusterID));
-    memorybankNode energyLeftbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeEnergy), .data_out(mEnergyLeft));
-    memorybankNode qValuebank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeQValue), .data_out(mQValue));
-
+/*
+    memorybankCH    knownCHbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (knownCHCount),
+        .data_in    (knownCH),
+        .data_out   (mKnownCH)
+    );
+    memorybankNode    neighborIDbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeID),
+        .data_out   (mSourceID)
+    );
+    memorybankNode    neighborHopsbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeHops),
+        .data_out   (mSourceHops)
+    );
+    memorybankNode    clusterIDbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeClusterID),
+        .data_out   (mClusterID)
+    );
+    memorybankNode    energyLeftbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeEnergy),
+        .data_out   (mEnergyLeft)
+    );
+    memorybankNode    qValuebank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeQValue),
+        .data_out   (mQValue)
+    );
+*/
     // packet information
 
     initial begin
@@ -55,6 +93,7 @@ module tb_QTableUpdatev3();
         fQValue = 16'h3000;             // fQValue = 0.75
         fPacketType = 3'b101;           // packetType = data
         fKnownCH = 15;
+/*
         // Information from memory
         mSourceID = 0;
         mSourceHops = 0;
@@ -64,7 +103,7 @@ module tb_QTableUpdatev3();
         mNeighborCount = 0;
         mKnownCH = 0;
         mKnownCHCount = 0;
-
+*/
     
         // add another neighbour
         #800
@@ -115,7 +154,7 @@ module tb_QTableUpdatev3();
         en = 0;
         #800
         // sige, dito muna for now.
-
+Wr1oth$leyYyy
     
 
     // Synopsys stuff

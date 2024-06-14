@@ -56,13 +56,49 @@ module QTableUpdatev3(
     reg                             found;  // signal for finding neighborNode
     reg     [3:0]                   state;  // state register for program flow
     
-/*
-    memorybankCH knownCHbank(.clk(clk), .wr_en(wr_en), .index(knownCHCount), .data_in(knownCH), .data_out(mKnownCH));
-    memorybankNode neighborIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeID), .data_out(mSourceID));
-    memorybankNode clusterIDbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeClusterID), .data_out(mClusterID));
-    memorybankNode energyLeftbank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeEnergy), .data_out(mEnergyLeft));
-    memorybankNode qValuebank(.clk(clk), .wr_en(wr_en), .index(neighborCount), .data_in(nodeQValue), .data_out(mQValue));
-*/
+
+    memorybankCH    knownCHbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (knownCHCount),
+        .data_in    (knownCH),
+        .data_out   (mKnownCH)
+    );
+    memorybankNode    neighborIDbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeID),
+        .data_out   (mSourceID)
+    );
+    memorybankNode    neighborHopsbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeHops),
+        .data_out   (mSourceHops)
+    );
+    memorybankNode    clusterIDbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeClusterID),
+        .data_out   (mClusterID)
+    );
+    memorybankNode    energyLeftbank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeEnergy),
+        .data_out   (mEnergyLeft)
+    );
+    memorybankNode    qValuebank(
+        .clk        (clk        ),
+        .wr_en      (wr_en      ),
+        .index      (neighborCount),
+        .data_in    (nodeQValue),
+        .data_out   (mQValue)
+    );
 
     // Parameters
 
