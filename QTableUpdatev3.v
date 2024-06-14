@@ -57,7 +57,7 @@ module QTableUpdatev3(
     reg                             found;  // signal for finding neighborNode
     reg     [3:0]                   state;  // state register for program flow
     
-
+/*
     memorybankCH    knownCHbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
@@ -100,7 +100,7 @@ module QTableUpdatev3(
         .data_in    (nodeQValue),
         .data_out   (mQValue)
     );
-
+*/
     // Parameters
 
     parameter s_idle = 4'd0;        // wait for a new packet to arrive. change state once you receive a packet
