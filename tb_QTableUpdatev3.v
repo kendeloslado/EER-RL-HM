@@ -93,7 +93,7 @@ module tb_QTableUpdatev3();
         fQValue = 16'h3000;             // fQValue = 0.75
         fPacketType = 3'b101;           // packetType = data
         fKnownCH = 15;
-/*
+
         // Information from memory
         mSourceID = 0;
         mSourceHops = 0;
@@ -103,7 +103,7 @@ module tb_QTableUpdatev3();
         mNeighborCount = 0;
         mKnownCH = 0;
         mKnownCHCount = 0;
-*/
+
     
         // add another neighbour
         #800
@@ -129,7 +129,7 @@ module tb_QTableUpdatev3();
     initial begin
         $vcdplusfile("tb_QTableUpdatev3.vpd");
         $vcdpluson;
-        //$vcdplusmemon;
+        $vcdplusmemon;
         $sdf_annotate("../mapped/QTableUpdatev3_mapped.sdf", UUT);
         // standard reset stuff
         en = 0;
