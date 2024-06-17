@@ -1,7 +1,7 @@
 `timescale  1ns/1ps
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
-`define MEM_DEPTH 32
+`define MEM_DEPTH 16
 
 module memorybankCandidate(
     clk, wr_en, index, data_in, data_out
