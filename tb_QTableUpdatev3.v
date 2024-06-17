@@ -111,7 +111,7 @@ module tb_QTableUpdatev3();
         mEnergyLeft = 16'h8000;         // fEnergyLeft = 2
         mQValue = 16'h3000;             // fQValue = 0.75
         mKnownCH = 15;
-        mNeighborCount = 1;
+        mNeighborCount = 2;
         mKnownCHCount = 1;
 
         // add another neighbour
