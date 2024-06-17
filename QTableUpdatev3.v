@@ -361,7 +361,8 @@ module QTableUpdatev3(
                     end
                 end
                 s_addnode: begin
-                    neighborCount_buf <= neighborCount_buf + 1;
+                    //neighborCount_buf <= neighborCount_buf + 1;
+                    neighborCount_buf <= n + 1;
                 end
                 default: neighborCount_buf <= neighborCount_buf;
             endcase

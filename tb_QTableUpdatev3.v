@@ -104,7 +104,7 @@ module tb_QTableUpdatev3();
         mKnownCH = 0;
         mKnownCHCount = 0;
 
-        #230
+        #250
         mSourceID = 1;
         mSourceHops = 2; 
         mClusterID = 2;
@@ -113,7 +113,7 @@ module tb_QTableUpdatev3();
         mKnownCH = 15;
         mNeighborCount = 1;
         mKnownCHCount = 1;
-        
+
         // add another neighbour
         #600
         fSourceID = 17;
