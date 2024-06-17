@@ -176,7 +176,7 @@ module QTableUpdatev3(
                     end
                 end
                 s_checknCount: begin
-                    if(n == mNeighborCount) begin
+                    if(n >= mNeighborCount) begin
                         state <= s_addnode;
                         // on first iteration, the node will be guaranteed
                         // to add node information.
