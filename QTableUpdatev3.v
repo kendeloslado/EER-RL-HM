@@ -31,15 +31,15 @@ module QTableUpdatev3(
     input   [2:0]                   fPacketType;
     // Memory Input Information
 
-//    input   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
-//    input   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
-    output   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
-    output   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
+    input   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
+    input   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
+//    output   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
+//    output   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
     // knownCH-related information
-//    input   [`WORD_WIDTH-1:0]       mKnownCH;
-//   input   [`WORD_WIDTH-1:0]       mKnownCHCount;
-    output   [`WORD_WIDTH-1:0]       mKnownCH;
-    output   [`WORD_WIDTH-1:0]       mKnownCHCount;
+    input   [`WORD_WIDTH-1:0]       mKnownCH;
+   input   [`WORD_WIDTH-1:0]       mKnownCHCount;
+//    output   [`WORD_WIDTH-1:0]       mKnownCH;
+//    output   [`WORD_WIDTH-1:0]       mKnownCHCount;
     // Local node information output to write into memory
     output  [`WORD_WIDTH-1:0]       nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue;
     output  [`WORD_WIDTH-1:0]       neighborCount;
