@@ -82,10 +82,10 @@ module tb_QTableUpdatev3();
     );
 */
     // packet information
-
+/*
     initial begin
         // Add new neighbour
-
+/*
         fSourceID = 1;
         fSourceHops = 2; 
         fClusterID = 2;
@@ -93,7 +93,8 @@ module tb_QTableUpdatev3();
         fQValue = 16'h3000;             // fQValue = 0.75
         fPacketType = 3'b101;           // packetType = data
         fKnownCH = 15;
-
+*/
+/*
         // Information from memory
         mSourceID = 0;
         mSourceHops = 0;
@@ -103,7 +104,8 @@ module tb_QTableUpdatev3();
         mNeighborCount = 0;
         mKnownCH = 0;
         mKnownCHCount = 0;
-
+*/
+/*
         #250
         mSourceID = 1;
         mSourceHops = 2; 
@@ -113,8 +115,8 @@ module tb_QTableUpdatev3();
         mKnownCH = 15;
         mNeighborCount = 2;
         mKnownCHCount = 1;
-
-        // add another neighbour
+*/
+/*        // add another neighbour
         #600
         fSourceID = 17;
         fSourceHops = 2;
@@ -122,10 +124,10 @@ module tb_QTableUpdatev3();
         fEnergyLeft = 16'h1800;         // fEnergyLeft = 1.5
         fQValue = 16'hB800;             // fQValue = 11.5
         fPacketType = 3'b101;
-        
+       
         // Update neighbor    
     end
-
+*/
     // clock PD
     
     initial begin
@@ -143,6 +145,23 @@ module tb_QTableUpdatev3();
         // standard reset stuff
         en = 0;
         nrst = 0;
+        // New packet, first neighbour information
+        fSourceID = 1;
+        fSourceHops = 2; 
+        fClusterID = 2;
+        fEnergyLeft = 16'h8000;         // fEnergyLeft = 2
+        fQValue = 16'h3000;             // fQValue = 0.75
+        fPacketType = 3'b101;           // packetType = data
+        fKnownCH = 15;
+        // Initial information from memory
+        mSourceID = 0;
+        mSourceHops = 0;
+        mClusterID = 0;
+        mEnergyLeft = 0;
+        mQValue = 0;
+        mNeighborCount = 0;
+        mKnownCH = 0;
+        mKnownCHCount = 0;
         #15
         nrst = 1;
         #40
@@ -155,8 +174,14 @@ module tb_QTableUpdatev3();
         #20
         en = 0;
         // stuff should keep running
-        #50
-        #500
+        #600
+        // add another neighbor
+        fSourceID = 17;
+        fSourceHops = 2;
+        fClusterID = 2;
+        fEnergyLeft = 16'h1800;         // fEnergyLeft = 1.5
+        fQValue = 16'hB800;             // fQValue = 11.5
+        fPacketType = 3'b101;
         #50
         #300
         en = 1;
