@@ -182,6 +182,15 @@ module tb_QTableUpdatev3();
         fEnergyLeft = 16'h1800;         // fEnergyLeft = 1.5
         fQValue = 16'hB800;             // fQValue = 11.5
         fPacketType = 3'b101;
+        // Add another neighbour
+        mSourceID = 1;
+        mSourceHops = 2; 
+        mClusterID = 2;
+        mEnergyLeft = 16'h8000;         // fEnergyLeft = 2
+        mQValue = 16'h3000;             // fQValue = 0.75
+        mKnownCH = 15;
+        mNeighborCount = 2;
+        mKnownCHCount = 1;
         #50
         #300
         en = 1;

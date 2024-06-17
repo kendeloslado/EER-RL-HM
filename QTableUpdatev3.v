@@ -169,6 +169,21 @@ module QTableUpdatev3(
             case(state)
                 s_idle: begin
                     if(en) begin
+/*
+                        nodeID_buf <= 0;
+                        nodeHops_buf <= 0;
+                        nodeClusterID_buf <= 0;
+                        nodeEnergy <= 0;
+                        nodeQValue <= 0;
+                        neighborCount_buf <= 0;
+                        n <= 0;
+                        k <= 0;
+                        knownCH_buf <= 0;
+                        knownCHCount_buf <= 0;
+                        done_buf <= 0;
+                        wr_en_buf <= 0;
+                        found <= 0;
+*/
                         state <= s_checknCount;   // start checking neighbors
                     end
                     else begin
@@ -187,32 +202,49 @@ module QTableUpdatev3(
                     end
                 end
                 s_addnode: begin
+/*              // add node information
+                // node information to be added: nodeID, nodeHops, nodeClusterID,
+                // nodeEnergy, nodeQValue
+                // receive information from packet (fPacket)
+                // wr_en_buf <= 1;
+                // increment neighborCount by 1
+                    nodeID_buf <= fSourceID;
+*/
                     state <= s_checkKCH;
                     // check Cluster Head information next
                 end
                 s_checknID: begin
                     if(fSourceID == mSourceID) begin
                         state <= s_updatenID;
+                        // found <= 1;
                         // found fSource as an existing entry, update node
                         // information
                     end
                     else begin
                         state <= s_checknCount;
+                        // n <= n + 1;
                         // not found, check next node
                     end
                 end
                 s_updatenID: begin
-                    // update node information, write to memory bank
+/*
+                    // update node information
+                    node info: nodeHops, nodeClusterID, nodeEnergy, nodeQValue
+                    wr_en_buf <= 1;
                     // after node update, check knownCH information
+*/
                     state <= s_checkKCH;
                 end
                 s_checkKCH: begin
                     // check knownCH information
                     // this current version doesn't say about finding KCH...
-                    // all it does is like, keep adding CHs until it's up to
+                    // all it does is keep adding CHs until it's up to
                     // knownCHCount
                     if(k == knownCHCount) begin
                     // all CH information is now known
+/*                      CHIDCount <= k;
+                        wr_en_buf <= 1;
+*/                    
                         state <= s_update_done;
                     end
                     else begin
@@ -220,12 +252,16 @@ module QTableUpdatev3(
                     end
                 end
                 s_addKCH: begin
+                    // knownCH_buf <= fKnownCH;
                     state <= s_incrementK;
                 end
                 s_incrementK: begin
+                    // k <= k + 1;
                     state <= s_checkKCH;
                 end
                 s_update_done: begin
+                    // wr_en_buf <= 0;
+                    // done <= 1;
                     state <= s_idle;
                 end
                 default: state <= state;
