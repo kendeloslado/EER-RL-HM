@@ -87,7 +87,7 @@ module tb_QTableUpdatev3();
         // Add new neighbour
 
         fSourceID = 1;
-        fSourceHops = 2;
+        fSourceHops = 2; 
         fClusterID = 2;
         fEnergyLeft = 16'h8000;         // fEnergyLeft = 2
         fQValue = 16'h3000;             // fQValue = 0.75
@@ -104,9 +104,18 @@ module tb_QTableUpdatev3();
         mKnownCH = 0;
         mKnownCHCount = 0;
 
-    
+        #230
+        mSourceID = 1;
+        mSourceHops = 2; 
+        mClusterID = 2;
+        mEnergyLeft = 16'h8000;         // fEnergyLeft = 2
+        mQValue = 16'h3000;             // fQValue = 0.75
+        mKnownCH = 15;
+        mNeighborCount = 1;
+        mKnownCHCount = 1;
+        
         // add another neighbour
-        #800
+        #600
         fSourceID = 17;
         fSourceHops = 2;
         fClusterID = 2;
