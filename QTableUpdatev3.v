@@ -306,6 +306,9 @@ module QTableUpdatev3(
                 s_addnode: begin
                     nodeHops_buf <= fSourceHops;
                 end
+                s_updatenID: begin
+                    nodeHops_buf <= fSourceHops;
+                end
             default: nodeHops_buf <= nodeHops_buf;
             endcase
         end
@@ -426,7 +429,7 @@ module QTableUpdatev3(
                         n <= n + 1;
                     end 
                 end
-                default: n <= 0;
+                default: n <= n;
             endcase
         end
     end
