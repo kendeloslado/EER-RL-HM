@@ -15,23 +15,23 @@ Check if CH information is in the knownCH list.
     found:
 */
 
-module QTableUpdatev3(
+module QTUtestMBNodeID(
     clk, nrst, en,
-    fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue,
+    fSourceID, /*fSourceHops, fClusterID, fEnergyLeft, fQValue,*/
     fKnownCH, fPacketType,
-    mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue,
+    mSourceID, /*mSourceHops, mClusterID, mEnergyLeft, mQValue,*/
     mNeighborCount, mKnownCH, mKnownCHCount,
-    nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue,
+    nodeID, /*nodeHops, nodeClusterID, nodeEnergy, nodeQValue,*/
     neighborCount, knownCH, knownCHCount, wr_en, done
 );
     input                           clk, nrst, en;    // standard signals
     // Packet Input Information
-    input   [`WORD_WIDTH-1:0]       fSourceID, fSourceHops, fClusterID, fEnergyLeft, fQValue;
+    input   [`WORD_WIDTH-1:0]       fSourceID/*, fSourceHops, fClusterID, fEnergyLeft, fQValue*/;
     input   [`WORD_WIDTH-1:0]       fKnownCH; // CH information contained from the node
     input   [2:0]                   fPacketType;
     // Memory Input Information
 
-    input   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
+    input   [`WORD_WIDTH-1:0]       mSourceID/*, mSourceHops, mClusterID, mEnergyLeft, mQValue*/;
     input   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
 //    output   [`WORD_WIDTH-1:0]       mSourceID, mSourceHops, mClusterID, mEnergyLeft, mQValue;
 //    output   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
@@ -41,7 +41,7 @@ module QTableUpdatev3(
 //    output   [`WORD_WIDTH-1:0]       mKnownCH;
 //    output   [`WORD_WIDTH-1:0]       mKnownCHCount;
     // Local node information output to write into memory
-    output  [`WORD_WIDTH-1:0]       nodeID, nodeHops, nodeClusterID, nodeEnergy, nodeQValue;
+    output  [`WORD_WIDTH-1:0]       nodeID/*, nodeHops, nodeClusterID, nodeEnergy, nodeQValue*/;
     output  [`WORD_WIDTH-1:0]       neighborCount;
     // knownCH-related information (outgoing)
     output  [`WORD_WIDTH-1:0]       knownCH;
@@ -49,9 +49,9 @@ module QTableUpdatev3(
     // output signals
     output                          wr_en;
     output                          done;
-
+    // 
     // Register Buffers
-    reg     [`WORD_WIDTH-1:0]       nodeID_buf, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf; // output register buffers
+    reg     [`WORD_WIDTH-1:0]       nodeID_buf/*, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf*/; // output register buffers
     reg     [`WORD_WIDTH-1:0]       neighborCount_buf;          // index registers
     reg     [`WORD_WIDTH-1:0]       n;      // different index for neighborCount
     reg     [`WORD_WIDTH-1:0]       k;      // different index for knownCH
@@ -60,23 +60,24 @@ module QTableUpdatev3(
     reg                             done_buf, wr_en_buf;
     reg                             found;  // signal for finding neighborNode
     reg     [3:0]                   state;  // state register for program flow
-    
+    // Register for Memory
+    reg     [`WORD_WIDTH-1:0]       mSourceID_buf;
 /*
     memorybankCH    knownCHbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
         .index      (knownCHCount),
         .data_in    (knownCH),
-        .data_out   (mKnownCH)
-    );
+        .data_out   (mKnownCH) 
+    ); */
     memorybankNode    neighborIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
         .index      (neighborCount),
         .data_in    (nodeID),
-        .data_out   (mSourceID)
+        .data_out   (mSourceID_buf)
     );
-    memorybankNode    neighborHopsbank(
+/*    memorybankNode    neighborHopsbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
         .index      (neighborCount),
@@ -289,7 +290,7 @@ module QTableUpdatev3(
             endcase
         end
     end
-    always@(posedge clk) begin    // always block for nodeHops_buf;
+/*    always@(posedge clk) begin    // always block for nodeHops_buf;
         if(!nrst) begin
             nodeHops_buf <= 16'h0;
         end
@@ -385,6 +386,7 @@ module QTableUpdatev3(
             endcase
         end
     end
+*/
     always@(posedge clk) begin    // always block for neighborCount_buf
         if(!nrst) begin
             neighborCount_buf <= 16'h0;
@@ -534,14 +536,15 @@ module QTableUpdatev3(
 // nodeID_buf, nodeHops_buf, nodeClusterID_buf, nodeEnergy_buf, nodeQValue_buf, neighborCount_buf
 // done_buf, wr_en_buf, knownCHCount_buf, knownCH_buf
     assign nodeID = nodeID_buf;
-    assign nodeHops = nodeHops_buf;
+/*    assign nodeHops = nodeHops_buf;
     assign nodeClusterID = nodeClusterID_buf;
     assign nodeEnergy = nodeEnergy_buf;
-    assign nodeQValue = nodeQValue_buf;
+    assign nodeQValue = nodeQValue_buf; */
     assign neighborCount = neighborCount_buf;
     assign done = done_buf;
     assign wr_en = wr_en_buf;
     assign knownCHCount = knownCHCount_buf;
     assign knownCH = knownCH_buf;
 
+    assign mSourceID = mSourceID_buf;
 endmodule
