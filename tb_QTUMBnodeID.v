@@ -44,7 +44,7 @@ module tb_QTUMBnodeID();
         .index      (knownCHCount),
         .data_in    (knownCH),
         .data_out   (mKnownCH)
-    ); 
+    ); */
     memorybankNode    neighborIDbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
@@ -52,7 +52,7 @@ module tb_QTUMBnodeID();
         .data_in    (nodeID),
         .data_out   (mSourceID)
     );
-    memorybankNode    neighborHopsbank(
+/*    memorybankNode    neighborHopsbank(
         .clk        (clk        ),
         .wr_en      (wr_en      ),
         .index      (neighborCount),
@@ -138,10 +138,10 @@ module tb_QTUMBnodeID();
     // Reset
 
     initial begin
-        $vcdplusfile("tb_QTableUpdatev3.vpd");
+        $vcdplusfile("tb_QTUtestMBNodeID.vpd");
         $vcdpluson;
         $vcdplusmemon;
-        $sdf_annotate("../mapped/QTableUpdatev3_mapped.sdf", UUT);
+        $sdf_annotate("../mapped/QTUtestMBNodeID_mapped.sdf", UUT);
         // standard reset stuff
         en = 0;
         nrst = 0;
