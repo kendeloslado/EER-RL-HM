@@ -139,7 +139,7 @@ for i=1:n
             CM(i).Q = 0;
             tot =tot+1;
         % elseif tot>1 &&  CM(i).dts>=15 && CM(i).dts<=50
-        elseif tot>1 &&  CM(i).hop>=1 && CM(i).hop<=3
+        elseif tot>1 &&  CM(i).hop>=2 && CM(i).hop<=3
             cl = 0;
             for t = 1:length(CH)
                 dts = sqrt((CM(i).x-CH(t).x)^2 + (CM(i).y-CH(t).y)^2);
@@ -268,7 +268,7 @@ while(op_nodes>50 && rnd<tot_rnd)
                 % node should be alive
                     maxQ = max([cluster(i,:).Q]);
 %                     if (cluster(i,j).dts_ch<=range_C || cluster(i,j).Q == maxQ)
-                    if (cluster(i,j).hop<=1 || cluster(i,j).Q == maxQ)
+                    if (cluster(i,j).hops_ch<=1 || cluster(i,j).Q == maxQ)
                     % cluster member must be within range OR cluster's
                     % the one with highest Q-value
                     % "devices with the highest Q-value in their 
