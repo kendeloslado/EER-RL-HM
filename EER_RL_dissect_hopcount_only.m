@@ -65,7 +65,7 @@ CH_tot= ceil(n*0.1);
 load('fixedseed.mat', 'NET')
 for i=1:n
     
-    
+     
 %     NET(i).id=i;	% sensor's ID number
 %     NET(i).x=rand(1,1)*xm;	% X-axis coordinates of sensor node
 %     NET(i).y=rand(1,1)*ym;	% Y-axis coordinates of sensor node
