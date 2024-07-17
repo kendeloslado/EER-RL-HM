@@ -268,7 +268,7 @@ while(op_nodes>50 && rnd<tot_rnd)
                 % node should be alive
                     maxQ = max([cluster(i,:).Q]);
 %                     if (cluster(i,j).dts_ch<=range_C || cluster(i,j).Q == maxQ)
-                    if (cluster(i,j).hop<=1 || cluster(i,j).Q == maxQ)
+                    if (cluster(i,j).hops_ch<=1 || cluster(i,j).Q == maxQ)
                     % cluster member must be within range OR cluster's
                     % the one with highest Q-value
                     % "devices with the highest Q-value in their 
