@@ -341,7 +341,7 @@ while(op_nodes>50 && rnd<tot_rnd)
                         % cluster member has received packets
                         % received and transmit packets
                             ERx=(EDA+Eelec)*k;
-                            ETx= Eelec*k + Eamp*k*dts_cm^2;
+                            % ETx= Eelec*k + Eamp*k*dts_cm^2;
                             ETx= Eelec*k + Eamp*k*(hops_cm*range_C)^2;
                             NET(cluster(i,j).id).E=NET(cluster(i,j).id).E-ETx-ERx;
                             cluster(i,j).E = cluster(i,j).E-ETx-ERx;
