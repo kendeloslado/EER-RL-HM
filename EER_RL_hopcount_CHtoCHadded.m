@@ -416,13 +416,6 @@ while(op_nodes>50 && rnd<tot_rnd)
                 end
                 
             else
-            % cluster head is out of range from BS
-                % for j2 = 1:CH_tot
-                    % if(ne(j,j2))
-                        % if(hop
-% 
-                    % end
-                % end
                 for ns=1:length(Next_sink)
 %                     if dts_tmp(j,ns) == min(dts_tmp(j,:))
                     if hop_tmp(j,ns) == min(hop_tmp(j,:))
