@@ -127,7 +127,7 @@ for i=1:n
     %disp(maxx);
     if(CM(i).Q == max([CM.Q])) 
     % filter nodes with highest Q-value
-        if tot == 1 && CM(i).hop>=1 && CM(i).hop<=3
+        if tot == 1 && CM(i).hop>=2 && CM(i).hop<=3
         % this conditional's for searching the first cluster head
         % pick node whose distance to sink (dts) is between 15-50
             CH(tot) = CM(i);

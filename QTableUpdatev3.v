@@ -37,7 +37,7 @@ module QTableUpdatev3(
 //    output   [`WORD_WIDTH-1:0]       mNeighborCount;     // NeighborNode index in memory
     // knownCH-related information
     input   [`WORD_WIDTH-1:0]       mKnownCH;
-    input   [`WORD_WIDTH-1:0]       mKnownCHCount;
+   input   [`WORD_WIDTH-1:0]       mKnownCHCount;
 //    output   [`WORD_WIDTH-1:0]       mKnownCH;
 //    output   [`WORD_WIDTH-1:0]       mKnownCHCount;
     // Local node information output to write into memory
@@ -210,7 +210,9 @@ module QTableUpdatev3(
                 // increment neighborCount by 1
                     nodeID_buf <= fSourceID;
 */
+                    // state <= s_update_done;
                     state <= s_checkKCH;
+                    
                     // check Cluster Head information next
                 end
                 s_checknID: begin
@@ -234,6 +236,7 @@ module QTableUpdatev3(
                     // after node update, check knownCH information
 */
                     state <= s_checkKCH;
+                    // state <= s_update_done;
                 end
                 s_checkKCH: begin
                     // check knownCH information
