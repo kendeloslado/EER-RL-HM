@@ -122,57 +122,70 @@ end
 tot = 1;
 
 while(tot<=CH_tot)
-for i=1:n
-    %maxx= max([CM.Q]);
-    %disp(maxx);
-    if(CM(i).Q == max([CM.Q])) 
-    % filter nodes with highest Q-value
-        if tot == 1 && CM(i).hop>=2 && CM(i).hop<=3
-        % this conditional's for searching the first cluster head
-        % pick node whose distance to sink (dts) is between 15-50
-            CH(tot) = CM(i);
-            % elect as a cluster head
-            NET(i).role=1;
-            % set "role" flag to 1 in the NET struct 
-            plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or','DisplayName','CH');
-            % color this cluster head as red
-            CM(i).Q = 0;
-            tot =tot+1;
-        % elseif tot>1 &&  CM(i).dts>=15 && CM(i).dts<=50
-        elseif tot>1 &&  CM(i).hop>=2 && CM(i).hop<=3
-            cl = 0;
-            for t = 1:length(CH)
-                dts = sqrt((CM(i).x-CH(t).x)^2 + (CM(i).y-CH(t).y)^2);
-                hop=ceil(dts/range_C);
-                %if(dts <=15)
-                if(CM(i).hop <=1)
-                % do not elect as cluster head flag
-                    cl=cl +1;
-                    break;
-                end
-            end
-            if cl==0
+    for i=1:n
+        %maxx= max([CM.Q]);
+        %disp(maxx);
+        if(CM(i).Q == max([CM.Q])) 
+        % filter nodes with highest Q-value
+            if tot == 1 && CM(i).hop>=2 && CM(i).hop<=3
+            % this conditional's for searching the first cluster head
+            % pick node whose distance to sink (dts) is between 15-50
                 CH(tot) = CM(i);
-                % elect as cluster head
-
-                plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or');
-                
+                % elect as a cluster head
                 NET(i).role=1;
+                % set "role" flag to 1 in the NET struct 
+                plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or','DisplayName','CH');
+                % color this cluster head as red
                 CM(i).Q = 0;
-                tot =tot+1;  
+                tot =tot+1;
+            % elseif tot>1 &&  CM(i).dts>=15 && CM(i).dts<=50
+            elseif tot>1 &&  CM(i).hop>=2 && CM(i).hop<=3
+                cl = 0;
+                for t = 1:length(CH)
+                    dts = sqrt((CM(i).x-CH(t).x)^2 + (CM(i).y-CH(t).y)^2);
+                    hop=ceil(dts/range_C);
+                    %if(dts <=15)
+                    if(CM(i).hop <=1)
+                    % do not elect as cluster head flag
+                        cl=cl +1;
+                        break;
+                    end
+                end
+                if cl==0
+                    CH(tot) = CM(i);
+                    % elect as cluster head
+    
+                    plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or');
+                    
+                    NET(i).role=1;
+                    CM(i).Q = 0;
+                    tot =tot+1;  
+                else
+                    CM(i).Q = 0;
+                end
             else
                 CM(i).Q = 0;
             end
-        else
-            CM(i).Q = 0;
+                
         end
-            
+           if tot >CH_tot
+               break;
+           end
     end
-       if tot >CH_tot
-           break;
-       end
 end
-end
+
+% calculate CH hop to other CH for intercluster communication
+    for j = 1:CH_tot
+        for j2 = 1:CH_tot
+            if(ne(j,j2))
+                dts_CHCH(j,j2) = sqrt((CH(j).x-CH(j2).x)^2 + (CH(j).y-CH(j2).y)^2);
+                hops_CHCH(j,j2) = ceil(dts_CHCH(j,j2)/range_C);
+                hops_CHCH(hops_CHCH==0)=NaN;
+            end
+        end
+    end
+
+
 %END CLUSTER HEAD ELECTION
 %%
 %CLUSTER FORMATION
@@ -249,15 +262,6 @@ while(op_nodes>50 && rnd<tot_rnd)
             dts_tmp(j,ns) = sqrt((CH(j).x-Next_sink(ns).x)^2 + (CH(j).y-Next_sink(ns).y)^2);
             hop_tmp(j,ns) = ceil(dts_tmp(j,ns)/range_C);
             % get distance of node j to Next_sink(ns)
-        end
-    end
-    % calculate CH hop to other CH for intercluster communication
-    for j = 1:CH_tot
-        for j2 = 1:CH_tot
-            if(ne(j,j2))
-                dts_CHCH(j,j2) = sqrt((CH(j).x-CH(j2).x)^2 + (CH(j).y-CH(j2).y)^2);
-                hop_CHCH(j,j2) = ceil(dts_CHCH(j,j2)/range_C);
-            end
         end
     end
 
@@ -416,6 +420,11 @@ while(op_nodes>50 && rnd<tot_rnd)
                 end
                 
             else
+                for j2 = 1:CH_tot
+                    if hops_CHCH(j,j2) == min(hops_CHCH(j,:))
+                    
+                    end
+                end
                 for ns=1:length(Next_sink)
 %                     if dts_tmp(j,ns) == min(dts_tmp(j,:))
                     if hop_tmp(j,ns) == min(hop_tmp(j,:))

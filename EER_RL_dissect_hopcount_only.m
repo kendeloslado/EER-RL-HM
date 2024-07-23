@@ -122,56 +122,56 @@ end
 tot = 1;
 
 while(tot<=CH_tot)
-for i=1:n
-    %maxx= max([CM.Q]);
-    %disp(maxx);
-    if(CM(i).Q == max([CM.Q])) 
-    % filter nodes with highest Q-value
-        if tot == 1 && CM(i).hop>=2 && CM(i).hop<=3
-        % this conditional's for searching the first cluster head
-        % pick node whose distance to sink (dts) is between 15-50
-            CH(tot) = CM(i);
-            % elect as a cluster head
-            NET(i).role=1;
-            % set "role" flag to 1 in the NET struct 
-            plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or','DisplayName','CH');
-            % color this cluster head as red
-            CM(i).Q = 0;
-            tot =tot+1;
-        % elseif tot>1 &&  CM(i).dts>=15 && CM(i).dts<=50
-        elseif tot>1 &&  CM(i).hop>=2 && CM(i).hop<=3
-            cl = 0;
-            for t = 1:length(CH)
-                dts = sqrt((CM(i).x-CH(t).x)^2 + (CM(i).y-CH(t).y)^2);
-                hop=ceil(dts/range_C);
-                %if(dts <=15)
-                if(CM(i).hop <=1)
-                % do not elect as cluster head flag
-                    cl=cl +1;
-                    break;
-                end
-            end
-            if cl==0
+    for i=1:n
+        %maxx= max([CM.Q]);
+        %disp(maxx);
+        if(CM(i).Q == max([CM.Q])) 
+        % filter nodes with highest Q-value
+            if tot == 1 && CM(i).hop>=2 && CM(i).hop<=3
+            % this conditional's for searching the first cluster head
+            % pick node whose distance to sink (dts) is between 15-50
                 CH(tot) = CM(i);
-                % elect as cluster head
-
-                plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or');
-                
+                % elect as a cluster head
                 NET(i).role=1;
+                % set "role" flag to 1 in the NET struct 
+                plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or','DisplayName','CH');
+                % color this cluster head as red
                 CM(i).Q = 0;
-                tot =tot+1;  
+                tot =tot+1;
+            % elseif tot>1 &&  CM(i).dts>=15 && CM(i).dts<=50
+            elseif tot>1 &&  CM(i).hop>=2 && CM(i).hop<=3
+                cl = 0;
+                for t = 1:length(CH)
+                    dts = sqrt((CM(i).x-CH(t).x)^2 + (CM(i).y-CH(t).y)^2);
+                    hop=ceil(dts/range_C);
+                    %if(dts <=15)
+                    if(CM(i).hop <=1)
+                    % do not elect as cluster head flag
+                        cl=cl +1;
+                        break;
+                    end
+                end
+                if cl==0
+                    CH(tot) = CM(i);
+                    % elect as cluster head
+    
+                    plot(x,y,xm,ym,NET(i).x,NET(i).y,'Or');
+                    
+                    NET(i).role=1;
+                    CM(i).Q = 0;
+                    tot =tot+1;  
+                else
+                    CM(i).Q = 0;
+                end
             else
                 CM(i).Q = 0;
             end
-        else
-            CM(i).Q = 0;
+                
         end
-            
+           if tot >CH_tot
+               break;
+           end
     end
-       if tot >CH_tot
-           break;
-       end
-end
 end
 %END CLUSTER HEAD ELECTION
 %%
