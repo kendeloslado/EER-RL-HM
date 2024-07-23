@@ -470,13 +470,13 @@ while(op_nodes>50 && rnd<tot_rnd)
 %                             CH(j).E = CH(j).E-Edis;
 %                             energy=energy+Edis;
 %                             CH(j).prev =0;
-%                         end  
-%                         NET(Next_sink(ns).id).prev = 1;
-%                         break;
-%                     end
-% 
-%                 end
-%             end
+                        % end  
+                        % NET(Next_sink(ns).id).prev = 1;
+                        % break;
+                    end
+
+                % end
+            % end
             
             %Compute the reward
             Q_old = CH(j).Q;
