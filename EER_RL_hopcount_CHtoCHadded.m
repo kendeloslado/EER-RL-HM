@@ -243,27 +243,27 @@ end
 dead=0;
 while(op_nodes>50 && rnd<tot_rnd)
     
-    %Node nearby the Sink node
-    % ns=1;
-    % for l=1:n
-    %     if NET(l).E>0
-    %         if NET(l).hop<=1 && NET(l).role==0
-    %             Next_sink(ns) = NET(l);
-    %             % this seems to tell that nodes next to the sink is NET(l).
-    %             % but... going through this sequentially would mean that
-    %             % the next_sink will use the node with the highest id... is
-    %             % this supposed to happen?
-    %         end
-    %     end    
-    % end
-    % % calculate CH node distance to aggregator
-    % for j = 1:CH_tot
-    %     for ns=1:length(Next_sink)
-    %         dts_tmp(j,ns) = sqrt((CH(j).x-Next_sink(ns).x)^2 + (CH(j).y-Next_sink(ns).y)^2);
-    %         hop_tmp(j,ns) = ceil(dts_tmp(j,ns)/range_C);
-    %         % get distance of node j to Next_sink(ns)
-    %     end
-    % end
+    % Node nearby the Sink node
+    ns=1;
+    for l=1:n
+        if NET(l).E>0
+            if NET(l).hop<=1 && NET(l).role==0
+                Next_sink(ns) = NET(l);
+                % this seems to tell that nodes next to the sink is NET(l).
+                % but... going through this sequentially would mean that
+                % the next_sink will use the node with the highest id... is
+                % this supposed to happen?
+            end
+        end    
+    end
+    % calculate CH node distance to aggregator
+    for j = 1:CH_tot
+        for ns=1:length(Next_sink)
+            dts_tmp(j,ns) = sqrt((CH(j).x-Next_sink(ns).x)^2 + (CH(j).y-Next_sink(ns).y)^2);
+            hop_tmp(j,ns) = ceil(dts_tmp(j,ns)/range_C);
+            % get distance of node j to Next_sink(ns)
+        end
+    end
 
 
      %en Node nearby the sink
@@ -387,6 +387,12 @@ while(op_nodes>50 && rnd<tot_rnd)
     %END OF INTRACLUSTER MULTIHOP COMMUNICATION
 
     %INTERCLUSTER COMMUNICATION
+    % Comment series:
+    % Intercluster Communication should go like this:
+    % CHs should decide who their nexthop is. It is either an intermediate
+    % CH, an aggregator, or the sink. CH nexthop decision should be one
+    % decision at a time, so the CH should choose between one of these
+    % entities 
     for j =1:CH_tot
         thres = NET(CH(j).id).Eo * 0.4;
         if CH(j).E >thres && thres>0
@@ -418,30 +424,175 @@ while(op_nodes>50 && rnd<tot_rnd)
                     energy=energy+Edis;
                     CH(j).prev =0;
                 end
-                
+            
+
+
+            % else
+% when you create your elseif/else statement here, you should decide between choosing the
+% aggregator or an intermediate CH. You should make the decision whether
+% you're selecting an aggregator or intermediate CH. The first basis is
+% whether the aggregator is closer to you than an intermediate CH. If
+% they're a tie, pick the better Q-value. If Q-values are still a tie,
+% choose the aggregator.
+            % else
+                % if hop_tmp(j,ns) < min(hops_CHCH(j,:))
+                    % select aggregator
+                % elseif hop_tmp(j,ns) == min(hops_CHCH(j,:))
+                    % pick highest Q-value
+                    % if Next_sink.Q > max([CH(:).Q])
+                        % transmit to aggregator
+                    % elseif hop_tmp(j,ns) == max([CH(j).Q]
+                        % transmit to aggregator
+                    % else
+                        % transmit to intermediate CH
+                % else
+                    % select closest CH
             else
-                for j2 = 1:CH_tot
-                    if hops_CHCH(j,j2) == min(hops_CHCH(j,:))
-                        if CH(j).prev == 0
-                        % CH receives no packets
-                        % there will only be transmission energy
-                            ETx = Eelec*k + Eamp*k*(hops_CHCH(j,j2)*range_C)^2;
-                            NET(CH(j).id).E = NET(CH(j).id).E-ETx;
+                if hop_tmp(j,ns) < min(hops_CHCH(j,:))
+                    % for ns=1:length(Next_sink)
+%                     if dts_tmp(j,ns) == min(dts_tmp(j,:))
+                    if hop_tmp(j,ns) == min(hop_tmp(j,:))
+                    % checks if CH is within range of an aggregator
+                    % shortest distance possible
+                        if CH(j).prev ==0
+                        % CH hasn't received packets
+                        % TRANSMIT ONLY
+%                             ETx= Eelec*k + Eamp*k*dts_tmp(j,ns)^2;
+                            ETx= Eelec*k + Eamp*k*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2;
+                            NET(CH(j).id).E=NET(CH(j).id).E-ETx;
                             CH(j).E = CH(j).E-ETx;
 
-                            energy = energy+ETx;
+                            energy=energy+ETx;
                         else
-                            % CH received packets
-                            % transmit and receive packets
-                            Edis = (k*Eelec + EDA) + k*(Eelec + Eamp*(hops_CHCH(j,j2)*range_C)^2);
+                        % CH received packets
+                        % TRANSMIT AND RECEIVE
+                            %ERx=(EDA+Eelec)*k;
+                            %ETx= Eelec*k + Eamp*k*CH(j).dts^2;
+                            %Edis = (k*CH(j).prev*(Eelec + EDA) + k*(Eelec+Eamp*(CH(j).dts^2)));
+%                             Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(dts_tmp(j,ns)^2)));
+                            Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2));
                             NET(CH(j).id).E=NET(CH(j).id).E-Edis;
+                            % line above didn't have a semicolon, could be
+                            % intentional.
                             CH(j).E = CH(j).E-Edis;
                             energy=energy+Edis;
                             CH(j).prev =0;
                         end
-                        NET(CH(j2).id).prev = NET(CH(j2).id).prev + 1;
+                    end  
+                    NET(Next_sink(ns).id).prev = 1;
+                    break;
+                elseif hop_tmp(j,ns) == min(hops_CHCH(j,:))
+                    % pick highest Q-value
+                    if Next_sink.Q > max([CH(:).Q])
+                        if CH(j).prev ==0
+                        % CH hasn't received packets
+                        % TRANSMIT ONLY
+%                             ETx= Eelec*k + Eamp*k*dts_tmp(j,ns)^2;
+                            ETx= Eelec*k + Eamp*k*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2;
+                            NET(CH(j).id).E=NET(CH(j).id).E-ETx;
+                            CH(j).E = CH(j).E-ETx;
+
+                            energy=energy+ETx;
+                        else
+                        % CH received packets
+                        % TRANSMIT AND RECEIVE
+                            %ERx=(EDA+Eelec)*k;
+                            %ETx= Eelec*k + Eamp*k*CH(j).dts^2;
+                            %Edis = (k*CH(j).prev*(Eelec + EDA) + k*(Eelec+Eamp*(CH(j).dts^2)));
+%                             Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(dts_tmp(j,ns)^2)));
+                            Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2));
+                            NET(CH(j).id).E=NET(CH(j).id).E-Edis;
+                            % line above didn't have a semicolon, could be
+                            % intentional.
+                            CH(j).E = CH(j).E-Edis;
+                            energy=energy+Edis;
+                            CH(j).prev =0;
+                        end
+                    elseif Next_sink.Q == max([CH(:).Q])
+                        if CH(j).prev ==0
+                        % CH hasn't received packets
+                        % TRANSMIT ONLY
+%                             ETx= Eelec*k + Eamp*k*dts_tmp(j,ns)^2;
+                            ETx= Eelec*k + Eamp*k*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2;
+                            NET(CH(j).id).E=NET(CH(j).id).E-ETx;
+                            CH(j).E = CH(j).E-ETx;
+
+                            energy=energy+ETx;
+                        else
+                        % CH received packets
+                        % TRANSMIT AND RECEIVE
+                            %ERx=(EDA+Eelec)*k;
+                            %ETx= Eelec*k + Eamp*k*CH(j).dts^2;
+                            %Edis = (k*CH(j).prev*(Eelec + EDA) + k*(Eelec+Eamp*(CH(j).dts^2)));
+%                             Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(dts_tmp(j,ns)^2)));
+                            Edis = (k*(Eelec + EDA) + k*(Eelec+Eamp*(ceil(dts_tmp(j,ns)/range_C)*range_C)^2));
+                            NET(CH(j).id).E=NET(CH(j).id).E-Edis;
+                            % line above didn't have a semicolon, could be
+                            % intentional.
+                            CH(j).E = CH(j).E-Edis;
+                            energy=energy+Edis;
+                            CH(j).prev =0;
+                        end
+                    else 
+                        % pick CH as intermediate node
+                        for j2 = 1:CH_tot
+                            if hops_CHCH(j,j2) == min(hops_CHCH(j,:))
+                                if CH(j).prev == 0
+                                % CH receives no packets
+                                % there will only be transmission energy
+                                    ETx = Eelec*k + Eamp*k*(hops_CHCH(j,j2)*range_C)^2;
+                                    NET(CH(j).id).E = NET(CH(j).id).E-ETx;
+                                    CH(j).E = CH(j).E-ETx;
+
+                                    energy = energy+ETx;
+                                else
+                                    % CH received packets
+                                    % transmit and receive packets
+                                    Edis = (k*Eelec + EDA) + k*(Eelec + Eamp*(hops_CHCH(j,j2)*range_C)^2);
+                                    NET(CH(j).id).E=NET(CH(j).id).E-Edis;
+                                    CH(j).E = CH(j).E-Edis;
+                                    energy=energy+Edis;
+                                    CH(j).prev =0;
+                                end
+                                NET(CH(j2).id).prev = NET(CH(j2).id).prev + 1;
+                                % continue;
+                                break;
+                            end
+                        end
                     end
+
+                    NET(Next_sink(ns).id).prev = 1;
+                    break;
                 end
+            end
+        
+            % else
+            %     for j2 = 1:CH_tot
+            %         if hops_CHCH(j,j2) == min(hops_CHCH(j,:))
+            %             if CH(j).prev == 0
+            %             % CH receives no packets
+            %             % there will only be transmission energy
+            %                 ETx = Eelec*k + Eamp*k*(hops_CHCH(j,j2)*range_C)^2;
+            %                 NET(CH(j).id).E = NET(CH(j).id).E-ETx;
+            %                 CH(j).E = CH(j).E-ETx;
+            % 
+            %                 energy = energy+ETx;
+            %             else
+            %                 % CH received packets
+            %                 % transmit and receive packets
+            %                 Edis = (k*Eelec + EDA) + k*(Eelec + Eamp*(hops_CHCH(j,j2)*range_C)^2);
+            %                 NET(CH(j).id).E=NET(CH(j).id).E-Edis;
+            %                 CH(j).E = CH(j).E-Edis;
+            %                 energy=energy+Edis;
+            %                 CH(j).prev =0;
+            %             end
+            %             NET(CH(j2).id).prev = NET(CH(j2).id).prev + 1;
+            %             % continue;
+            %             break;
+            %         end
+            %     end
+
+            % else
 %                 for ns=1:length(Next_sink)
 % %                     if dts_tmp(j,ns) == min(dts_tmp(j,:))
 %                     if hop_tmp(j,ns) == min(hop_tmp(j,:))
@@ -473,7 +624,7 @@ while(op_nodes>50 && rnd<tot_rnd)
                         % end  
                         % NET(Next_sink(ns).id).prev = 1;
                         % break;
-                    end
+                    % end
 
                 % end
             % end
@@ -485,6 +636,7 @@ while(op_nodes>50 && rnd<tot_rnd)
             %update Q_value
             CH(j).Q =Q_old + alpha*(R+ gamma * maxQ -Q_old) ;
             NET(CH(j).id).Q = CH(j).Q;
+            
         elseif CH(j).E <= thres || thres<=0
         % recluster nodes    
             %------------------- BEGINNING OF RECLUSTERING --------------
@@ -604,6 +756,7 @@ while(op_nodes>50 && rnd<tot_rnd)
             %------------------- END OF RECLUSTERING ---------------------
 
         end
+        
         CH(j).prev=0;
     end
     %END INTERCLUSTER COMMUNICATION
