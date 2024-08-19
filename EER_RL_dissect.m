@@ -221,7 +221,7 @@ end
 %%
 %COMMUNICATION PHASE------------------------------------------------------
 dead=0;
-while(op_nodes>0 && rnd<tot_rnd)
+while(op_nodes>5 && rnd<tot_rnd)
     
     %Node nearby the Sink node
     ns=1;
