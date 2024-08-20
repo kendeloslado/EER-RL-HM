@@ -115,10 +115,15 @@ module packetFilter(
             en_KCH_INV_buf <= 0;
         end
         else begin
-            case(fPktType)
-                3'b010: en_KCH_INV_buf <= 1;
-                default: en_KCH_INV_buf <= 0;
-            endcase
+            if(newpkt) begin
+                case(fPktType)
+                    3'b010: en_KCH_INV_buf <= 1;
+                    default: en_KCH_INV_buf <= 0;
+                endcase
+            end
+            else begin
+                en_KCH_INV_buf <= 0;
+            end
         end
     end
 
