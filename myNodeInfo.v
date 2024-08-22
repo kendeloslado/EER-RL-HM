@@ -24,8 +24,7 @@ module myNodeInfo(
     reg                     role_reg;
     reg                     low_E_reg;
 
-    // always block for role
-
+// always block for role
     always@(posedge clk) begin
         if(!nrst) begin
             role <= 0;
