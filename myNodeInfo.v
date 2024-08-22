@@ -22,6 +22,7 @@ module myNodeInfo(
     reg     [15:0]          timeslot;
     reg                     HBLock_reg;
     reg                     role_reg;
+    reg                     low_E_reg;
 
     // always block for role
 
@@ -41,6 +42,27 @@ module myNodeInfo(
             end
         end
     end
-    
+
+    // always block for low_E
+
+    always@(posedge clk) begin
+        if(!nrst) begin
+            low_E <= 0;
+        end
+        else begin
+            if(en_MNI) begin
+                if(energy < e_threshold) begin
+                    low_E <= 1;
+                end
+                else begin
+                    low_E <= 0;
+                end
+            end
+            else begin
+                low_E <= low_E;
+            end
+        end
+    end
+
 
 endmodule
