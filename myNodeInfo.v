@@ -25,7 +25,7 @@ module myNodeInfo(
     reg     [15:0]          e_threshold_buf;
     reg     [15:0]          e_min_buf;
     reg     [15:0]          e_max_buf;
-    reg     [15:0]          timeslot_buf;
+    reg     [15:0]          timeslot_buf; 
     reg                     HBLock_buf;
     reg                     role_buf;
     reg                     low_E_buf;
