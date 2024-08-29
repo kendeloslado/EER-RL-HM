@@ -1,3 +1,8 @@
+`timescale 1ns / 1ps
+`define MEM_DEPTH 2048
+`define MEM_WIDTH 8
+`define WORD_WIDTH 16
+
 module tb_myNodeInfo();
 
     reg                   clk;
@@ -39,7 +44,7 @@ initial begin
     // initial conditions
     nrst = 0;
     en_MNI = 0;
-    fPktType = 3'b111;
+    fPktType = 3'b111; // This packet type doesn't exist. Assume it's a don't care value.
     // Let's simulate receiving a heartbeat packet first
 
     #100
@@ -56,9 +61,38 @@ initial begin
     // no timeslot, ch_ID
     #40
     en_MNI = 1;
+    #20
+    en_MNI = 0;
     #40
     // let it cook
-    
+    // After enabling myNodeInfo, the individual should have recorded the information 
+    // attached above, outputting an initial Q-value, and hopsFromSink
+    #40
+    // receive CHE packet
+    fPktType = 3'b001;
+    ch_ID = 16'd32; // sample ch_ID, not cluster head for this CH.
+    #20
+    en_MNI = 1; // go check if you're a CH for the round
+    #20
+    en_MNI = 0;
+    #40
+    // by the time you get to this delay, role should still be at 0.
+    // receive an INV packet
+    fPktType = 3'b010; // this packet type should not do anything in the node
+    ch_ID = 16'd32;
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #40
+    // receive another CHE packet
+    fPktType = 3'b001;
+    ch_ID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
+                      // packet should change your role into 1.
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
 
     $finish;
 end
