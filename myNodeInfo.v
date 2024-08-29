@@ -1,3 +1,8 @@
+`timescale 1ns / 1ps
+`define MEM_DEPTH 2048
+`define MEM_WIDTH 8
+`define WORD_WIDTH 16
+
 module myNodeInfo(
     input                   clk,
     input                   nrst,
@@ -29,38 +34,7 @@ module myNodeInfo(
     reg                     HBLock_buf;
     reg                     role_buf;
     reg                     low_E_buf;
-// always block for role
-    always@(posedge clk) begin
-        if(!nrst) begin
-            role_buf <= 0;
-        end
-        else begin
-            if(en_MNI && fPktType == 3'b001) begin
-                if(nodeID == ch_ID)
-                    role_buf <= 1;
-                else
-                    role_buf <= 0;
-            end
-            else begin
-                role_buf <= role_buf;
-            end
-        end
-    end
 
-// always block for low_E
-    always@(posedge clk) begin
-        if(!nrst) begin
-            low_E_buf <= 0;
-        end
-        else begin
-            if(energy < e_threshold) begin
-                low_E_buf <= 1;
-            end
-            else begin
-                low_E_buf <= 0;
-            end
-        end
-    end
 // always block for hopsFromSink_buf
     always@(posedge clk) begin
         if(!nrst) begin
@@ -76,6 +50,16 @@ module myNodeInfo(
             else begin
                 hopsFromSink_buf <= hopsFromSink_buf;
             end
+        end
+    end
+// always block for myQValue_buf
+    always@(posedge clk) begin
+        if(!nrst) begin
+            myQValue_buf <= 0;
+        end
+        else begin
+            myQValue_buf <= Q_value_compute_out;
+            // Q_value_compute_out is from a Q-value computation module.
         end
     end
 // always block for e_threshold_buf
@@ -129,17 +113,8 @@ module myNodeInfo(
             end
         end
     end
-// always block for QValue
-    always@(posedge clk) begin
-        if(!nrst) begin
-            myQValue_buf <= 0;
-        end
-        else begin
-            myQValue_buf <= Q_value_compute_out;
-            // Q_value_compute_out is from a Q-value computation module.
-        end
-    end
-//always block for timeslot
+
+//always block for timeslot_buf
     always@(posedge clk) begin
         if(!nrst) begin
             timeslot_buf <= 0;
@@ -178,6 +153,39 @@ module myNodeInfo(
 
         end
     end
+// always block for role_buf
+    always@(posedge clk) begin
+        if(!nrst) begin
+            role_buf <= 0;
+        end
+        else begin
+            if(en_MNI && fPktType == 3'b001) begin
+                if(nodeID == ch_ID)
+                    role_buf <= 1;
+                else
+                    role_buf <= 0;
+            end
+            else begin
+                role_buf <= role_buf;
+            end
+        end
+    end
+
+// always block for low_E
+    always@(posedge clk) begin
+        if(!nrst) begin
+            low_E_buf <= 0;
+        end
+        else begin
+            if(energy < e_threshold) begin
+                low_E_buf <= 1;
+            end
+            else begin
+                low_E_buf <= 0;
+            end
+        end
+    end
+    
 // assign outputs to register buffers
 assign myNodeID = MY_NODE_ID_CONST;
 assign hopsFromSink = hopsFromSink_buf;
