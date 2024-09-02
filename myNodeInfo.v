@@ -119,15 +119,16 @@ module myNodeInfo(
         if(!nrst) begin
             timeslot_buf <= 0;
         end
-    end
-    else begin
-        if(en_MNI && fPktType == 3'b100) begin
-            timeslot_buf <= timeslot;
-        end
         else begin
-            timeslot_buf <= timeslot_buf;
+            if(en_MNI && fPktType == 3'b100) begin
+                timeslot_buf <= timeslot;
+            end
+            else begin
+                timeslot_buf <= timeslot_buf;
+            end
         end
     end
+    
 // always block for HBLock
 // there needs to be some logic for HBLock. The first HB
 // packet will be accepted and refuse the rest of the heartbeat packets
