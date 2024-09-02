@@ -93,7 +93,8 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;
-
+    #100
+    // let it update
     $finish;
 end
 
