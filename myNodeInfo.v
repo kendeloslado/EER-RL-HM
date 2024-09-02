@@ -8,12 +8,12 @@ module myNodeInfo(
     input                   nrst,
     input                   en_MNI,
     input   [2:0]           fPktType,
-    input   [15:0]          e_max,
-    input   [15:0]          e_min,
+    input   reg   [15:0]          e_max,
+    input   reg   [15:0]          e_min,
     input   [15:0]          energy,
     input   [15:0]          ch_ID,
     input   [15:0]          hops,
-    input   [15:0]          timeslot,
+    input   reg   [15:0]          timeslot,
     input   [15:0]          e_threshold,
     output  [15:0]          myNodeID,
     output  [15:0]          hopsFromSink,
@@ -41,7 +41,7 @@ module myNodeInfo(
             hopsFromSink_buf <= 0;
         end
         else begin
-            if(en_MNI && fPktType == 3'b000) begin
+            if(en_MNI && fPktType == 3'b000 && HBLock_buf == 0) begin
             // leaving the enable condition to just en_MNI presents some problems.
             // get an additional condition in. change it later.
             // i.e. if(fPktType == 3'b000;)
@@ -155,7 +155,7 @@ module myNodeInfo(
         end
     end
 // always block for role_buf
-    always@(posedge clk) begin
+    always@(posedge clk) begin z
         if(!nrst) begin
             role_buf <= 0;
         end
