@@ -34,7 +34,7 @@ module myNodeInfo(
     reg                     HBLock_buf;
     reg                     role_buf;
     reg                     low_E_buf;
-
+    reg     [15:0]          Q_value_compute_out;
 // always block for hopsFromSink_buf
     always@(posedge clk) begin
         if(!nrst) begin
@@ -161,7 +161,7 @@ module myNodeInfo(
         end
         else begin
             if(en_MNI && fPktType == 3'b001) begin
-                if(nodeID == ch_ID)
+                if(myNodeID == ch_ID)
                     role_buf <= 1;
                 else
                     role_buf <= 0;
