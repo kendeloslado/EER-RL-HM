@@ -155,7 +155,7 @@ module myNodeInfo(
         end
     end
 // always block for role_buf
-    always@(posedge clk) begin z
+    always@(posedge clk) begin
         if(!nrst) begin
             role_buf <= 0;
         end
