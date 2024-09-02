@@ -122,10 +122,10 @@ module myNodeInfo(
     end
     else begin
         if(en_MNI && fPktType == 3'b100) begin
-            timeslot_buf <= timeslot
+            timeslot_buf <= timeslot;
         end
         else begin
-
+            timeslot_buf <= timeslot_buf;
         end
     end
 // always block for HBLock
