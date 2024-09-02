@@ -30,7 +30,7 @@ module myNodeInfo(
     reg     [15:0]          e_threshold_buf;
     reg     [15:0]          e_min_buf;
     reg     [15:0]          e_max_buf;
-    reg     [15:0]          timeslot_buf; 
+    reg     [15:0]          timeslot_buf;  
     reg                     HBLock_buf;
     reg                     role_buf;
     reg                     low_E_buf;
@@ -141,7 +141,7 @@ module myNodeInfo(
         else begin
             case(fPktType)
                 3'b000: begin   // heartbeat packet
-                    if(!HBLock_buf)
+                    if(!HBLock_buf && en_MNI)
                         HBLock_buf <= 1;
                     else
                         HBLock_buf <= HBLock_buf;
