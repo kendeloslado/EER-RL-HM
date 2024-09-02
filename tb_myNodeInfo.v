@@ -64,6 +64,21 @@ initial begin
     #20
     en_MNI = 0;
     #40
+    // try to receive another heartbeat packet
+    // in this scenario, the node should drop the HB packet
+    fPktType = 3'b000;
+    hops = 2;
+    e_max = 16'h8000;   
+    e_min = 16'h4000;
+    energy = 16'h7FC0;  // fixed-point ~= 1.9961
+    e_threshold = 16'h3333;
+    #40
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #40
+    // see if anything changes.
+    
     // let it cook
     // After enabling myNodeInfo, the individual should have recorded the information 
     // attached above, outputting an initial Q-value, and hopsFromSink
