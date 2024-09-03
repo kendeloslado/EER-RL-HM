@@ -35,6 +35,7 @@ module myNodeInfo(
     reg                     role_buf;
     reg                     low_E_buf;
     reg     [15:0]          Q_value_compute_out;
+    reg                     toRecluster;
 // always block for hopsFromSink_buf
     always@(posedge clk) begin
         if(!nrst) begin
