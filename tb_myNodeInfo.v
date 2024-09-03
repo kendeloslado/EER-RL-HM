@@ -92,7 +92,7 @@ initial begin
     en_MNI = 0;
     #40
     // by the time you get to this delay, role should still be at 0.
-    // receive an INV packet
+// receive an INV packet
     fPktType = 3'b010; // this packet type should not do anything in the node
     ch_ID = 16'd32;
     #20
@@ -100,7 +100,7 @@ initial begin
     #20
     en_MNI = 0;
     #40
-    // receive another CHE packet
+// receive another CHE packet
     fPktType = 3'b001;
     ch_ID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
                       // packet should change your role into 1.
@@ -109,7 +109,10 @@ initial begin
     #20
     en_MNI = 0;
     #100
-    // let it update
+     // let it update
+
+
+
     $finish;
 end
 
