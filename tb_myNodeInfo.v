@@ -41,17 +41,17 @@ initial begin
     $vcdplusmemon;
     $sdf_annotate("../mapped/myNodeInfo.sdf", UUT);
 
-    // initial conditions
+// initial conditions
     nrst = 0;
     en_MNI = 0;
     fPktType = 3'b111; // This packet type doesn't exist. Assume it's a don't care value.
-    // Let's simulate receiving a heartbeat packet first
+// Let's simulate receiving a heartbeat packet first
 
     #100
-    // starting up myNodeInfo
+// starting up myNodeInfo
     nrst = 1;
     #40 // let it settle
-    // receive heartbeat packet
+// receive heartbeat packet
     fPktType = 3'b000;
     hops = 1;
     e_max = 16'h8000; // 14./2 fixed-point == 2
@@ -64,8 +64,8 @@ initial begin
     #20
     en_MNI = 0;
     #40
-    // try to receive another heartbeat packet
-    // in this scenario, the node should drop the HB packet
+// try to receive another heartbeat packet
+// in this scenario, the node should drop the HB packet
     fPktType = 3'b000;
     hops = 2;
     e_max = 16'h8000;   
@@ -77,13 +77,13 @@ initial begin
     #20
     en_MNI = 0;
     #40
-    // see if anything changes.
+// see if anything changes.
     
     // let it cook
     // After enabling myNodeInfo, the individual should have recorded the information 
     // attached above, outputting an initial Q-value, and hopsFromSink
     #40
-    // receive CHE packet
+// receive CHE packet
     fPktType = 3'b001;
     ch_ID = 16'd32; // sample ch_ID, not cluster head for this CH.
     #20
