@@ -130,10 +130,11 @@ module myNodeInfo(
     end
     
 // always block for HBLock
-// there needs to be some logic for HBLock. The first HB
-// packet will be accepted and refuse the rest of the heartbeat packets
-// it will only be de-asserted when the node receives a data packet,
-// indicating that the node has gone on to communication phase.
+    // there needs to be some logic for HBLock. The first HB
+    // packet will be accepted and refuse the rest of the heartbeat packets
+    // it will only be de-asserted when the node receives a data packet,
+    // indicating that the node has gone on to communication phase.
+
     always@(posedge clk) begin
         if(!nrst) begin
             HBLock_buf <= 0;
@@ -151,7 +152,6 @@ module myNodeInfo(
                 end
                 default: HBLock_buf <= HBLock_buf;
             endcase
-
         end
     end
 // always block for role_buf
@@ -160,18 +160,46 @@ module myNodeInfo(
             role_buf <= 0;
         end
         else begin
-            if(en_MNI && fPktType == 3'b001) begin
-                if(myNodeID == ch_ID)
-                    role_buf <= 1;
-                else
-                    role_buf <= 0;
+            if(en_MNI) begin
+                case(fPktType)
+                    3'b001: begin   // CHE pkt
+                        if(myNodeID == ch_ID) begin
+                            role_buf <= 1;
+                        end
+                        else begin
+                            role_buf <= role_buf;
+                        end
+                    end
+                     3'b000: begin   // HB pkt
+                        /*
+                        in this case, the role_buf should reset provided:
+                        1. you receive a HB pkt; and
+                        2. readyToRecluster is asserted
+                        */
+                        if(toRecluster) begin
+                            role_buf <= 0;
+                        end
+                        else begin
+                            role_buf <= role_buf;
+                        end
+                    end
+                    default: role_buf <= role_buf;
+                endcase
             end
             else begin
                 role_buf <= role_buf;
             end
         end
     end
-
+/* some comments on the SOS pkt.
+    I realized just now @ 4:47pm (sept 3) that the SOS packet doesn't mean na you 
+    reset your role right away. Functionally, I think it should signal that the
+    individual node is ready to recluster. So my idea here is, have a single-bit
+    register that signals the node that they are ready to recluster. Let's assign
+    it as "readyToRecluster".
+    When this register is asserted to 1, information in myNodeInfo should be updated.
+    The node starts reclustering when they receive a new heartbeat packet. 
+ */
 // always block for low_E
     always@(posedge clk) begin
         if(!nrst) begin
@@ -186,7 +214,27 @@ module myNodeInfo(
             end
         end
     end
-    
+
+// always block for toRecluster
+    always@(posedge clk) begin
+        if(!nrst) begin
+            toRecluster <= 0;
+        end
+        else begin
+            case(fPktType)
+                3'b000: begin       // Heartbeat Pkt
+                    toRecluster <= 0;
+                end
+                3'b110: begin       // SOS pkt
+                    toRecluster <= 1;
+                end
+                default: begin
+                    toRecluster <= toRecluster;
+                end
+            endcase
+        end
+    end
+
 // assign outputs to register buffers
 assign myNodeID = MY_NODE_ID_CONST;
 assign hopsFromSink = hopsFromSink_buf;

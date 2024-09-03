@@ -65,7 +65,7 @@ initial begin
     en_MNI = 0;
     #40
 // try to receive another heartbeat packet
-// in this scenario, the node should drop the HB packet
+    // in this scenario, the node should drop the HB packet
     fPktType = 3'b000;
     hops = 2;
     e_max = 16'h8000;   
