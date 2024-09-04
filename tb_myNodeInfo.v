@@ -12,7 +12,7 @@ module tb_myNodeInfo();
     reg   [15:0]          e_max;
     reg   [15:0]          e_min;
     reg   [15:0]          energy;
-    reg   [15:0]          ch_ID;
+    reg   [15:0]          destinationID;
     reg   [15:0]          hops;
     reg   [15:0]          timeslot;
     reg   [15:0]          e_threshold;
@@ -24,7 +24,7 @@ module tb_myNodeInfo();
 
 myNodeInfo UUT(
     .clk(clk), .nrst(nrst), .en_MNI(en_MNI), .fPktType(fPktType),
-    .e_max(e_max), .e_min(e_min), .energy(energy), .ch_ID(ch_ID),
+    .e_max(e_max), .e_min(e_min), .energy(energy), .destinationID(destinationID),
     .hops(hops), .timeslot(timeslot), .e_threshold(e_threshold),
     .myNodeID(myNodeID), .hopsFromSink(hopsFromSink), .myQValue(myQValue),
     .role(role), .low_E(low_E)
@@ -58,7 +58,7 @@ initial begin
     e_min = 16'h4000; // 14./2 fixed-point == 1
     energy = 16'h8000;
     e_threshold = 16'h3333; // 14./2 fixed-point == 0.8
-    // no timeslot, ch_ID
+    // no timeslot, destinationID
     #40
     en_MNI = 1;
     #20
@@ -85,7 +85,7 @@ initial begin
     #40
 // receive CHE packet
     fPktType = 3'b001;
-    ch_ID = 16'd32; // sample ch_ID, not cluster head for this CH.
+    destinationID = 16'd32; // sample destinationID, not cluster head for this CH.
     #20
     en_MNI = 1; // go check if you're a CH for the round
     #20
@@ -94,7 +94,7 @@ initial begin
     // by the time you get to this delay, role should still be at 0.
 // receive an INV packet
     fPktType = 3'b010; // this packet type should not do anything in the node
-    ch_ID = 16'd32;
+    destinationID = 16'd32;
     #20
     en_MNI = 1;
     #20
@@ -102,7 +102,7 @@ initial begin
     #40
 // receive another CHE packet
     fPktType = 3'b001;
-    ch_ID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
+    destinationID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
                       // packet should change your role into 1.
     #20
     en_MNI = 1;
@@ -110,9 +110,27 @@ initial begin
     en_MNI = 0;
     #100
      // let it update
-
-
-
+// receive a CHTimeslot packet
+    // this CHTimeslot packet should not do anything since you're a CH in
+    // this testbench
+    fPktType = 3'b100;
+    timeslot = 3'd4;        // simulate that you are at timeslot #4
+    destinationID = 8'd21;  // not your ID
+    hops = 2;
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;          
+    #100
+// receive a data packet
+    fPktType = 3'b101;
+    destinationID = 8'd14;  // not your ID
+    hops = 3;
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #100             
     $finish;
 end
 

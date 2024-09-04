@@ -11,7 +11,7 @@ module myNodeInfo(
     /*     input   [15:0]          e_max,      // currently no use 
     input   [15:0]          e_min,      // currently no use */
     input   [15:0]          energy,     // input is from a sensor
-    input   [15:0]          ch_ID,
+    input   [15:0]          destinationID,
     input   [15:0]          hops,
     input   [15:0]          timeslot,
     input   [15:0]          e_threshold, 
@@ -117,12 +117,16 @@ module myNodeInfo(
     end */
 
 //always block for timeslot_buf
+    /* 
+    The function of the timeslot serves to minimize packet collision by
+    scheduling cluster members to send at a designated time
+     */
     always@(posedge clk) begin
         if(!nrst) begin
             timeslot_buf <= 0;
         end
         else begin
-            if(en_MNI && fPktType == 3'b100) begin
+            if(en_MNI && fPktType == 3'b100 && !role && destinationID == myNodeID) begin
                 timeslot_buf <= timeslot;
             end
             else begin
@@ -165,7 +169,7 @@ module myNodeInfo(
             if(en_MNI) begin
                 case(fPktType)
                     3'b001: begin   // CHE pkt
-                        if(myNodeID == ch_ID) begin
+                        if(myNodeID == destinationID) begin
                             role_buf <= 1;
                         end
                         else begin
