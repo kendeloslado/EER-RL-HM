@@ -8,13 +8,13 @@ module myNodeInfo(
     input                   nrst,
     input                   en_MNI,
     input   [2:0]           fPktType,
-    input   [15:0]          e_max,
-    input   [15:0]          e_min,
-    input   [15:0]          energy,
+    input   [15:0]          e_max,      // currently no use 
+    input   [15:0]          e_min,      // currently no use
+    input   [15:0]          energy,     // from a sensor
     input   [15:0]          ch_ID,
     input   [15:0]          hops,
     input   [15:0]          timeslot,
-    input   [15:0]          e_threshold,
+    input   [15:0]          e_threshold, 
     output  [15:0]          myNodeID,
     output  [15:0]          hopsFromSink,
     output  [15:0]          myQValue,
@@ -23,7 +23,8 @@ module myNodeInfo(
 );
 
     localparam MY_NODE_ID_CONST = 16'h000C; // example node ID
-
+    // heartbeat packet, invalidate all neighbor information (progrep)
+    // node doesn't need to receive an SOS to recluster
     // Registers
     reg     [15:0]          hopsFromSink_buf;
     reg     [15:0]          myQValue_buf;
@@ -176,6 +177,7 @@ module myNodeInfo(
                         in this case, the role_buf should reset provided:
                         1. you receive a HB pkt; and
                         2. readyToRecluster is asserted
+                        remark: pwede si HBLock dito (11:12am, 09/04)
                         */
                         if(toRecluster) begin
                             role_buf <= 0;
