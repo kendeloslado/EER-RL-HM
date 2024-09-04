@@ -8,9 +8,9 @@ module myNodeInfo(
     input                   nrst,
     input                   en_MNI,
     input   [2:0]           fPktType,
-    input   [15:0]          e_max,      // currently no use 
-    input   [15:0]          e_min,      // currently no use
-    input   [15:0]          energy,     // from a sensor
+    /*     input   [15:0]          e_max,      // currently no use 
+    input   [15:0]          e_min,      // currently no use */
+    input   [15:0]          energy,     // input is from a sensor
     input   [15:0]          ch_ID,
     input   [15:0]          hops,
     input   [15:0]          timeslot,
@@ -36,7 +36,7 @@ module myNodeInfo(
     reg                     role_buf;
     reg                     low_E_buf;
     reg     [15:0]          Q_value_compute_out;
-    reg                     toRecluster;
+    /*     reg                     toRecluster;*/
 // always block for hopsFromSink_buf
     always@(posedge clk) begin
         if(!nrst) begin
@@ -81,7 +81,7 @@ module myNodeInfo(
             end
         end
     end
-// always block for e_min_buf
+    /* // always block for e_min_buf
     always@(posedge clk) begin
         if(!nrst) begin
             e_min_buf <= 0;
@@ -98,7 +98,7 @@ module myNodeInfo(
             end
         end
     end
-// always block for e_max_buf
+    // always block for e_max_buf
     always@(posedge clk) begin
         if(!nrst) begin
             e_max_buf <= 0;
@@ -114,7 +114,7 @@ module myNodeInfo(
                 e_max_buf <= e_max_buf;
             end
         end
-    end
+    end */
 
 //always block for timeslot_buf
     always@(posedge clk) begin
@@ -179,7 +179,8 @@ module myNodeInfo(
                         2. readyToRecluster is asserted
                         remark: pwede si HBLock dito (11:12am, 09/04)
                         */
-                        if(toRecluster) begin
+                        /* if(toRecluster) begin */
+                        if(!HBLock) begin
                             role_buf <= 0;
                         end
                         else begin
@@ -218,7 +219,7 @@ module myNodeInfo(
         end
     end
 
-// always block for toRecluster
+/* // always block for toRecluster
     always@(posedge clk) begin
         if(!nrst) begin
             toRecluster <= 0;
@@ -236,7 +237,7 @@ module myNodeInfo(
                 end
             endcase
         end
-    end
+    end */
 
 // assign outputs to register buffers
 assign myNodeID = MY_NODE_ID_CONST;
