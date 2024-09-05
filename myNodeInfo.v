@@ -184,7 +184,7 @@ module myNodeInfo(
                         remark: pwede si HBLock dito (11:12am, 09/04)
                         */
                         /* if(toRecluster) begin */
-                        if(!HBLock) begin
+                        if(!HBLock_buf) begin
                             role_buf <= 0;
                         end
                         else begin
