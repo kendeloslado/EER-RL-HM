@@ -24,7 +24,7 @@ module tb_myNodeInfo();
 
 myNodeInfo UUT(
     .clk(clk), .nrst(nrst), .en_MNI(en_MNI), .fPktType(fPktType),
-    .e_max(e_max), .e_min(e_min), .energy(energy), .destinationID(destinationID),
+    /* .e_max(e_max), .e_min(e_min), */ .energy(energy), .destinationID(destinationID),
     .hops(hops), .timeslot(timeslot), .e_threshold(e_threshold),
     .myNodeID(myNodeID), .hopsFromSink(hopsFromSink), .myQValue(myQValue),
     .role(role), .low_E(low_E)
