@@ -122,7 +122,18 @@ initial begin
     #20
     en_MNI = 0;          
     #100
+// receive another CHTimeslot packet, this time matching destID
+    fPktType = 3'b100;
+    timeslot = 3'd5;
+    destinationID = 8'h000C;
+    hops = 2;
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #100
 // receive a data packet
+    // this data packet should de-assert HBLock
     fPktType = 3'b101;
     destinationID = 8'd14;  // not your ID
     hops = 3;
@@ -131,6 +142,8 @@ initial begin
     #20
     en_MNI = 0;
     #100             
+// 
+
     $finish;
 end
 
