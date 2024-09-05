@@ -39,7 +39,7 @@ initial begin
     $vcdplusfile("tb_myNodeInfo.vpd");
     $vcdpluson;
     $vcdplusmemon;
-    $sdf_annotate("../mapped/myNodeInfo.sdf", UUT);
+    $sdf_annotate("../mapped/myNodeInfo_mapped.sdf", UUT);
 
 // initial conditions
     nrst = 0;
