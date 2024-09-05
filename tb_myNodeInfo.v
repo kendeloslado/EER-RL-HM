@@ -122,16 +122,6 @@ initial begin
     #20
     en_MNI = 0;          
     #100
-// receive another CHTimeslot packet, this time matching destID
-    fPktType = 3'b100;
-    timeslot = 3'd5;
-    destinationID = 8'h000C;
-    hops = 2;
-    #20
-    en_MNI = 1;
-    #20
-    en_MNI = 0;
-    #100
 // receive a data packet
     // this data packet should de-assert HBLock
     fPktType = 3'b101;
@@ -142,8 +132,28 @@ initial begin
     #20
     en_MNI = 0;
     #100             
-// 
-
+// receive heartbeat packet
+    fPktType = 3'b000;
+    hops = 1;
+    energy = 16'h6000;
+    e_threshold = 16'h3333; // 14./2 fixed-point == 0.8
+    // no timeslot, destinationID
+    #40
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #40
+// receive another CHTimeslot packet, this time matching destID
+    // in addition, HBLock should be de-asserted 
+    fPktType = 3'b100;
+    timeslot = 3'd5;
+    destinationID = 8'h000C;
+    hops = 2;
+    #20
+    en_MNI = 1;
+    #20
+    en_MNI = 0;
+    #100
     $finish;
 end
 
