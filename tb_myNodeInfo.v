@@ -9,8 +9,8 @@ module tb_myNodeInfo();
     reg                   nrst;
     reg                   en_MNI;
     reg   [2:0]           fPktType;
-    reg   [15:0]          e_max;
-    reg   [15:0]          e_min;
+    /*     reg   [15:0]          e_max;
+    reg   [15:0]          e_min; */
     reg   [15:0]          energy;
     reg   [15:0]          destinationID;
     reg   [15:0]          hops;
