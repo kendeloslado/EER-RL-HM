@@ -54,8 +54,8 @@ initial begin
 // receive heartbeat packet
     fPktType = 3'b000;
     hops = 1;
-    e_max = 16'h8000; // 14./2 fixed-point == 2
-    e_min = 16'h4000; // 14./2 fixed-point == 1
+    /*     e_max = 16'h8000; // 14./2 fixed-point == 2
+    e_min = 16'h4000; // 14./2 fixed-point == 1 */
     energy = 16'h8000;
     e_threshold = 16'h3333; // 14./2 fixed-point == 0.8
     // no timeslot, destinationID
@@ -68,8 +68,8 @@ initial begin
     // in this scenario, the node should drop the HB packet
     fPktType = 3'b000;
     hops = 2;
-    e_max = 16'h8000;   
-    e_min = 16'h4000;
+    /*     e_max = 16'h8000;   
+    e_min = 16'h4000; */
     energy = 16'h7FC0;  // fixed-point ~= 1.9961
     e_threshold = 16'h3333;
     #40
