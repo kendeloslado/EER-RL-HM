@@ -231,6 +231,7 @@ module packetFilter(
     assign en_MNI = en_MNI_buf;
     assign iAmDestination = iAmDestination_buf;
     assign en_KCH = en_KCH_buf;
+    assign en_reward = en_reward_buf;
     /*     assign en_KCH_CHE = en_KCH_CHE_buf;
     assign en_KCH_INV = en_KCH_INV_buf; */
 
