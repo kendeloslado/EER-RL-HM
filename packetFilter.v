@@ -160,7 +160,7 @@ module packetFilter(
 // always block for en_reward
     always@(posedge clk) begin
         if(!nrst) begin
-            en_reward <= 0;
+            en_reward_buf <= 0;
         end
         else begin
             if(newpkt) begin
