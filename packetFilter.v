@@ -48,7 +48,7 @@ module packetFilter(
     output              iAmDestination, // myNodeID == destinationID
     output              en_MNI,         // enable signal for myNodeInfo
     output              en_KCH,         // enable signal for knownCH
-    output              en_reward,      // enable signal for reward block
+    output              en_reward      // enable signal for reward block
 );
 
 
