@@ -47,8 +47,7 @@ module packetFilter(
     output              en_QTU,         // enable signal for QTableUpdate
     output              iAmDestination, // myNodeID == destinationID
     output              en_MNI,         // enable signal for myNodeInfo
-    output              en_KCH_CHE,     // enable signal for knownCH_CHElection
-    output              en_KCH_INV,     // enable signal for kCH_INV
+    output              en_KCH,         // enable signal for knownCH
     output              en_reward,      // enable signal for reward block
 );
 
@@ -134,47 +133,71 @@ module packetFilter(
         end
     end
 
-    // always block for en_KCH_CHE
+// always block for en_KCH
     always@(posedge clk) begin
         if(!nrst) begin
-            en_KCH_CHE_buf <= 0;
+            en_KCH_buf <= 0;
         end
         else begin
             if(newpkt) begin
-                case(fPktType)
-                    3'b001: en_KCH_CHE_buf <= 1;
-                    default: en_KCH_CHE_buf <= 0;
+                case(fPktType) 
+                    3'b001: begin   // CHE pkt
+                        en_KCH_buf <= 1;
+                    end
+                    3'b010: begin   // INV pkt
+                        en_KCH_buf <= 1;
+                    end
+                    default: en_KCH_buf <= 0;
                 endcase
             end
             else begin
+                en_KCH_buf <= en_KCH_buf;
+            end
+        end
+    end
+
+    /*     // always block for en_KCH_CHE
+        always@(posedge clk) begin
+            if(!nrst) begin
                 en_KCH_CHE_buf <= 0;
             end
-        end
-    end
-
-    // always block for en_KCH_INV 
-
-    always@(posedge clk) begin
-        if(!nrst) begin
-            en_KCH_INV_buf <= 0;
-        end
-        else begin
-            if(newpkt) begin
-                case(fPktType)
-                    3'b010: en_KCH_INV_buf <= 1;
-                    default: en_KCH_INV_buf <= 0;
-                endcase
-            end
             else begin
+                if(newpkt) begin
+                    case(fPktType)
+                        3'b001: en_KCH_CHE_buf <= 1;
+                        default: en_KCH_CHE_buf <= 0;
+                    endcase
+                end
+                else begin
+                    en_KCH_CHE_buf <= 0;
+                end
+            end
+        end
+
+        // always block for en_KCH_INV 
+
+        always@(posedge clk) begin
+            if(!nrst) begin
                 en_KCH_INV_buf <= 0;
             end
-        end
-    end
+            else begin
+                if(newpkt) begin
+                    case(fPktType)
+                        3'b010: en_KCH_INV_buf <= 1;
+                        default: en_KCH_INV_buf <= 0;
+                    endcase
+                end
+                else begin
+                    en_KCH_INV_buf <= 0;
+                end
+            end
+        end */
 
     assign en_QTU = en_QTU_buf;
     assign en_MNI = en_MNI_buf;
     assign iAmDestination = iAmDestination_buf;
-    assign en_KCH_CHE = en_KCH_CHE_buf;
-    assign en_KCH_INV = en_KCH_INV_buf;
+    assign en_KCH = en_KCH_buf;
+    /*     assign en_KCH_CHE = en_KCH_CHE_buf;
+    assign en_KCH_INV = en_KCH_INV_buf; */
 
 endmodule
