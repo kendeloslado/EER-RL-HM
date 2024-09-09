@@ -40,6 +40,7 @@ initial begin
     nrst = 0;
     fPktType = 3'b111;
     newpkt = 0;
+    #20
 // startup
     nrst = 1;
     #60
