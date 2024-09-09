@@ -23,6 +23,8 @@ packetFilter UUT(
     .en_reward(en_reward)
 );
 
+localparam MY_NODE_ID_CONST = 16'h000C; // example node ID
+
 initial begin
     clk = 0;
     forever #10 clk = ~clk;
@@ -35,8 +37,24 @@ initial begin
     $sdf_annotate("../mapped/packetFilter_mapped.sdf", UUT);
 
 // initial conditions
-
+    nrst = 0;
+    fPktType = 3'b111;
+    newpkt = 0;
+// startup
+    nrst = 1;
+    #60
 // Next few signals are a series of new pkts.
+    // First pkt is a heartbeat pkt. Let's simulate it.
+    fPktType = 3'b000;
+    newpkt = 1;
+    myNodeID = MY_NODE_ID_CONST;
+    destinationID = 16'h0;
+    #20
+    /* 
+    After this, the packetFilter should assert en_MNI and en_reward.
+     */
+    newpkt = 0;
+    #20
 
     $finish;
 end
