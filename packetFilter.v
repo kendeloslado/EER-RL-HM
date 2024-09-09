@@ -57,8 +57,10 @@ module packetFilter(
     reg                 en_QTU_buf;     
     reg                 en_MNI_buf;
     reg                 iAmDestination_buf;
-    reg                 en_KCH_CHE_buf;
-    reg                 en_KCH_INV_buf;                 
+    reg                 en_KCH_buf;
+    reg                 en_reward_buf;
+    /*     reg                 en_KCH_CHE_buf;
+    reg                 en_KCH_INV_buf;   */               
 
 // always block for en_QTU
     always@(posedge clk) begin
@@ -155,7 +157,39 @@ module packetFilter(
             end
         end
     end
-
+// always block for en_reward
+    always@(posedge clk) begin
+        if(!nrst) begin
+            en_reward <= 0;
+        end
+        else begin
+            if(newpkt) begin
+                case(fPktType)
+                    3'b000: begin
+                        en_reward_buf <= 1;
+                    end
+                    3'b010: begin
+                        en_reward_buf <= 1;
+                    end
+                    3'b100: begin
+                        en_reward_buf <= 1;
+                    end
+                    3'b101: begin
+                        en_reward_buf <= 1;
+                    end
+                    3'b110: begin
+                        en_reward_buf <= 1;
+                    end
+                    default: begin
+                        en_reward_buf <= 0;
+                    end
+                endcase
+            end
+            else begin
+                en_reward_buf <= 0;
+            end
+        end
+    end
     /*     // always block for en_KCH_CHE
         always@(posedge clk) begin
             if(!nrst) begin
