@@ -56,7 +56,29 @@ initial begin
      */
     newpkt = 0;
     #20
-
+    // next pkt type is a CHE pkt. CHE pkt ID doesn't match
+    // myNodeID.
+    fPktType = 3'b001;
+    newpkt = 1;
+    destinationID = 16'd8;
+    #20
+    newpkt = 0;
+    #20
+    // let's send another CHE. This time, match the pkt ID
+    fPktType = 3'b001;
+    newpkt = 1;
+    destinationID = 16'h000C;
+    #20
+    newpkt = 0;
+    #20
+    // receive an INV pkt.
+    fPktType = 3'b010;
+    newpkt = 1;
+    destinationID = 16'h001C;
+    #20
+    newpkt = 0;
+    #20
+    
     $finish;
 end
 endmodule
