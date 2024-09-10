@@ -99,6 +99,14 @@ initial begin
     #20
     newpkt = 0;
     #20
+    // receive an SOS packet
+    fPktType = 3'b110;
+    newpkt = 1;
+    destinationID = 16'h0034;
+    #20
+    newpkt = 0;
+    #20
+    
     $finish;
 end
 endmodule
