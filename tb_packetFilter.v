@@ -78,7 +78,27 @@ initial begin
     #20
     newpkt = 0;
     #20
-    
+    // receive a membership request packet
+    fPktType = 3'b011;
+    newpkt = 1;
+    destinationID = 16'h000d;
+    #20
+    newpkt = 0;
+    #20
+    // receive a CH Timeslot pkt
+    fPktType = 3'b100;
+    newpkt = 1;
+    destinationID = 16'h000C;
+    #20
+    newpkt = 0;
+    #20
+    // receive a data packet
+    fPktType = 3'b101;
+    newpkt = 1;
+    destinationID = 16'h000D'
+    #20
+    newpkt = 0;
+    #20
     $finish;
 end
 endmodule
