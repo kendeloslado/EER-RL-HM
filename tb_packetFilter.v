@@ -95,7 +95,7 @@ initial begin
     // receive a data packet
     fPktType = 3'b101;
     newpkt = 1;
-    destinationID = 16'h000D'
+    destinationID = 16'h000D;
     #20
     newpkt = 0;
     #20
