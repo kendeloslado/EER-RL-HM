@@ -20,7 +20,7 @@ module tb_packetFilter();
 packetFilter UUT(
     .clk(clk), .nrst(nrst), .fPktType(fPktType), .newpkt(newpkt), .myNodeID(myNodeID),
     .en_QTU(en_QTU), .iAmDestination(iAmDestination), .en_MNI(en_MNI), .en_KCH(en_KCH),
-    .en_reward(en_reward)
+    .en_reward(en_reward), .destinationID(destinationID)
 );
 
 localparam MY_NODE_ID_CONST = 16'h000C; // example node ID
