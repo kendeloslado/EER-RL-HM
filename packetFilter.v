@@ -153,7 +153,7 @@ module packetFilter(
                 endcase
             end
             else begin
-                en_KCH_buf <= en_KCH_buf;
+                en_KCH_buf <= 0;
             end
         end
     end
