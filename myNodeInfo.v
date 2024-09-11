@@ -74,7 +74,7 @@ module myNodeInfo(
             // leaving the enable condition to just en_MNI presents some problems.
             // get an additional condition in. change it later.
             // i.e. if(fPktType == 3'b000;)
-                e_threshold_buf <= hops;
+                e_threshold_buf <= e_threshold;
             end  
             else begin
                 e_threshold_buf <= e_threshold_buf;
