@@ -29,11 +29,38 @@ typedef struct packed{
 
 clusterHeadInformation cluster_heads[15:0];
 
+
+
+///////////////////////////////////////////////////////////
+// Record cluster head information
+// please use always blocks for this case
+///////////////////////////////////////////////////////////
+
+    logic           [MEM_WIDTH-1:0]     kCH_index;
+/*     initial kCH_index = 8'b0;
+
+    function void record_CH_ID(fCH_ID);
+        if(kCH_index < 16) begin
+            clusterHeadInformation[kCH_index].CH_ID = fCH_ID;
+        end
+    endfunction
+
+    function void record_CH_Hops(fCH_Hops);
+        if(kCH_index < 16) begin
+            clusterHeadInformation[kCH_index].CH_Hops = fCH_Hops;
+        end
+    endfunction
+
+    function void record_CH_QValue(fCH_QValue);
+        if(kCH_index < 16) begin
+            clusterHeadInformation[kCH_index].CH_QValue = fCH_QValue;
+        end
+    endfunction */
+
 // create bitmask for cluster heads meeting the
 // criteria for minHops_bitmask
-
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
-    initial minHops_bitmask = 16'b0;
+/*     initial minHops_bitmask = 16'b0; */
 
 /* 
     In this function, I would like to shortlist the CH entries
@@ -46,9 +73,14 @@ clusterHeadInformation cluster_heads[15:0];
     fewest hop counts, and using highest Q-values to break the
     tie. 
 */
-
+///////////////////////////////////////////////////////////
+// FILTER CLUSTER HEADS BASED ON MINIMUM HOP COUNT
+///////////////////////////////////////////////////////////
     function void update_bitmask(logic [WORD_WIDTH-1:0] min_hops);
         for(int i = 0; i < 16; i++) begin
+            // iteratively go through each cluster head entry and compare their CH_Hops
+            // to min_hops and if they are <= to it, they will assert 1 to their
+            // corresponding bitmask.
             if(cluster_heads[i].CH_Hops <= min_hops) begin
                 minHops_bitmask[i] = 1;     // using 
             end
@@ -66,7 +98,9 @@ requirement */
     requirements I have specified.
     Recall it's min_hops > maxQValue > lowest nodeID.
 */
-
+///////////////////////////////////////////////////////////
+// SELECT BEST CLUSTER HEAD BASED ON Q-VALUE OR LOWER NID
+///////////////////////////////////////////////////////////
     function clusterHeadInformation select_best_CH();
         logic [15:0] bestCH_index = 0;
         for (int i = 0; i < 16; i++) begin
@@ -81,5 +115,10 @@ requirement */
         end
         return cluster_heads[best_index];
     endfunction
+
+/* 
+    Overall, wala pa yung part na nagrereceive ka pa ng cluster head information
+    coz sequentially, you'll get them over time.
+ */
 
 endmodule
