@@ -44,9 +44,10 @@ initial begin
 // initial conditions
     nrst = 0;
     en_MNI = 0;
-    fPktType = 3'b111; // This packet type doesn't exist. Assume it's a don't care value.
+    fPktType = 3'bX; // This packet type doesn't exist. Assume it's a don't care value.
+    energy = 16'h8000;
 // Let's simulate receiving a heartbeat packet first
-
+    
     #100
 // starting up myNodeInfo
     nrst = 1;
