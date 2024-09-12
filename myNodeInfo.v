@@ -38,7 +38,7 @@ module myNodeInfo(
     reg     [15:0]          Q_value_compute_out;
     /*     reg                     toRecluster;*/
 // always block for hopsFromSink_buf
-    always@(posedge clk) begin
+    /* always@(posedge clk) begin
         if(!nrst) begin
             hopsFromSink_buf <= 0;
         end
@@ -49,6 +49,27 @@ module myNodeInfo(
             // i.e. if(fPktType == 3'b000;)
                 hopsFromSink_buf <= hops;
             end  
+            else begin
+                hopsFromSink_buf <= hopsFromSink_buf;
+            end
+        end
+    end */
+    // version 2
+    always@(posedge clk) begin
+        if(!nrst) begin
+            hopsFromSink_buf <= 0;
+        end
+        else begin
+            if(en_MNI && !HBLock_buf) begin
+                case(fPktType)
+                    3'b000: begin
+                        hopsFromSink_buf <= hops;
+                    end
+                    default: begin
+                        hopsFromSink_buf <= hopsFromSink_buf;
+                    end
+                endcase
+            end
             else begin
                 hopsFromSink_buf <= hopsFromSink_buf;
             end
@@ -65,7 +86,7 @@ module myNodeInfo(
         end
     end
 // always block for e_threshold_buf
-    always@(posedge clk) begin
+    /* always@(posedge clk) begin
         if(!nrst) begin
             e_threshold_buf <= 0;
         end
@@ -76,6 +97,27 @@ module myNodeInfo(
             // i.e. if(fPktType == 3'b000;)
                 e_threshold_buf <= e_threshold;
             end  
+            else begin
+                e_threshold_buf <= e_threshold_buf;
+            end
+        end
+    end */
+    // version 2
+    always@(posedge clk) begin
+        if(!nrst) begin
+            e_threshold_buf <= 0;
+        end
+        else begin
+            if(en_MNI && !HBLock_buf) begin
+                case(fPktType)
+                    3'b000: begin
+                        e_threshold_buf <= e_threshold;
+                    end
+                    default: begin
+                        e_threshold_buf <= e_threshold_buf;
+                    end
+                endcase
+            end
             else begin
                 e_threshold_buf <= e_threshold_buf;
             end
