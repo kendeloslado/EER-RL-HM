@@ -190,7 +190,7 @@ module myNodeInfo(
         else begin
             case(fPktType)
                 3'b000: begin   // heartbeat packet
-                    if(!HBLock_buf && en_MNI)
+                    if(/* !HBLock_buf &&  */en_MNI)
                         HBLock_buf <= 1;
                     else
                         HBLock_buf <= HBLock_buf;
