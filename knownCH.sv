@@ -8,6 +8,7 @@ module knownCH #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         en_KCH,
+    input logic                         HB_reset,
     input logic     [WORD_WIDTH-1:0]    fCH_ID,
     input logic     [WORD_WIDTH-1:0]    fCH_Hops,
     input logic     [WORD_WIDTH-1:0]    fCH_QValue,
@@ -37,6 +38,75 @@ clusterHeadInformation cluster_heads[15:0];
 ///////////////////////////////////////////////////////////
 
     logic           [MEM_WIDTH-1:0]     kCH_index;
+
+// always block for managing kCH_index
+
+always@(posedge clk) begin
+    /* 
+    on reset, reset kCH_index to 0.
+     */
+    if(!nrst) begin
+        kCH_index <= 0;
+    end
+    /* 
+        Program flow: kCH_index should start at 0
+        incrementing when a new CH gets added.
+        Cluster head information gets cleared when a heartbeat packet is
+        sent and HBLock_buf is de-asserted to 0.
+     */
+    else begin
+        if(en_KCH) begin
+            if((fCH_ID != clusterHeadInformation[kCH_index].CH_ID) && (clusterHeadInformation[kCH_index].CH_ID == 16'h0)) begin
+            // first ever entry after a HB pkt. 
+                kCH_index <= kCH_index;
+            end
+            // not first entry, but when you're in this state, you're receiving an INV pkt.
+            // you're receiving the rest of the details (CH_Hops and CH_QValue)
+            else if(fCH_ID == clusterHeadInformation[kCH_index].CH_ID) begin
+                kCH_index <= kCH_index;
+            end
+            // you receive a new CHE pkt with a different fCH_ID
+            else begin
+                kCH_index <= kCH_index + 1;
+            end
+        end
+        elseif(HB_reset) begin
+            kCH_index <= 0;
+        end
+        else begin
+            kCH_index <= kCH_index;
+        end 
+    end
+end
+
+
+// always block for recording CH_ID 
+
+always@(posedge clk) begin
+    if(!nrst) begin
+        clusterHeadInformation.CH_ID <= 0;
+    end
+    else begin
+        if(en_KCH) begin
+            if() begin
+
+            end
+            else if() begin
+
+            end
+            else begin
+
+            end
+        end
+        else if(HB_reset) begin
+            clusterHeadInformation.CH_ID <= 0;
+        end
+        else begin
+            clusterHeadInformation.CH_ID <= clusterHeadInformation.CH_ID;
+        end
+    end
+end
+
 /*     initial kCH_index = 8'b0;
 
     function void record_CH_ID(fCH_ID);
@@ -76,7 +146,7 @@ clusterHeadInformation cluster_heads[15:0];
 ///////////////////////////////////////////////////////////
 // FILTER CLUSTER HEADS BASED ON MINIMUM HOP COUNT
 ///////////////////////////////////////////////////////////
-    function void update_bitmask(logic [WORD_WIDTH-1:0] min_hops);
+/*     function void update_bitmask(logic [WORD_WIDTH-1:0] min_hops);
         for(int i = 0; i < 16; i++) begin
             // iteratively go through each cluster head entry and compare their CH_Hops
             // to min_hops and if they are <= to it, they will assert 1 to their
@@ -88,7 +158,7 @@ clusterHeadInformation cluster_heads[15:0];
                 minHops_bitmask[i] = 0;
             end
         end
-    endfunction
+    endfunction */
 /* at the end of this function, the bitmask will have filtered all CH
 information, shortlisting the nodes who meets the minimum hop count
 requirement */
@@ -101,7 +171,7 @@ requirement */
 ///////////////////////////////////////////////////////////
 // SELECT BEST CLUSTER HEAD BASED ON Q-VALUE OR LOWER NID
 ///////////////////////////////////////////////////////////
-    function clusterHeadInformation select_best_CH();
+/*     function clusterHeadInformation select_best_CH();
         logic [15:0] bestCH_index = 0;
         for (int i = 0; i < 16; i++) begin
             if(minHops_bitmask[i] == 1) begin
@@ -115,7 +185,7 @@ requirement */
         end
         return cluster_heads[best_index];
     endfunction
-
+ */
 /* 
     Overall, wala pa yung part na nagrereceive ka pa ng cluster head information
     coz sequentially, you'll get them over time.
