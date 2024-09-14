@@ -30,7 +30,9 @@ typedef struct packed{
 
 clusterHeadInformation cluster_heads[15:0];
 
-
+/* 
+Do I need an FSM or a state register?
+ */
 
 ///////////////////////////////////////////////////////////
 // Record cluster head information
@@ -70,7 +72,7 @@ always@(posedge clk) begin
                 kCH_index <= kCH_index + 1;
             end
         end
-        elseif(HB_reset) begin
+        else if(HB_reset) begin
             kCH_index <= 0;
         end
         else begin
@@ -81,29 +83,112 @@ end
 
 
 // always block for recording CH_ID 
-
 always@(posedge clk) begin
     if(!nrst) begin
         clusterHeadInformation.CH_ID <= 0;
     end
     else begin
         if(en_KCH) begin
-            if() begin
-
-            end
-            else if() begin
-
-            end
-            else begin
-
-            end
+            clusterHeadInformation[kCH_index].CH_ID <= fCH_ID;
         end
         else if(HB_reset) begin
             clusterHeadInformation.CH_ID <= 0;
         end
         else begin
-            clusterHeadInformation.CH_ID <= clusterHeadInformation.CH_ID;
+            clusterHeadInformation[kCH_index].CH_ID <= clusterHeadInformation.CH_ID;
         end
+    end
+end
+
+// always block for recording CH_Hops
+always@(posedge clk) begin
+    if(!nrst) begin
+        clusterHeadInformation.CH_Hops <= 0;
+    end
+    else begin
+        if(en_KCH) begin
+            clusterHeadInformation[kCH_index].CH_Hops <= fCH_Hops;
+        end
+        else if(HB_reset) begin
+            clusterHeadInformation.CH_Hops <= 0;
+        end
+        else begin
+            clusterHeadInformation[kCH_index].CH_Hops <= clusterHeadInformation[kCH_index].CH_Hops; 
+        end
+    end
+end
+
+//always block for recording CH_QValue
+always@(posedge clk) begin
+    if(!nrst) begin
+        clusterHeadInformation.CH_QValue <= 0;
+    end 
+    else begin
+        if(en_KCH) begin
+            clusterHeadInformation[kCH_index].CH_QValue <= fCH_QValue
+        end
+        else if(HB_reset) begin
+            clusterHeadInformation.CH_QValue <= 0;
+        end
+        else begin
+            clusterHeadInformation[kCH_index].CH_QValue <= clusterHeadInformation[kCH_index].CH_QValue;
+        end
+    end
+end
+
+//always block for recording maxQ
+always@(posedge clk) begin
+    if(!nrst) begin
+        maxQ <= 0;
+    end
+    else begin
+        if(en_KCH) begin
+            if(fCH_QValue > maxQ) begin
+                maxQ <= fCH_QValue;
+            end
+            else begin
+                maxQ <= maxQ;
+            end
+        end
+        else if(HB_reset) begin
+            maxQ <= 0;
+        end
+        else begin
+            maxQ <= maxQ;
+        end
+    end
+end
+
+//always block for recording minHops
+always@(posedge clk) begin
+    if(!nrst) begin
+        minHops <= 16'hFFFF;
+    end
+    else begin
+        if(en_KCH) begin
+            if(fCH_Hops < minHops) begin
+                minHops <= fCH_Hops;
+            end
+            else begin
+                minHops <= minHops;
+            end
+        end
+        else if(HB_reset) begin
+            minHops <= 16'hFFFF;
+        end
+        else begin
+            minHops <= minHops;
+        end
+    end
+end
+
+//always block for recording minID
+always@(posedge clk) begin
+    if(!nrst) begin
+        minID <= 
+    end
+    else begin
+
     end
 end
 
