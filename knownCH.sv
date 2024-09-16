@@ -32,6 +32,26 @@ clusterHeadInformation cluster_heads[15:0];
 
 /* 
 Do I need an FSM or a state register?
+
+Let's conceptualize a FSM/state for now. We can figure this out a little later.
+
+First, I need to collect cluster head information. It will come over time.
+Within the scope of this module specifically, the module will wait for cluster
+head information. This will continue until the node receives at least 10 diff.
+cluster head entries. So there should be information of up to 10 nodes, with their
+nodeID, hopCount, and QValue respectively.
+
+Once the node receives enough information, the node will decide which CH the node
+will decide to join. The criteria for this is in this order of priority: the
+lowest hop count, the highest Q-value, and the lowest nodeID. In this priority,
+the node will join the cluster head with the lowest hop count. In the case of ties,
+it will then prioritize the highest Q-value among them. If, for some reason this
+is still a tie, the node will break the tie by selecting the lowest nodeID among
+the tied nodes.
+
+Finally, the node will output chosenCH and hopsFromCH once they have decided which 
+CH to join. I hope to be able to do the selection process in as few clock cycles
+as possible but I will have to see later.
  */
 
 ///////////////////////////////////////////////////////////
@@ -40,13 +60,11 @@ Do I need an FSM or a state register?
 ///////////////////////////////////////////////////////////
 
     logic           [MEM_WIDTH-1:0]     kCH_index;
-
+    logic           [WORD_WIDTH-1:0]    minHops_bitmask;
+    logic           [WORD_WIDTH-1:0]    maxQ_bitmask;
 // always block for managing kCH_index
-
 always@(posedge clk) begin
-    /* 
-    on reset, reset kCH_index to 0.
-     */
+    // on reset, reset kCH_index to 0.
     if(!nrst) begin
         kCH_index <= 0;
     end
@@ -58,16 +76,17 @@ always@(posedge clk) begin
      */
     else begin
         if(en_KCH) begin
-            if((fCH_ID != clusterHeadInformation[kCH_index].CH_ID) && (clusterHeadInformation[kCH_index].CH_ID == 16'h0)) begin
+            if((fCH_ID != cluster_heads[kCH_index].CH_ID) && (cluster_heads[kCH_index].CH_ID == 16'h0)) begin
             // first ever entry after a HB pkt. 
                 kCH_index <= kCH_index;
             end
             // not first entry, but when you're in this state, you're receiving an INV pkt.
             // you're receiving the rest of the details (CH_Hops and CH_QValue)
-            else if(fCH_ID == clusterHeadInformation[kCH_index].CH_ID) begin
+            else if(fCH_ID == cluster_heads[kCH_index].CH_ID) begin
                 kCH_index <= kCH_index;
             end
             // you receive a new CHE pkt with a different fCH_ID
+            // it is also not the first ever packet.
             else begin
                 kCH_index <= kCH_index + 1;
             end
@@ -85,17 +104,17 @@ end
 // always block for recording CH_ID 
 always@(posedge clk) begin
     if(!nrst) begin
-        clusterHeadInformation.CH_ID <= 0;
+        cluster_heads.CH_ID <= 0;
     end
     else begin
         if(en_KCH) begin
-            clusterHeadInformation[kCH_index].CH_ID <= fCH_ID;
+            cluster_heads[kCH_index].CH_ID <= fCH_ID;
         end
         else if(HB_reset) begin
-            clusterHeadInformation.CH_ID <= 0;
+            cluster_heads.CH_ID <= 0;
         end
         else begin
-            clusterHeadInformation[kCH_index].CH_ID <= clusterHeadInformation.CH_ID;
+            cluster_heads[kCH_index].CH_ID <= cluster_heads.CH_ID;
         end
     end
 end
@@ -103,17 +122,17 @@ end
 // always block for recording CH_Hops
 always@(posedge clk) begin
     if(!nrst) begin
-        clusterHeadInformation.CH_Hops <= 0;
+        cluster_heads.CH_Hops <= 0;
     end
     else begin
         if(en_KCH) begin
-            clusterHeadInformation[kCH_index].CH_Hops <= fCH_Hops;
+            cluster_heads[kCH_index].CH_Hops <= fCH_Hops;
         end
         else if(HB_reset) begin
-            clusterHeadInformation.CH_Hops <= 0;
+            cluster_heads.CH_Hops <= 0;
         end
         else begin
-            clusterHeadInformation[kCH_index].CH_Hops <= clusterHeadInformation[kCH_index].CH_Hops; 
+            cluster_heads[kCH_index].CH_Hops <= cluster_heads[kCH_index].CH_Hops; 
         end
     end
 end
@@ -121,17 +140,17 @@ end
 //always block for recording CH_QValue
 always@(posedge clk) begin
     if(!nrst) begin
-        clusterHeadInformation.CH_QValue <= 0;
+        cluster_heads.CH_QValue <= 0;
     end 
     else begin
         if(en_KCH) begin
-            clusterHeadInformation[kCH_index].CH_QValue <= fCH_QValue
+            cluster_heads[kCH_index].CH_QValue <= fCH_QValue;
         end
         else if(HB_reset) begin
-            clusterHeadInformation.CH_QValue <= 0;
+            cluster_heads.CH_QValue <= 0;
         end
         else begin
-            clusterHeadInformation[kCH_index].CH_QValue <= clusterHeadInformation[kCH_index].CH_QValue;
+            cluster_heads[kCH_index].CH_QValue <= cluster_heads[kCH_index].CH_QValue;
         end
     end
 end
@@ -182,39 +201,77 @@ always@(posedge clk) begin
     end
 end
 
-//always block for recording minID
-always@(posedge clk) begin
-    if(!nrst) begin
-        minID <= 
-    end
-    else begin
-
+//always block for minHops_bitmask;
+// this register is designed to shortlist CH nodes to be selected as their CH of choice.
+// hierarchy: minHops > max CHQValue > lowest nodeID
+always_comb begin
+    for(int i = 0; i < 16; i++) begin
+        if (cluster_heads[i].CH_Hops <= minHops) begin
+            minHops_bitmask[i] <= 1;
+        end
+        else begin
+            minHops_bitmask[i] <= 0;
+        end
     end
 end
+
+// always block for maxQ_bitmask
+always_comb begin
+    for(int i = 0; i < 16; i++) begin
+        if(minHops_bitmask[i] == 1) begin
+            if(cluster_heads[i].CH_QValue >= maxQ) begin
+                maxQ_bitmask[i] <= 1;
+            end
+            else begin
+                maxQ_bitmask[i] <= 0;
+            end
+        end
+        else begin
+            maxQ_bitmask[i] <= 0;
+        end
+    end
+end
+
+/* //always block for recording minID
+always@(posedge clk) begin
+    if(!nrst) begin
+        minID <= 16'hFFFF;
+    end
+    else begin
+        if(en_KCH) begin
+            if()
+        end
+        else begin
+
+        end
+    end
+end
+ */
+
 
 /*     initial kCH_index = 8'b0;
 
     function void record_CH_ID(fCH_ID);
         if(kCH_index < 16) begin
-            clusterHeadInformation[kCH_index].CH_ID = fCH_ID;
+            cluster_heads[kCH_index].CH_ID = fCH_ID;
         end
     endfunction
 
     function void record_CH_Hops(fCH_Hops);
         if(kCH_index < 16) begin
-            clusterHeadInformation[kCH_index].CH_Hops = fCH_Hops;
+            cluster_heads[kCH_index].CH_Hops = fCH_Hops;
         end
     endfunction
 
     function void record_CH_QValue(fCH_QValue);
         if(kCH_index < 16) begin
-            clusterHeadInformation[kCH_index].CH_QValue = fCH_QValue;
+            cluster_heads[kCH_index].CH_QValue = fCH_QValue;
         end
     endfunction */
 
 // create bitmask for cluster heads meeting the
 // criteria for minHops_bitmask
-    logic           [WORD_WIDTH-1:0]    minHops_bitmask;
+
 /*     initial minHops_bitmask = 16'b0; */
 
 /* 
@@ -256,7 +313,7 @@ requirement */
 ///////////////////////////////////////////////////////////
 // SELECT BEST CLUSTER HEAD BASED ON Q-VALUE OR LOWER NID
 ///////////////////////////////////////////////////////////
-/*     function clusterHeadInformation select_best_CH();
+/*     function cluster_heads select_best_CH();
         logic [15:0] bestCH_index = 0;
         for (int i = 0; i < 16; i++) begin
             if(minHops_bitmask[i] == 1) begin
