@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module knownCH #(
+module knownCHv2 #(
     parameter MEM_DEPTH =  2048,
     parameter MEM_WIDTH = 8,
     parameter WORD_WIDTH = 16

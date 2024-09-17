@@ -18,7 +18,7 @@ module tb_knownCH;
     wire    [WORD_WIDTH-1:0]    chosenCH;
     wire    [WORD_WIDTH-1:0]    hopsfromCH;
 
-knownCH UUT(
+knownCHv2 UUT(
         .clk        (clk        ),
         .nrst       (nrst       ),
         .en_KCH     (en_KCH     ),
@@ -49,9 +49,13 @@ initial begin
     fCH_ID = 16'h0;
     fCH_Hops = 16'hFFFF;
     fCH_QValue = 16'h0;
-    #`CLOCK_CYCLE*4
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     nrst = 1;
-    #`CLOCK_CYCLE*2
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     $finish;
 end
 
