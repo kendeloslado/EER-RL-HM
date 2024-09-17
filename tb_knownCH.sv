@@ -11,6 +11,7 @@ module tb_knownCH;
     logic                       nrst;
     logic                       en_KCH;
     logic                       HB_reset;
+    logic   [WORD_WIDTH-1:0]    HB_CHlimit;
     logic   [WORD_WIDTH-1:0]    fCH_ID;
     logic   [WORD_WIDTH-1:0]    fCH_Hops;
     logic   [WORD_WIDTH-1:0]    fCH_QValue;
@@ -22,6 +23,7 @@ knownCH UUT(
         .nrst       (nrst       ),
         .en_KCH     (en_KCH     ),
         .HB_reset   (HB_reset   ),
+        .HB_CHlimit (HB_CHlimit ),
         .fCH_ID     (fCH_ID     ),
         .fCH_Hops   (fCH_Hops   ),
         .fCH_QValue (fCH_QValue ),
@@ -50,9 +52,6 @@ initial begin
     #`CLOCK_CYCLE*4
     nrst = 1;
     #`CLOCK_CYCLE*2
-    
-
-
     $finish;
 end
 
