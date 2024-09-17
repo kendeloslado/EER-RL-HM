@@ -47,7 +47,7 @@ s_out = 3'b011;
     logic           [MEM_WIDTH-1:0]     kCH_index;
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
     logic           [WORD_WIDTH-1:0]    maxQ_bitmask;
-
+    logic                               iHaveChosen;
 always@(posedge clk) begin
     if(!nrst) begin
         state <= 0;

@@ -11,12 +11,12 @@ module tb_knownCH;
     logic                       nrst;
     logic                       en_KCH;
     logic                       HB_reset;
-    logic   [WORD_WIDTH-1:0]    HB_CHlimit;
-    logic   [WORD_WIDTH-1:0]    fCH_ID;
-    logic   [WORD_WIDTH-1:0]    fCH_Hops;
-    logic   [WORD_WIDTH-1:0]    fCH_QValue;
-    wire    [WORD_WIDTH-1:0]    chosenCH;
-    wire    [WORD_WIDTH-1:0]    hopsfromCH;
+    logic   [`WORD_WIDTH-1:0]    HB_CHlimit;
+    logic   [`WORD_WIDTH-1:0]    fCH_ID;
+    logic   [`WORD_WIDTH-1:0]    fCH_Hops;
+    logic   [`WORD_WIDTH-1:0]    fCH_QValue;
+    wire    [`WORD_WIDTH-1:0]    chosenCH;
+    wire    [`WORD_WIDTH-1:0]    hopsfromCH;
 
 knownCHv2 UUT(
         .clk        (clk        ),
