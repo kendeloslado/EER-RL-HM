@@ -7,10 +7,10 @@
 
 module tb_knownCH;
 
-    logic                       clk;
-    logic                       nrst;
-    logic                       en_KCH;
-    logic                       HB_reset;
+    logic                        clk;
+    logic                        nrst;
+    logic                        en_KCH;
+    logic                        HB_reset;
     logic   [`WORD_WIDTH-1:0]    HB_CHlimit;
     logic   [`WORD_WIDTH-1:0]    fCH_ID;
     logic   [`WORD_WIDTH-1:0]    fCH_Hops;
@@ -55,9 +55,22 @@ initial begin
     #`CLOCK_CYCLE
     // receive heartbeat packet
     HB_reset = 1;
-    HB_CHlimit = 16'd10;
+    HB_CHlimit = 16'd3;
+    /* you need to simulate receiving multiple CHs.
+    for an easy example, let's set the CH limit to 3
+     */
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    // receive your first cluster head information
+    fCH_ID = 16'd23;
+    fCH_Hops = 16'd2;
+    fCH_QValue = 16'h3000; // Q-value = 0.75
+    #`CLOCK_CYCLE
+    en_KCH = 1;
+    #`CLOCK_CYCLE
+    en_KCH = 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
     $finish;

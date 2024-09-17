@@ -41,14 +41,18 @@ s_out = 3'b011;
 
  */
 
-// let's start with the FSM register
+
 
     logic           [WORD_WIDTH-1:0]    HB_CHlimit_buf;
     logic           [WORD_WIDTH-1:0]    state;
-    logic           [MEM_WIDTH-1:0]     kCH_index;
+    logic           [WORD_WIDTH-1:0]    kCH_index;
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
+    logic           [WORD_WIDTH-1:0]    minHops_count;
     logic           [WORD_WIDTH-1:0]    maxQ_bitmask;
+    logic           [WORD_WIDTH-1:0]    maxQ_count;
     logic                               iHaveChosen;
+
+// let's start with the FSM register
 always@(posedge clk) begin
     if(!nrst) begin
         state <= 0;
@@ -334,6 +338,23 @@ always_comb begin
     end
 end
 
+// always block for minHops_count
+always@(posedge clk) begin
+    if(!nrst) begin
+        minHops_count <= 0;
+    end
+    else begin
+        for(int i = 0; i < 16; i++) begin
+            if(cluster_heads[i].CH_Hops <= minHops) begin
+                minHops_count++;
+            end
+            else begin
+                minHops_count <= minHops_count;
+            end
+        end
+    end
+end
+
 // always block for maxQ_bitmask
 always_comb begin
     for(int i = 0; i < 16; i++) begin
@@ -348,6 +369,68 @@ always_comb begin
         else begin
             maxQ_bitmask[i] <= 0;
         end
+    end
+end
+
+// always block for maxQ_count
+always@(posedge clk) begin
+    if(!nrst) begin
+        maxQ_count <= 0;
+    end
+    else begin
+        if(HB_reset) begin
+            maxQ_count <= 0;
+        end
+        else begin
+            for(int i = 0; i < 16; i++) begin
+                if(minHops_bitmask[i] == 1) begin
+                    if(cluster_heads[i].CHQValue >= maxQ) begin
+                        maxQ_count++;
+                    end
+                    else begin
+                        maxQ_count <= maxQ_count;
+                    end
+                end
+                else begin
+                    maxQ_count <= maxQ_count;
+                end
+            end
+        end
+    end
+end
+
+// always block for iHaveChosen
+always@(posedge clk) begin
+    if(!nrst) begin
+        iHaveChosen <= 0;
+    end
+    else begin
+        /* this code snippet should be interacting with the
+        bitmasks, ito dapat yung goal.
+
+        select your CH based on the bitmask. Check minHops_bitmask
+        Pag isa lang yung naka 1 sa bitmask, automatically select that
+        as your CH. In the case of a tiebreaker....
+
+        Go check maxQ_bitmask next. Similar criteria. Check kung iisa lang
+        yung naka 1 sa bitmask. If true, pick that as your CH. Else...
+
+        Check minID. Pick the lowest nodeID among them. Details regarding how
+        this will be checked still needs to be figured out.
+
+        When you output your selected CH, piggyback the CH's nodeID (chosenCH)
+        and CH_Hops [output].
+         */
+        if(minHops_count == 1) begin
+            // output the singular CH as your chosenCH
+        end
+        else if(maxQ_count == 1) begin
+            // output the singular CH in maxQ_bitmask as your chosenCH
+        end
+        else begin
+
+        end
+        iHaveChosen <= 1;
     end
 end
 
