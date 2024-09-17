@@ -57,7 +57,9 @@ initial begin
     HB_reset = 1;
     HB_CHlimit = 16'd10;
     #`CLOCK_CYCLE
-    
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     $finish;
 end
 
