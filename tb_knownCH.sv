@@ -3,7 +3,7 @@
 `define MEM_WIDTH 8
 `define MEM_DEPTH 2048
 `define WORD_WIDTH 16
-`define CLOCK_CYCLE 10
+`define CLOCK_CYCLE 20
 
 module tb_knownCH;
 
@@ -49,13 +49,15 @@ initial begin
     fCH_ID = 16'h0;
     fCH_Hops = 16'hFFFF;
     fCH_QValue = 16'h0;
-    #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
+    HB_CHlimit = 16'd0;
     #`CLOCK_CYCLE
     nrst = 1;
     #`CLOCK_CYCLE
+    // receive heartbeat packet
+    HB_reset = 1;
+    HB_CHlimit = 16'd10;
     #`CLOCK_CYCLE
+    
     $finish;
 end
 

@@ -43,6 +43,7 @@ s_out = 3'b011;
 
 // let's start with the FSM register
 
+    logic           [WORD_WIDTH-1:0]    HB_CHlimit_buf;
     logic           [WORD_WIDTH-1:0]    state;
     logic           [MEM_WIDTH-1:0]     kCH_index;
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
@@ -115,6 +116,21 @@ always@(posedge clk) begin
     end
 end
 
+// always block for HB_CHlimit_buf
+always@(posedge clk) begin
+    if(!nrst) begin
+        HB_CHlimit_buf <= 0;
+    end
+    else begin 
+        if(HB_reset) begin
+            HB_CHlimit_buf <= HB_CHlimit;
+        end
+        else begin
+            HB_CHlimit_buf <= HB_CHlimit_buf;
+        end
+    end
+end
+
 // always block for kCH_index
 always@(posedge clk) begin
     if(!nrst) begin
@@ -153,7 +169,10 @@ end
 // always block for CH_ID
 always@(posedge clk) begin
     if(!nrst) begin
-        cluster_heads.CH_ID <= 0;
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_ID <= 0;
+        end
+        /* cluster_heads[15:0].CH_ID <= 0; */
     end
     else begin
         case(state)
@@ -170,7 +189,10 @@ always@(posedge clk) begin
             end
             default: begin
                 if(HB_reset) begin
-                    cluster_heads.CH_ID <= 0;
+                    for(int i = 0; i < 16; i++) begin
+                        cluster_heads[i].CH_ID <= 0;
+                    end
+                    /* cluster_heads[15:0].CH_ID <= 0; */
                 end
                 else begin
                     cluster_heads[kCH_index].CH_ID <= cluster_heads[kCH_index].CH_ID;
@@ -183,7 +205,10 @@ end
 //always block for CH_Hops
 always@(posedge clk) begin
     if(!nrst) begin
-        cluster_heads.CH_Hops <= 16'hFFFF;
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_Hops <= 16'hFFFF;
+        end
+        /* cluster_heads[15:0].CH_Hops <= 16'hFFFF; */
     end
     else begin
         case(state)
@@ -200,7 +225,10 @@ always@(posedge clk) begin
             end
             default: begin
                 if(HB_reset) begin
-                    cluster_heads.CH_Hops <= 0;
+                    for(int i = 0; i < 16; i++) begin
+                        cluster_heads[i].CH_Hops <= 16'hFFFF;
+                    end
+                    /* cluster_heads[15:0].CH_Hops <= 16'hFFFF; */
                 end
                 else begin
                     cluster_heads[kCH_index].CH_Hops <= cluster_heads[kCH_index].CH_Hops;
@@ -213,7 +241,10 @@ end
 // always block for CH_QValue
 always@(posedge clk) begin
     if(!nrst) begin
-        cluster_heads.CH_QValue <= 0;
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_QValue <= 16'h0;
+        end
+        /* cluster_heads[15:0].CH_QValue <= 0; */
     end
     else begin
         case(state)
@@ -230,7 +261,10 @@ always@(posedge clk) begin
             end
             default: begin
                 if(HB_reset) begin
-                    cluster_heads.CH_QValue <= 0;
+                    for(int i = 0; i < 16; i++) begin
+                        cluster_heads[i].CH_QValue <= 16'h0;
+                    end
+                    /* cluster_heads[15:0].CH_QValue <= 0; */
                 end
                 else begin
                     cluster_heads[kCH_index].CH_QValue <= cluster_heads[kCH_index].CH_QValue;
