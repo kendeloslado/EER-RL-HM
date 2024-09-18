@@ -61,6 +61,7 @@ initial begin
      */
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
+    HB_reset <= 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
     // receive your first cluster head information
