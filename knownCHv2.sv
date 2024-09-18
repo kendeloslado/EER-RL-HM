@@ -430,7 +430,7 @@ always@(posedge clk or negedge nrst) begin
         else begin
 
         end
-        iHaveChosen <= 1;
+        //iHaveChosen <= 1;
     end
 end
 
