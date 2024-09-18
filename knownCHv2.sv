@@ -384,7 +384,7 @@ always@(posedge clk) begin
         else begin
             for(int i = 0; i < 16; i++) begin
                 if(minHops_bitmask[i] == 1) begin
-                    if(cluster_heads[i].CHQValue >= maxQ) begin
+                    if(cluster_heads[i].CH_QValue >= maxQ) begin
                         maxQ_count++;
                     end
                     else begin
