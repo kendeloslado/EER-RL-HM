@@ -349,12 +349,14 @@ always@(posedge clk or negedge nrst) begin
         minHops_count <= 0;
     end
     else begin
-        for(int i = 0; i < 16; i++) begin
-            if(cluster_heads[i].CH_Hops <= minHops) begin
-                minHops_count <= minHops_count + 1;
-            end
-            else begin
-                minHops_count <= minHops_count;
+        if(kCH_index == HB_CHlimit_buf && !HB_reset) begin
+            for(int i = 0; i < 16; i++) begin
+                if(cluster_heads[i].CH_Hops <= minHops) begin
+                    minHops_count <= minHops_count + 1;
+                end
+                else begin
+                    minHops_count <= minHops_count;
+                end
             end
         end
     end
@@ -392,17 +394,19 @@ always@(posedge clk or negedge nrst ) begin
             maxQ_count <= 0;
         end
         else begin
-            for(int i = 0; i < 16; i++) begin
-                if(minHops_bitmask[i] == 1) begin
-                    if(cluster_heads[i].CH_QValue >= maxQ) begin
-                        maxQ_count <= maxQ_count + 1;
+            if(kCH_index == HB_CHlimit_buf && !HB_reset) begin
+                for(int i = 0; i < 16; i++) begin
+                    if(minHops_bitmask[i] == 1) begin
+                        if(cluster_heads[i].CH_QValue >= maxQ) begin
+                            maxQ_count <= maxQ_count + 1;
+                        end
+                        else begin
+                            maxQ_count <= maxQ_count;
+                        end
                     end
                     else begin
                         maxQ_count <= maxQ_count;
                     end
-                end
-                else begin
-                    maxQ_count <= maxQ_count;
                 end
             end
         end
