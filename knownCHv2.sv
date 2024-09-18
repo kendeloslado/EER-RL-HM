@@ -44,7 +44,7 @@ s_out = 3'b011;
 
 
     logic           [WORD_WIDTH-1:0]    HB_CHlimit_buf;
-    logic           [WORD_WIDTH-1:0]    state;
+    logic           [2:0]    state;
     logic           [WORD_WIDTH-1:0]    kCH_index;
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
     logic           [WORD_WIDTH-1:0]    minHops_count;
