@@ -73,6 +73,10 @@ initial begin
     en_KCH = 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     $finish;
 end
 
