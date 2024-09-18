@@ -328,13 +328,18 @@ end
 
 // always block for minHops_bitmask
 always_comb begin
-    for(int i = 0; i < 16; i++) begin
-        if (cluster_heads[i].CH_Hops <= minHops) begin
-            minHops_bitmask[i] <= 1;
+    if(kCH_index == HB_CHlimit_buf) begin
+        for(int i = 0; i < 16; i++) begin
+            if (cluster_heads[i].CH_Hops <= minHops) begin
+                minHops_bitmask[i] <= 1;
+            end
+            else begin
+                minHops_bitmask[i] <= 0;
+            end
         end
-        else begin
-            minHops_bitmask[i] <= 0;
-        end
+    end
+    else begin
+        minHops_bitmask <= minHops_bitmask;
     end
 end
 
@@ -357,18 +362,23 @@ end
 
 // always block for maxQ_bitmask
 always_comb begin
-    for(int i = 0; i < 16; i++) begin
-        if(minHops_bitmask[i] == 1) begin
-            if(cluster_heads[i].CH_QValue >= maxQ) begin
-                maxQ_bitmask[i] <= 1;
+    if(kCH_index == HB_CHlimit_buf) begin
+        for(int i = 0; i < 16; i++) begin
+            if(minHops_bitmask[i] == 1) begin
+                if(cluster_heads[i].CH_QValue >= maxQ) begin
+                    maxQ_bitmask[i] <= 1;
+                end
+                else begin
+                    maxQ_bitmask[i] <= 0;
+                end
             end
             else begin
                 maxQ_bitmask[i] <= 0;
             end
         end
-        else begin
-            maxQ_bitmask[i] <= 0;
-        end
+    end
+    else begin
+        maxQ_bitmask <= maxQ_bitmask;
     end
 end
 
