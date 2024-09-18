@@ -50,10 +50,10 @@ s_out = 3'b011;
     logic           [WORD_WIDTH-1:0]    minHops_count;
     logic           [WORD_WIDTH-1:0]    maxQ_bitmask;
     logic           [WORD_WIDTH-1:0]    maxQ_count;
-    logic                               iHaveChosen;
+    /* logic                               iHaveChosen; */
 
 // let's start with the FSM register
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         state <= 0;
     end
@@ -121,7 +121,7 @@ always@(posedge clk) begin
 end
 
 // always block for HB_CHlimit_buf
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         HB_CHlimit_buf <= 0;
     end
@@ -136,7 +136,7 @@ always@(posedge clk) begin
 end
 
 // always block for kCH_index
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         kCH_index <= 0;
     end
@@ -171,7 +171,7 @@ always@(posedge clk) begin
 end
 
 // always block for CH_ID
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 16; i++) begin
             cluster_heads[i].CH_ID <= 0;
@@ -207,7 +207,7 @@ always@(posedge clk) begin
 end
 
 //always block for CH_Hops
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 16; i++) begin
             cluster_heads[i].CH_Hops <= 16'hFFFF;
@@ -243,7 +243,7 @@ always@(posedge clk) begin
 end
 
 // always block for CH_QValue
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 16; i++) begin
             cluster_heads[i].CH_QValue <= 16'h0;
@@ -279,7 +279,7 @@ always@(posedge clk) begin
 end
 
 // always block for recording maxQ
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         maxQ <= 0;
     end
@@ -302,7 +302,7 @@ always@(posedge clk) begin
 end
 
 // always block for minHops
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         minHops <= 16'hFFFF;
     end
@@ -339,7 +339,7 @@ always_comb begin
 end
 
 // always block for minHops_count
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         minHops_count <= 0;
     end
@@ -373,7 +373,7 @@ always_comb begin
 end
 
 // always block for maxQ_count
-always@(posedge clk) begin
+always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         maxQ_count <= 0;
     end
@@ -400,7 +400,7 @@ always@(posedge clk) begin
 end
 
 // always block for iHaveChosen
-always@(posedge clk) begin
+/* always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         iHaveChosen <= 0;
     end
@@ -432,6 +432,6 @@ always@(posedge clk) begin
         end
         iHaveChosen <= 1;
     end
-end
+end */
 
 endmodule
