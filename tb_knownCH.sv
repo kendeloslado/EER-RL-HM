@@ -33,7 +33,7 @@ knownCHv2 UUT(
 
 initial begin
     clk = 0;
-    forever #`CLOCK_CYCLE clk = ~clk;
+    forever #10 clk = ~clk;
 end
 
 initial begin
