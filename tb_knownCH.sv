@@ -71,13 +71,20 @@ initial begin
     #`CLOCK_CYCLE
     en_KCH = 1;
     #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     en_KCH = 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
+    fCH_ID = 16'd45;
+    fCH_Hops = 16'd2;
+    fCH_QValue = 16'h2000;
+    en_KCH = 1;
+    #`CLOCK_CYCLE;
+    #`CLOCK_CYCLE;
+    en_KCH = 0;
+    #`CLOCK_CYCLE;
+    #`CLOCK_CYCLE;
+    
     $finish;
 end
 
