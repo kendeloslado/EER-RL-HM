@@ -38,6 +38,7 @@ clusterHeadInformation cluster_heads[15:0];
 // hops, and lowest nodeID
     logic           [WORD_WIDTH-1:0]    maxQ;
     logic           [WORD_WIDTH-1:0]    minHops;
+    logic                               nodeIsMinHops;
     logic           [WORD_WIDTH-1:0]    minID;
 
 // start with the FSM register!
@@ -109,7 +110,7 @@ always@(posedge clk or negedge nrst) begin
             receive CH information
             check CH information (fCH_Hops LRT minHops?)
                 if(true)
-                    minHops <= fchhops
+                    minHops <= fCH_Hops
                 else
                     move on
 
@@ -119,7 +120,12 @@ always@(posedge clk or negedge nrst) begin
                 minHops <= minHops;
             end
             3'b001: begin
-
+                if(fCH_Hops <= minHops) begin
+                    minHops <= fCH_Hops; // update minHops
+                end
+                else begin
+                    minHops <= minHops; // do not change
+                end
             end
             default: begin 
                 minHops <= minHops;
@@ -128,4 +134,48 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
+// always block for nodeIsMinHops
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        nodeIsMinHops <= 0;
+    end
+    else begin
+        case(state) 
+            3'b001: begin
+                if(fCH_Hops <= minHops) begin
+                    nodeIsMinHops <= 1;
+                end
+                else begin
+                    nodeIsMinHops <= 0;
+                end
+            end
+            default: begin
+                nodeIsMinHops <= nodeIsMinHops;
+            end
+        endcase
+    end
+end
+
+
+// always block for maxQ
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        maxQ <= 0;
+    end
+    else begin
+        if(nodeIsMinHops) begin
+            if(fCH_QValue >= maxQ) begin
+                maxQ <= fCH_QValue;
+            end
+            else begin
+                maxQ <= maxQ;
+            end
+        end
+        else begin
+            maxQ <= maxQ;
+        end
+    end
+end
+
+always@(posedge clk or negedge nrst) 
 endmodule
