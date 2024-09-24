@@ -18,7 +18,7 @@ module tb_knownCH;
     wire    [`WORD_WIDTH-1:0]    chosenCH;
     wire    [`WORD_WIDTH-1:0]    hopsfromCH;
 
-knownCHv2 UUT(
+knownCHv3 UUT(
         .clk        (clk        ),
         .nrst       (nrst       ),
         .en_KCH     (en_KCH     ),

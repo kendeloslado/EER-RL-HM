@@ -14,13 +14,15 @@ module knownCHv3 #(
     input logic     [WORD_WIDTH-1:0]    fCH_Hops,
     input logic     [WORD_WIDTH-1:0]    fCH_QValue,
     output logic    [WORD_WIDTH-1:0]    chosenCH,
-    output logic    [WORD_WIDTH-1:0]    hopsfromCH
+    output logic    [WORD_WIDTH-1:0]    hopsFromCH
 );
 // registers for storing the best Q-value, shortest
 // hops, and lowest nodeID
     logic           [WORD_WIDTH-1:0]    maxQ;
     logic           [WORD_WIDTH-1:0]    minHops;
-    logic           [WORD_WIDTH-1:0]    minID;
+/*     logic                               nodeIsMinHops; */
+    logic           [WORD_WIDTH-1:0]    minNodeID;
+
 // defining the struct for cluster head information
 
 typedef struct packed{
@@ -34,19 +36,13 @@ clusterHeadInformation cluster_heads[15:0];
     logic           [WORD_WIDTH-1:0]    CHinfo_timeout;
     logic           [2:0]               state;
     logic           [WORD_WIDTH-1:0]    kCH_index;
-// registers for storing the best Q-value, shortest
-// hops, and lowest nodeID
-    logic           [WORD_WIDTH-1:0]    maxQ;
-    logic           [WORD_WIDTH-1:0]    minHops;
-    logic                               nodeIsMinHops;
-    logic           [WORD_WIDTH-1:0]    minID;
 
 // start with the FSM register!
 /* 
     Here's how you want your FSM to work.
     First, start your FSM with the idle state. You are waiting for new 
     cluster head information to arrive in the module. You wait until a 
-    certain time frame, defined by your CHinfo_timeout module.
+    certain time frame, defined by your CHinfo_timeout register.
 
     CHinfo_timeout will start counting down, resetting everytime you receive
     new CH information.
@@ -75,8 +71,19 @@ clusterHeadInformation cluster_heads[15:0];
 
     Remember the hierarchy.
     minHops > maxQ > minID.
+
+    
+    s_idle = wait for new message
+    s_record = record the new information
+    s_process = see if recorded info meets criteria
+    s_output = output the chosenCH and hopsFromCH
  */
 
+parameter s_idle = 3'b000;
+parameter s_record = 3'b001;
+/* parameter s_process = 3'b010; */
+parameter s_output = 3'b010;
+parameter s_HBreset = 3'b011;
 // always block for the state register
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
@@ -86,11 +93,29 @@ always@(posedge clk or negedge nrst) begin
         case(state)
             s_idle: begin
                 if(en_KCH) begin    // received a packet. Start processing
-                    state <= s_process;
+                    state <= s_record;
                 end
                 else if(CHinfo_timeout == 0) begin
                     state <= s_output;
                 end
+                else if(HB_reset) begin
+                    state <= s_HBreset;
+                end
+                else begin
+                    state <= state;
+                end
+            end
+            s_record: begin         // record data
+                state <= s_idle;
+            end
+            /* s_process: begin
+                
+            end */
+            s_output: begin         // output chosenCH and hopsFromCH
+                state <= s_idle;
+            end
+            s_HBreset: begin        // reset cluster head table
+                state <= s_idle;
             end
             default: begin
                 state <= state;
@@ -112,20 +137,21 @@ always@(posedge clk or negedge nrst) begin
                 if(true)
                     minHops <= fCH_Hops
                 else
-                    move on
-
-        */
+                    move on */
         case(state)
-            3'b000: begin   // idle state. Don't do anything
+            s_idle: begin   // idle state. Don't do anything
                 minHops <= minHops;
             end
-            3'b001: begin
+            s_record: begin
                 if(fCH_Hops <= minHops) begin
                     minHops <= fCH_Hops; // update minHops
                 end
                 else begin
                     minHops <= minHops; // do not change
                 end
+            end
+            s_HBreset: begin
+                minHops <= 0;
             end
             default: begin 
                 minHops <= minHops;
@@ -135,7 +161,7 @@ always@(posedge clk or negedge nrst) begin
 end
 
 // always block for nodeIsMinHops
-always@(posedge clk or negedge nrst) begin
+/* always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         nodeIsMinHops <= 0;
     end
@@ -154,7 +180,7 @@ always@(posedge clk or negedge nrst) begin
             end
         endcase
     end
-end
+end */
 
 
 // always block for maxQ
@@ -163,19 +189,208 @@ always@(posedge clk or negedge nrst) begin
         maxQ <= 0;
     end
     else begin
-        if(nodeIsMinHops) begin
-            if(fCH_QValue >= maxQ) begin
-                maxQ <= fCH_QValue;
+        case(state)
+            s_record: begin
+                if(fCH_Hops <= minHops) begin
+                    if(fCH_QValue >= maxQ) begin
+                        maxQ <= fCH_QValue;
+                    end
+                    else begin
+                        maxQ <= maxQ;
+                    end
+                end
+                else begin
+                    maxQ <= maxQ;
+                end
             end
-            else begin
+            s_HBreset: begin
+                maxQ <= 0;
+            end
+            default: begin
                 maxQ <= maxQ;
             end
-        end
-        else begin
-            maxQ <= maxQ;
-        end
+        endcase
     end
 end
 
-always@(posedge clk or negedge nrst) 
+// always block for minNodeID
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        minNodeID <= 16'hFFFF;
+    end
+    else begin
+        case(state)
+            s_record: begin
+                if((fCH_Hops <= minHops) && (fCH_QValue >= maxQ) && (fCH_ID < minNodeID)) begin
+                    minNodeID <= fCH_ID;
+                end
+                else begin
+                    minNodeID <- minNodeID;
+                end
+            end
+            s_HBreset: begin
+                minNodeID <= 16'hFFFF;
+            end
+            default: begin
+                minNodeID <= minNodeID;
+            end
+        endcase
+    end
+end
+
+// always block for kCH_index
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        kCH_index <= 0;
+    end
+    else begin
+        case(state)
+            s_record: begin // s_collect
+                if((fCH_ID != cluster_heads[kCH_index].CH_ID) && (cluster_heads[kCH_index].CH_ID == 16'h0)) begin
+                // first ever entry after a HB pkt. 
+                    kCH_index <= kCH_index;
+                end
+                // not first entry, but when you're in this state, you're receiving an INV pkt.
+                // you're receiving the rest of the details (CH_Hops and CH_QValue)
+                else if(fCH_ID == cluster_heads[kCH_index].CH_ID) begin
+                    kCH_index <= kCH_index;
+                end
+                // you receive a new CHE pkt with a different fCH_ID
+                // it is also not the first ever packet.
+                else begin
+                    kCH_index <= kCH_index + 1;
+                end
+            end
+            s_HBreset: begin
+                kCH_index <= 0;
+            end
+            default: begin
+                kCH_index <= kCH_index;
+            end
+        endcase
+    end
+end
+
+// always block for CH_ID
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_ID <= 0;
+        end
+        /* cluster_heads[15:0].CH_ID <= 0; */
+    end
+    else begin
+        case(state)
+            s_record: begin
+                cluster_heads[kCH_index].CH_ID <= fCH_ID;
+                /* else if(HB_reset) begin
+                    cluster_heads.CH_ID <= 0;
+                end */
+            end
+            s_HBreset: begin
+                for(int i = 0; i < 16; i++) begin
+                    cluster_heads[i].CH_ID <= 0;
+                end
+            end
+            default: begin
+                cluster_heads[kCH_index].CH_ID <= cluster_heads[kCH_index].CH_ID;
+            end
+        endcase
+    end
+end
+// always block for CH_Hops
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_Hops <= 0;
+        end
+        /* cluster_heads[15:0].CH_ID <= 0; */
+    end
+    else begin
+        case(state)
+            s_record: begin
+                cluster_heads[kCH_index].CH_Hops <= fCH_Hops;
+                /* else if(HB_reset) begin
+                    cluster_heads.CH_ID <= 0;
+                end */
+            end
+            s_HBreset: begin
+                for(int i = 0; i < 16; i++) begin
+                    cluster_heads[i].CH_Hops <= 16'hFFFF;
+                end
+            end
+            default: begin
+                cluster_heads[kCH_index].CH_Hops <= cluster_heads[kCH_index].CH_Hops;
+            end
+        endcase
+    end
+end
+
+// always block for CH_QValue
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        for(int i = 0; i < 16; i++) begin
+            cluster_heads[i].CH_QValue <= 0;
+        end
+        /* cluster_heads[15:0].CH_ID <= 0; */
+    end
+    else begin
+        case(state)
+            s_record: begin
+                cluster_heads[kCH_index].CH_QValue <= fCH_QValue;
+                /* else if(HB_reset) begin
+                    cluster_heads.CH_ID <= 0;
+                end */
+            end
+            s_HBreset: begin
+                for(int i = 0; i < 16; i++) begin
+                    cluster_heads[i].CH_QValue <= 0;
+                end
+            end
+            default: begin
+                cluster_heads[kCH_index].CH_QValue <= cluster_heads[kCH_index].CH_QValue;
+            end
+        endcase
+    end
+end
+
+// always block for chosenCH
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        chosenCH <= 0;
+    end
+    else begin
+        case(state)
+            s_output: begin
+                chosenCH <= minNodeID;
+            end
+            s_HBreset: begin
+                chosenCH <= 0;
+            end
+            default: chosenCH <= chosenCH;
+        endcase
+    end
+end
+
+// always block for hopsFromCH
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        hopsFromCH <= 0;
+    end
+    else begin
+        case(state)
+            s_output: begin
+                hopsFromCH <= minHops;
+            end
+            s_HBreset: begin
+                hopsFromCH <= 16'hFFFF;
+            end
+            default: hopsFromCH <= hopsFromCH;
+        endcase
+    end
+end
+
+/* always@(posedge clk or negedge nrst) begin
+
+end */
 endmodule
