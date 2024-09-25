@@ -9,7 +9,7 @@ module knownCHv3 #(
     input logic                         nrst,
     input logic                         en_KCH,
     input logic                         HB_reset,
-    input logic     [WORD_WIDTH-1:0]    HB_CHlimit, // defined at HB packet
+    /* input logic     [WORD_WIDTH-1:0]    HB_CHlimit, // defined at HB packet */
     input logic     [WORD_WIDTH-1:0]    fCH_ID,
     input logic     [WORD_WIDTH-1:0]    fCH_Hops,
     input logic     [WORD_WIDTH-1:0]    fCH_QValue,
@@ -151,7 +151,7 @@ always@(posedge clk or negedge nrst) begin
                 end
             end
             s_HBreset: begin
-                minHops <= 0;
+                minHops <= 16'hFFFF;
             end
             default: begin 
                 minHops <= minHops;
@@ -221,11 +221,14 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_record: begin
-                if((fCH_Hops <= minHops) && (fCH_QValue >= maxQ) && (fCH_ID < minNodeID)) begin
+                if((fCH_Hops <= minHops) && (fCH_QValue == maxQ) && (fCH_ID < minNodeID)) begin
+                    minNodeID <= fCH_ID;
+                end
+                else if ((fCH_Hops <= minHops) && (fCH_QValue > maxQ)) begin
                     minNodeID <= fCH_ID;
                 end
                 else begin
-                    minNodeID <- minNodeID;
+                    minNodeID <= minNodeID;
                 end
             end
             s_HBreset: begin
@@ -246,13 +249,13 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_record: begin // s_collect
-                if((fCH_ID != cluster_heads[kCH_index].CH_ID) && (cluster_heads[kCH_index].CH_ID == 16'h0)) begin
+                /* if((fCH_ID != cluster_heads[kCH_index].CH_ID) && (cluster_heads[kCH_index].CH_ID == 16'h0)) begin
                 // first ever entry after a HB pkt. 
                     kCH_index <= kCH_index;
                 end
                 // not first entry, but when you're in this state, you're receiving an INV pkt.
                 // you're receiving the rest of the details (CH_Hops and CH_QValue)
-                else if(fCH_ID == cluster_heads[kCH_index].CH_ID) begin
+                else */ if(fCH_ID == cluster_heads[kCH_index].CH_ID) begin
                     kCH_index <= kCH_index;
                 end
                 // you receive a new CHE pkt with a different fCH_ID
@@ -302,7 +305,7 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 16; i++) begin
-            cluster_heads[i].CH_Hops <= 0;
+            cluster_heads[i].CH_Hops <= 16'hFFFF;
         end
         /* cluster_heads[15:0].CH_ID <= 0; */
     end
@@ -389,6 +392,39 @@ always@(posedge clk or negedge nrst) begin
         endcase
     end
 end
+
+// always block for CHinfo_timeout
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        CHinfo_timeout <= 16'hFFFF; // tentative value:16'hFFFF
+    end
+    else begin
+        case(state)
+            s_idle: begin
+                if(!en_KCH && CHinfo_timeout != 16'h0) begin
+                    CHinfo_timeout <= CHinfo_timeout - 1;
+                end
+                else if (CHinfo_timeout == 16'h0) begin
+                    CHinfo_timeout <= CHinfo_timeout;
+                end
+                else begin  // receive reset
+                    CHinfo_timeout <= 16'hFFFF;
+                end
+            end
+            s_record: begin
+                CHinfo_timeout <= 16'hFFFF;
+            end
+            s_HBreset: begin
+                CHinfo_timeout <= 16'hFFFF;
+            end
+            default: begin
+                CHinfo_timeout <= CHinfo_timeout;
+            end
+        endcase
+    end
+end
+
+
 
 /* always@(posedge clk or negedge nrst) begin
 
