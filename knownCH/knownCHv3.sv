@@ -22,7 +22,9 @@ module knownCHv3 #(
     logic           [WORD_WIDTH-1:0]    minHops;
 /*     logic                               nodeIsMinHops; */
     logic           [WORD_WIDTH-1:0]    minNodeID;
+    logic           [WORD_WIDTH-1:0]    MY_NODE_ID;
 
+    localparam MY_NODE_ID_CONST = 16'h000C;
 // defining the struct for cluster head information
 
 typedef struct packed{
@@ -92,7 +94,7 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_idle: begin
-                if(en_KCH) begin    // received a packet. Start processing
+                if(en_KCH && (fCH_ID != MY_NODE_ID)) begin    // received a packet. Start processing
                     state <= s_record;
                 end
                 else if(CHinfo_timeout == 0) begin
@@ -125,7 +127,9 @@ always@(posedge clk or negedge nrst) begin
 end
 
 // always block for minHops
-always@(posedge clk or negedge nrst) begin
+// previous version: always block with clk or async reset
+// new version: always_comb block
+always_comb begin
     if(!nrst) begin
         minHops <= 16'hFFFF; // this is minHops, when you reset
         // this register, reset it to the highest value.
@@ -184,7 +188,9 @@ end */
 
 
 // always block for maxQ
-always@(posedge clk or negedge nrst) begin
+// previous version: always block with clk or async reset
+// new version: always_comb block
+always_comb begin
     if(!nrst) begin
         maxQ <= 0;
     end
@@ -214,7 +220,9 @@ always@(posedge clk or negedge nrst) begin
 end
 
 // always block for minNodeID
-always@(posedge clk or negedge nrst) begin
+// previous version: always block with clk or async reset
+// new version: always_comb block
+always_comb begin
     if(!nrst) begin
         minNodeID <= 16'hFFFF;
     end
@@ -424,7 +432,7 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-
+assign MY_NODE_ID = MY_NODE_ID_CONST;
 
 /* always@(posedge clk or negedge nrst) begin
 

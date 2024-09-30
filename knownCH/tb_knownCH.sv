@@ -110,6 +110,8 @@ initial begin
     #`CLOCK_CYCLE
     en_KCH <= 0;
     #(`CLOCK_CYCLE * 5)
+    // receive sixth cluster head, but it's your own information
+    
     $finish;
 end
 
