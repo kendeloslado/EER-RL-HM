@@ -404,7 +404,7 @@ end
 // always block for CHinfo_timeout
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
-        CHinfo_timeout <= 16'hFFFF; // tentative value:16'hFFFF
+        CHinfo_timeout <= 16'h0010; // tentative value:16'hFFFF
     end
     else begin
         case(state)
@@ -416,14 +416,14 @@ always@(posedge clk or negedge nrst) begin
                     CHinfo_timeout <= CHinfo_timeout;
                 end
                 else begin  // receive reset
-                    CHinfo_timeout <= 16'hFFFF;
+                    CHinfo_timeout <= 16'h0010;
                 end
             end
             s_record: begin
-                CHinfo_timeout <= 16'hFFFF;
+                CHinfo_timeout <= 16'h0010;
             end
             s_HBreset: begin
-                CHinfo_timeout <= 16'hFFFF;
+                CHinfo_timeout <= 16'h0010;
             end
             default: begin
                 CHinfo_timeout <= CHinfo_timeout;

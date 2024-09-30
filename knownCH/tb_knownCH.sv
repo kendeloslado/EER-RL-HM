@@ -111,7 +111,13 @@ initial begin
     en_KCH <= 0;
     #(`CLOCK_CYCLE * 5)
     // receive sixth cluster head, but it's your own information
-    
+    fCH_ID <= 16'd12;
+    fCH_Hops <= 16'd1;
+    fCH_QValue <= 16'h4000;
+    en_KCH <= 1;
+    #`CLOCK_CYCLE
+    en_KCH <= 0;
+    #(`CLOCK_CYCLE * 5)
     $finish;
 end
 
