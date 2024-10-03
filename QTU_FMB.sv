@@ -38,14 +38,95 @@ module QTU_FMB #(
     output logic        [WORD_WIDTH-1:0]    nodeQValue,
     output logic        [WORD_WIDTH-1:0]    neighborCount,
     // general output
-    output logic                            QTU_done,
+    output logic                            QTU_done
 );
 
-    /* 
+// internal registers
+    logic               [2:0]               state;
+
+
+/* 
     Q-table update functionality
     receive packet (MR) -> check fChosenCH. if same -> write to NT (neighborTable)
     data packet (DP) -> check fChosenCH. if same -> update Q -> write to NT
 
     findMyBest functionality
     transmit (FMB) -> track nearest hop and highest Q-value.
-     */
+
+    The Q-Table Update part of the module is set to update the neighbor table when it
+    receives a membership packet and/or a data packet, whose fChosenCH matches the node's
+    chosenCH (given from knownCH module). 
+
+    Meanwhile, findMyBest will begin finding the nexthop with the following conditions:
+    1. The packet receives a data packet; and
+    2. The signal iAmDestination is asserted to 1.
+
+    When these conditions are fulfilled, the node will search for the best nexthop in this hierarchy:
+    1. The node is one hop away from the CH;
+    2. The node has one-hop neighbors;
+    3. The neighbor node has the highest Q-values;
+    4. The node has no one-hop neighbors, so check the two-hop neighbors with best Q-values.
+    In short, the hierarchy is:
+    one-hop CH > less hops > maxQ
+*/
+
+/* 
+    FSM!
+
+    states:
+    s_idle = wait for new message
+    s_process = parse the message (ID if u got MR, DP, or none) (tentative)
+    s_update = update Q-Value
+    s_besthop = find best hop
+    s_output = output the resultant signals
+
+    do you need states?
+
+    Let's do this one at a time. Let's start with QTableUpdate first.
+
+    Wait for an MR/Data packet. Write/update the neighbor table upon receiving information.
+    When you receive a message, updating the table should take only one clock cycle. You're
+    writing to memory after all. 
+
+    After that,that should be about it.
+
+    Tignan natin yung findMyBest side then.
+
+    To decide on finding your nexthop, the following conditions should be met:
+    1. iAmDestination is asserted to 1; and
+    2. The node is receiving a data packet;
+
+    When these conditions are met, this part of the module should find your best candidate for nexthop
+    Generally, the node should select their one-hop neighbor. The one-hop neighbor priority are the following:
+    1. Cluster Head
+    2. Neighbor with highest Q-value.
+    3. If no one-hop neighbor, select the next neighbor with n+1 hops, and max Q-value.
+
+    To find your best hop, the node should consider their "hopsFromCH" value. If their hopsFromCH is 1, automatically
+    select the cluster head as your best hop. Otherwise, look for neighbors, whose hopsFromCH value is 1 less than your 
+    hopsFromCH value.
+
+*/
+
+    // always block for state register
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            state <= s_idle;
+        end
+        else begin
+            case(state)
+                s_idle: begin
+                    if(en) begin    // you need to move to some state pero parang kulang pa yung nasa utak ko
+
+                    end
+                    else begin
+                        state <= s_idle;
+                    end
+                end
+
+                default: state <= state;
+            endcase
+        end
+    end
+
+endmodule
