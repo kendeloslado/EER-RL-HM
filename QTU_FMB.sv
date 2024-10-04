@@ -33,18 +33,23 @@ module QTU_FMB #(
     
     // outputs to write into neighbor table
     output logic        [WORD_WIDTH-1:0]    nodeID,
-    output logic        [WORD_WIDTH-1:0]    nodeEnergy,
     output logic        [WORD_WIDTH-1:0]    nodeHops,
+    output logic        [WORD_WIDTH-1:0]    nodeEnergy,
     output logic        [WORD_WIDTH-1:0]    nodeQValue,
     output logic        [WORD_WIDTH-1:0]    neighborCount,
+    // output from findMyBest
+    output logic        [WORD_WIDTH-1:0]    nextHop,
     // general output
     output logic                            QTU_done
 );
 
 // internal registers
     logic               [2:0]               state;
-
-
+    logic               [WORD_WIDTH-1:0]    hopsNeeded; // number of hops for nexthop
+    logic               [WORD_WIDTH-1:0]    maxQValue; 
+    // maxQValue will be local within the entries meeting hopsNeeded value
+    logic               []
+    logic               
 /* 
     Q-table update functionality
     receive packet (MR) -> check fChosenCH. if same -> write to NT (neighborTable)
@@ -104,8 +109,22 @@ module QTU_FMB #(
 
     To find your best hop, the node should consider their "hopsFromCH" value. If their hopsFromCH is 1, automatically
     select the cluster head as your best hop. Otherwise, look for neighbors, whose hopsFromCH value is 1 less than your 
-    hopsFromCH value.
+    hopsFromCH value. That's findMyBest's part in the module.
 
+    In this module, I wanted both of them to run concurrently, but they respond to different input signals, which make it challenging to do.
+
+    Pagdating sa FSM, I may be able to do it like this:
+
+    state:
+    s_idle = wait for a new message
+    s_process = process the necessary signals.
+    s_output = output the needed signals
+
+    In this manner, all the node needs to do is wait for new messages, then process according to the signals.
+    QTU will be enabled if the node receives a message, whose sender belongs to the same cluster.
+    FMB will be enabled when it receives a data packet and iAmDestination is set to 1.
+
+    Both modules will give outputs after one supposedly one cycle. Grain of salt, as this is all concept pa.
 */
 
     // always block for state register
@@ -117,13 +136,18 @@ module QTU_FMB #(
             case(state)
                 s_idle: begin
                     if(en) begin    // you need to move to some state pero parang kulang pa yung nasa utak ko
-
+                        state <= s_process;
                     end
                     else begin
                         state <= s_idle;
                     end
                 end
-
+                s_process: begin
+                    state <= s_output;
+                end
+                s_output: begin
+                    state <= s_idle;
+                end
                 default: state <= state;
             endcase
         end
