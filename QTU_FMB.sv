@@ -11,6 +11,7 @@ module QTU_FMB #(
     // enable signal from packetFilter
     input logic                             en,
     input logic                             iAmDestination,
+    input logic                             HB_Reset,
     // Inputs from Packet
     input logic         [WORD_WIDTH-1:0]    fSourceID,
     input logic         [WORD_WIDTH-1:0]    fSourceHops,
@@ -39,8 +40,9 @@ module QTU_FMB #(
     output logic        [WORD_WIDTH-1:0]    neighborCount,
     // output from findMyBest
     output logic        [WORD_WIDTH-1:0]    nextHop,
+    output logic        [WORD_WIDTH-1:0]    nextHopCount,
     // general output
-    output logic                            QTU_done
+    output logic                            QTUFMB_done
 );
 
 // internal registers
@@ -48,7 +50,8 @@ module QTU_FMB #(
     logic               [WORD_WIDTH-1:0]    hopsNeeded; // number of hops for nexthop
     logic               [WORD_WIDTH-1:0]    maxQValue; 
     // maxQValue will be local within the entries meeting hopsNeeded value
-    logic               []
+    logic               [WORD_WIDTH-1:0]    bestNeighbor;
+                        // register containing the nodeID of the best neighbor
     logic               
 /* 
     Q-table update functionality
@@ -76,17 +79,6 @@ module QTU_FMB #(
 */
 
 /* 
-    FSM!
-
-    states:
-    s_idle = wait for new message
-    s_process = parse the message (ID if u got MR, DP, or none) (tentative)
-    s_update = update Q-Value
-    s_besthop = find best hop
-    s_output = output the resultant signals
-
-    do you need states?
-
     Let's do this one at a time. Let's start with QTableUpdate first.
 
     Wait for an MR/Data packet. Write/update the neighbor table upon receiving information.
@@ -153,4 +145,157 @@ module QTU_FMB #(
         end
     end
 
+    //always block for nodeID
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nodeID <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nodeID <= fSourceID;
+                end
+                default: nodeID <= nodeID; 
+            endcase
+        end
+    end
+
+    // always block for nodeHops
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nodeHops <= 16'hFFFF;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nodeHops <= fSourceHops;
+                end
+                default: nodeHops <= nodeHops; 
+            endcase
+        end
+    end
+
+    // always block for nodeEnergy
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nodeEnergy <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nodeEnergy <= fEnergyLeft;
+                end
+                default: nodeEnergy <= nodeEnergy; 
+            endcase
+        end
+    end
+
+    // always block for nodeQValue
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nodeQValue <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nodeQValue <= fQValue;
+                end
+                default: nodeQValue <= nodeQValue; 
+            endcase
+        end
+    end
+
+    // always block for neighborCount
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            neighborCount <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    neighborCount <= nCountIndex;
+                end
+                default: neighborCount <= neighborCount; 
+            endcase
+        end
+    end
+
+    // always block for QTU_done
+    always@(posedge clk or negedge nrst) begin
+        if!(nrst) begin
+            QTUFMB_done <= 0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    QTUFMB_done <= 1;
+                end
+                default: begin 
+                    QTUFMB_done <= 0;
+                end
+            endcase
+        end
+    end
+
+    // always block for hopsNeeded
+    // hopsNeeded is one of your bases on selecting nextHop
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            hopsNeeded <= 0;
+        end
+        else begin
+            if(HB_Reset) begin
+                hopsNeeded <= 0;
+            end
+            else begin
+                hopsNeeded <= hopsFromCH - 1;
+            end
+        end
+    end
+
+    //always block for maxQValue
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            maxQValue <= 0;
+        end
+        else begin
+            if(iAmDestination) begin
+                if(fHopsFromCH == hopsNeeded) begin
+                    if(fQValue > maxQValue) begin
+                        maxQValue <= fQValue;
+                    end
+                    else begin
+                        maxQValue <= maxQValue;
+                    end
+                end
+                else begin
+                    maxQValue <= maxQValue;
+                end
+            end
+            else if (HB_Reset) begin
+                maxQValue <= 0;
+            end
+            else begin
+                maxQValue <= maxQValue;
+            end
+        end
+    end
+
+    //always block for bestNeighbor
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            bestNeighbor <= 16'h0;
+        end
+        else begin
+            if(iAmDestination) begin
+                
+            end
+            else if (HB_Reset) begin
+                bestNeighbor <= 16'h0;
+            end
+            else begin
+                bestNeighbor <= bestNeighbor;
+            end
+        end
+    end
 endmodule
