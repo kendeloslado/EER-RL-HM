@@ -5,43 +5,43 @@ module QTU_FMB #(
     parameter MEM_WIDTH = 8,
     parameter WORD_WIDTH = 16
 )(
-    // global inputs
+// global inputs
     input logic                             clk,
     input logic                             nrst,
-    // enable signal from packetFilter
+// enable signal from packetFilter
     input logic                             en,
     input logic                             iAmDestination,
     input logic                             HB_Reset,
-    // Inputs from Packet
+// Inputs from Packet
     input logic         [WORD_WIDTH-1:0]    fSourceID,
     input logic         [WORD_WIDTH-1:0]    fSourceHops,
     input logic         [WORD_WIDTH-1:0]    fQValue,
     input logic         [WORD_WIDTH-1:0]    fEnergyLeft,
     input logic         [WORD_WIDTH-1:0]    fHopsFromCH,
     input logic         [WORD_WIDTH-1:0]    fChosenCH,
-    // inputs from memory
+// inputs from memory
     input logic         [WORD_WIDTH-1:0]    mSourceID,
     input logic         [WORD_WIDTH-1:0]    mSourceHops,
     input logic         [WORD_WIDTH-1:0]    mQValue,
     input logic         [WORD_WIDTH-1:0]    mEnergyLeft,
     input logic         [WORD_WIDTH-1:0]    mHopsFromCH,
     input logic         [WORD_WIDTH-1:0]    mChosenCH,
-    // input signals from kCH output
+// input signals from kCH output
     input logic         [WORD_WIDTH-1:0]    chosenCH,
     input logic         [WORD_WIDTH-1:0]    hopsFromCH,
-    // input signals from myNodeInfo
+// input signals from myNodeInfo
     input logic         [WORD_WIDTH-1:0]    myQValue,
     
-    // outputs to write into neighbor table
+// outputs to write into neighbor table
     output logic        [WORD_WIDTH-1:0]    nodeID,
     output logic        [WORD_WIDTH-1:0]    nodeHops,
     output logic        [WORD_WIDTH-1:0]    nodeEnergy,
     output logic        [WORD_WIDTH-1:0]    nodeQValue,
     output logic        [4:0]               neighborCount,
-    // output from findMyBest
+// output from findMyBest
     output logic        [WORD_WIDTH-1:0]    nextHop,
     output logic        [WORD_WIDTH-1:0]    nextHopCount,
-    // general output
+// general output
     output logic                            QTUFMB_done
 );
 
@@ -127,7 +127,7 @@ neighborTableID neighbors[31:0];
     Both modules will give outputs after one supposedly one cycle. Grain of salt, as this is all concept pa.
 */
 
-    // always block for state register
+// always block for state register
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             state <= s_idle;
@@ -153,7 +153,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for neighbors.valid
+// always block for neighbors.valid
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(i = 0; i < 32; i++) begin
@@ -165,8 +165,21 @@ neighborTableID neighbors[31:0];
                 end
             end
         end
+        else begin
+            case(state)
+                s_process: begin
+                    if()
+                end
+                s_HBreset: begin
+
+                end
+                default: begin
+
+                end
+            endcase
+        end
     end
-    //always block for neighbors.neighborID
+//always block for neighbors.neighborID
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(i=0; i<32; i++) begin
@@ -175,7 +188,7 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state) 
-                s_output: begin
+                s_process: begin
                     neighbors.neighborID <= fSourceID;
                 end
                 default:  begin
@@ -184,8 +197,8 @@ neighborTableID neighbors[31:0];
             endcase
         end
     end
-    // always block for nCountIndex
 
+// always block for nCountIndex
     always_comb begin
         if(!nrst) begin
             neighborCount <= 0;
@@ -193,7 +206,9 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    
+                    if(fChosenCH == chosenCH) begin
+                        neighborCount <= neighborCount + 1;
+                    end
                 end
                 s_output: begin
 
@@ -202,7 +217,8 @@ neighborTableID neighbors[31:0];
             endcase
         end
     end
-    //always block for nodeID
+
+//always block for nodeID
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             nodeID <= 16'h0;
@@ -217,7 +233,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for nodeHops
+// always block for nodeHops
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             nodeHops <= 16'hFFFF;
@@ -232,7 +248,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for nodeEnergy
+// always block for nodeEnergy
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             nodeEnergy <= 16'h0;
@@ -247,7 +263,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for nodeQValue
+// always block for nodeQValue
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             nodeQValue <= 16'h0;
@@ -262,7 +278,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for QTUFMB_done
+// always block for QTUFMB_done
     always@(posedge clk or negedge nrst) begin
         if!(nrst) begin
             QTUFMB_done <= 0;
@@ -279,7 +295,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-    // always block for hopsNeeded
+// always block for hopsNeeded
     // hopsNeeded is one of your bases on selecting nextHop
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
@@ -291,11 +307,11 @@ neighborTableID neighbors[31:0];
 
                 end
                 s_HBreset: begin
-
+                    hopsNeeded <= 16'hFFFF;
                 end
-                s_output: begin
+                /* s_output: begin
 
-                end
+                end */
                 default: begin
                     hopsNeeded <= hopsNeeded;
                 end
@@ -310,7 +326,7 @@ neighborTableID neighbors[31:0];
     end
 
 
-    //always block for maxQValue
+//always block for maxQValue
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             maxQValue <= 0;
@@ -368,7 +384,7 @@ neighborTableID neighbors[31:0];
     end 
 */
 
-    // always block for bestNeighbor
+// always block for bestNeighbor
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             bestNeighbor <= 16'hFFFF;
@@ -392,6 +408,9 @@ neighborTableID neighbors[31:0];
                             else begin
                                 bestNeighbor <= bestNeighbor;
                             end
+                        end
+                        else begin
+                            bestNeighbor <= bestNeighbor;
                         end
                     end
                     else begin
@@ -442,49 +461,49 @@ neighborTableID neighbors[31:0];
     end */
 
 //always block for nextHop
-always@(posedge clk or negedge nrst) begin
-    if(!nrst) begin
-        nextHop <= 16'h0;
-    end
-    else begin
-        case(state)
-            s_output: begin
-                nextHop <= bestNeighbor;
-            end
-            default: begin
-                if(!HB_Reset) begin
-                    nextHop <= nextHop;
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nextHop <= 16'h0;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nextHop <= bestNeighbor;
                 end
-                else begin
-                    nextHop <= 16'h0;
+                default: begin
+                    if(!HB_Reset) begin
+                        nextHop <= nextHop;
+                    end
+                    else begin
+                        nextHop <= 16'h0;
+                    end
                 end
-            end
-        endcase
+            endcase
+        end
     end
-end
 
 
 //always block for nextHopCount
-always@(posedge clk or negedge nrst) begin
-    if(!nrst) begin
-        nextHopCount <= 16'hFFFF;
-    end
-    else begin
-        case(state)
-            s_output: begin
-                nextHopCount <= hopsNeeded;
-            end
-            default: begin
-                if(!HB_Reset) begin
-                    nextHopCount <= nextHopCount;
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            nextHopCount <= 16'hFFFF;
+        end
+        else begin
+            case(state)
+                s_output: begin
+                    nextHopCount <= hopsNeeded;
                 end
-                else begin
-                    nextHopCount <= 16'hFFFF;
+                default: begin
+                    if(!HB_Reset) begin
+                        nextHopCount <= nextHopCount;
+                    end
+                    else begin
+                        nextHopCount <= 16'hFFFF;
+                    end
                 end
-            end
-        endcase
+            endcase
+        end
     end
-end
 
 // always block for 
 
