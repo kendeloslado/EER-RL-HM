@@ -20,12 +20,12 @@ module QTU_FMB #(
     input logic         [WORD_WIDTH-1:0]    fHopsFromCH,
     input logic         [WORD_WIDTH-1:0]    fChosenCH,
 // inputs from memory
-    input logic         [WORD_WIDTH-1:0]    mSourceID,
+/*     input logic         [WORD_WIDTH-1:0]    mSourceID,
     input logic         [WORD_WIDTH-1:0]    mSourceHops,
     input logic         [WORD_WIDTH-1:0]    mQValue,
     input logic         [WORD_WIDTH-1:0]    mEnergyLeft,
     input logic         [WORD_WIDTH-1:0]    mHopsFromCH,
-    input logic         [WORD_WIDTH-1:0]    mChosenCH,
+    input logic         [WORD_WIDTH-1:0]    mChosenCH, */
 // input signals from kCH output
     input logic         [WORD_WIDTH-1:0]    chosenCH,
     input logic         [WORD_WIDTH-1:0]    hopsFromCH,
@@ -37,7 +37,7 @@ module QTU_FMB #(
     output logic        [WORD_WIDTH-1:0]    nodeHops,
     output logic        [WORD_WIDTH-1:0]    nodeEnergy,
     output logic        [WORD_WIDTH-1:0]    nodeQValue,
-    output logic        [4:0]               neighborCount,
+    output logic        [4:0]               neighborCount, // nodeIndex, not neighborCount
 // output from findMyBest
     output logic        [WORD_WIDTH-1:0]    nextHop,
     output logic        [WORD_WIDTH-1:0]    nextHopCount,
@@ -46,8 +46,8 @@ module QTU_FMB #(
 );
 
 typedef struct packed{
-    logic               [WORD_WIDTH-1:0]    neighborID;
     logic                                   validNeighbor;
+    logic               [WORD_WIDTH-1:0]    neighborID;
 } neighborTableID;
 
 neighborTableID neighbors[31:0];
@@ -59,8 +59,18 @@ neighborTableID neighbors[31:0];
     // maxQValue will be local within the entries meeting hopsNeeded value
     logic               [WORD_WIDTH-1:0]    bestNeighbor;
                         // register containing the nodeID of the best neighbor
-/*     logic               [4:0]               nCountIndex;
- *//* 
+
+/* 
+    QT/FMB
+                                    check if exist --> write to NeighborTable
+    CHID -> membership -> check CH -- same --> write to NeighborTable
+    data -> check CH -- same --> update Q -> write to NeighborTable
+
+    valid and tag bits usage 
+    hit == (NT.nodeID && fSourceID == 1) && valid
+*/
+
+/* 
     Q-table update functionality
     receive packet (MR) -> check fChosenCH. if same -> write to NT (neighborTable)
     data packet (DP) -> check fChosenCH. if same -> update Q -> write to NT
@@ -168,13 +178,22 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if()
+                    if(!neighbors.valid[neighborCount]) begin
+                        neighbors.valid[neighborCount] <= 1;
+                    end
                 end
                 s_HBreset: begin
-
+                    for(i = 0; i < 32; i++) begin
+                        if(neighbors.valid[i] != 0) begin
+                            neighbors.valid[i] <= 0;
+                        end
+                        else begin
+                            neighbors.valid[i] <= neighbors.valid[i];
+                        end
+                    end
                 end
                 default: begin
-
+                    neighbors.valid[neighborCount] <= neighbors.valid[neighborCount];
                 end
             endcase
         end
@@ -198,7 +217,7 @@ neighborTableID neighbors[31:0];
         end
     end
 
-// always block for nCountIndex
+// always block for neighborCount
     always_comb begin
         if(!nrst) begin
             neighborCount <= 0;
@@ -209,9 +228,6 @@ neighborTableID neighbors[31:0];
                     if(fChosenCH == chosenCH) begin
                         neighborCount <= neighborCount + 1;
                     end
-                end
-                s_output: begin
-
                 end
                 default: neighborCount <= neighborCount;
             endcase
@@ -302,26 +318,26 @@ neighborTableID neighbors[31:0];
             hopsNeeded <= 16'hFFFF;
         end
         else begin
-            case(state) 
+            /* case(state) 
                 s_process: begin
-
+                    
                 end
                 s_HBreset: begin
                     hopsNeeded <= 16'hFFFF;
                 end
                 /* s_output: begin
 
-                end */
+                end
                 default: begin
                     hopsNeeded <= hopsNeeded;
                 end
-            endcase
-            /* if(HB_Reset) begin
+            endcase */
+            if(HB_Reset) begin
                 hopsNeeded <= 16'hFFFF;
             end
             else begin
                 hopsNeeded <= hopsFromCH - 1;
-            end */
+            end
         end
     end
 
