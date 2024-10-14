@@ -46,7 +46,7 @@ module QTU_FMB #(
 );
 
 typedef struct packed{
-    logic                                   validNeighbor;
+    logic                                   valid;
     logic               [WORD_WIDTH-1:0]    neighborID;
 } neighborTableID;
 
@@ -60,6 +60,9 @@ neighborTableID neighbors[31:0];
     logic               [WORD_WIDTH-1:0]    bestNeighbor;
                         // register containing the nodeID of the best neighbor
 
+    // registers used for 32-to-5 one-hot encoder    
+    logic               [31:0]              oneHotIndex;
+    logic               [4:0]               neighborIndex;
 /* 
     QT/FMB
                                     check if exist --> write to NeighborTable
@@ -522,44 +525,221 @@ neighborTableID neighbors[31:0];
     end
 
 // always block for the 32-to-5 encoder
-    logic               [31:0]              oneHotIndex;
-    logic               [4:0]               neighborIndex;
-always_comb begin
-    case(oneHotIndex)
-        32'b00000000000000000000000000000001: neighborIndex <= 5'd0;
-        32'b00000000000000000000000000000010: neighborIndex <= 5'd1;
-        32'b00000000000000000000000000000100: neighborIndex <= 5'd2;
-        32'b00000000000000000000000000001000: neighborIndex <= 5'd3;
-        32'b00000000000000000000000000010000: neighborIndex <= 5'd4;
-        32'b00000000000000000000000000100000: neighborIndex <= 5'd5;
-        32'b00000000000000000000000001000000: neighborIndex <= 5'd6;
-        32'b00000000000000000000000010000000: neighborIndex <= 5'd7;
-        32'b00000000000000000000000100000000: neighborIndex <= 5'd8;
-        32'b00000000000000000000001000000000: neighborIndex <= 5'd9;
-        32'b00000000000000000000010000000000: neighborIndex <= 5'd10;
-        32'b00000000000000000000100000000000: neighborIndex <= 5'd11;
-        32'b00000000000000000001000000000000: neighborIndex <= 5'd12;
-        32'b00000000000000000010000000000000: neighborIndex <= 5'd13;
-        32'b00000000000000000100000000000000: neighborIndex <= 5'd14;
-        32'b00000000000000001000000000000000: neighborIndex <= 5'd15;
-        32'b00000000000000010000000000000000: neighborIndex <= 5'd16;
-        32'b00000000000000100000000000000000: neighborIndex <= 5'd17;
-        32'b00000000000001000000000000000000: neighborIndex <= 5'd18;
-        32'b00000000000010000000000000000000: neighborIndex <= 5'd19;
-        32'b00000000000100000000000000000000: neighborIndex <= 5'd20;
-        32'b00000000001000000000000000000000: neighborIndex <= 5'd21;
-        32'b00000000010000000000000000000000: neighborIndex <= 5'd22;
-        32'b00000000100000000000000000000000: neighborIndex <= 5'd23;
-        32'b00000001000000000000000000000000: neighborIndex <= 5'd24;
-        32'b00000010000000000000000000000000: neighborIndex <= 5'd25;
-        32'b00000100000000000000000000000000: neighborIndex <= 5'd26;
-        32'b00001000000000000000000000000000: neighborIndex <= 5'd27;
-        32'b00010000000000000000000000000000: neighborIndex <= 5'd28;
-        32'b00100000000000000000000000000000: neighborIndex <= 5'd29;
-        32'b01000000000000000000000000000000: neighborIndex <= 5'd30;
-        32'b10000000000000000000000000000000: neighborIndex <= 5'd31;
-        default: neighborIndex <= 5'bZZZZZ;
-    endcase
+
+    always_comb begin
+        case(oneHotIndex)
+            32'b00000000000000000000000000000001: neighborIndex <= 5'd0;
+            32'b00000000000000000000000000000010: neighborIndex <= 5'd1;
+            32'b00000000000000000000000000000100: neighborIndex <= 5'd2;
+            32'b00000000000000000000000000001000: neighborIndex <= 5'd3;
+            32'b00000000000000000000000000010000: neighborIndex <= 5'd4;
+            32'b00000000000000000000000000100000: neighborIndex <= 5'd5;
+            32'b00000000000000000000000001000000: neighborIndex <= 5'd6;
+            32'b00000000000000000000000010000000: neighborIndex <= 5'd7;
+            32'b00000000000000000000000100000000: neighborIndex <= 5'd8;
+            32'b00000000000000000000001000000000: neighborIndex <= 5'd9;
+            32'b00000000000000000000010000000000: neighborIndex <= 5'd10;
+            32'b00000000000000000000100000000000: neighborIndex <= 5'd11;
+            32'b00000000000000000001000000000000: neighborIndex <= 5'd12;
+            32'b00000000000000000010000000000000: neighborIndex <= 5'd13;
+            32'b00000000000000000100000000000000: neighborIndex <= 5'd14;
+            32'b00000000000000001000000000000000: neighborIndex <= 5'd15;
+            32'b00000000000000010000000000000000: neighborIndex <= 5'd16;
+            32'b00000000000000100000000000000000: neighborIndex <= 5'd17;
+            32'b00000000000001000000000000000000: neighborIndex <= 5'd18;
+            32'b00000000000010000000000000000000: neighborIndex <= 5'd19;
+            32'b00000000000100000000000000000000: neighborIndex <= 5'd20;
+            32'b00000000001000000000000000000000: neighborIndex <= 5'd21;
+            32'b00000000010000000000000000000000: neighborIndex <= 5'd22;
+            32'b00000000100000000000000000000000: neighborIndex <= 5'd23;
+            32'b00000001000000000000000000000000: neighborIndex <= 5'd24;
+            32'b00000010000000000000000000000000: neighborIndex <= 5'd25;
+            32'b00000100000000000000000000000000: neighborIndex <= 5'd26;
+            32'b00001000000000000000000000000000: neighborIndex <= 5'd27;
+            32'b00010000000000000000000000000000: neighborIndex <= 5'd28;
+            32'b00100000000000000000000000000000: neighborIndex <= 5'd29;
+            32'b01000000000000000000000000000000: neighborIndex <= 5'd30;
+            32'b10000000000000000000000000000000: neighborIndex <= 5'd31;
+            default: neighborIndex <= 5'bZZZZZ;
+        endcase
+    end
+
+// instantiating comparator modules for register comparison
+    16bitEQComparator C0    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[0],
+                            .out(oneHotIndex[0])
+    );
+    16bitEQComparator C1    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[1],
+                            .out(oneHotIndex[1])
+    );
+    16bitEQComparator C2    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[2],
+                            .out(oneHotIndex[2])
+    );
+    16bitEQComparator C3    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[3],
+                            .out(oneHotIndex[3])
+    );
+    16bitEQComparator C4    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[4],
+                            .out(oneHotIndex[4])
+    );
+    16bitEQComparator C5    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[5],
+                            .out(oneHotIndex[5])
+    );
+    16bitEQComparator C6    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[6],
+                            .out(oneHotIndex[6])
+    );
+    16bitEQComparator C7    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[7],
+                            .out(oneHotIndex[7])
+    );
+    16bitEQComparator C8    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[8],
+                            .out(oneHotIndex[8])
+    );
+    16bitEQComparator C9    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[9],
+                            .out(oneHotIndex[9])
+    );
+    16bitEQComparator C10    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[10],
+                            .out(oneHotIndex[10])
+    );
+    16bitEQComparator C11    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[11],
+                            .out(oneHotIndex[11])
+    );
+    16bitEQComparator C12    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[12],
+                            .out(oneHotIndex[12])
+    );
+    16bitEQComparator C13    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[13],
+                            .out(oneHotIndex[13])
+    );
+    16bitEQComparator C14    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[14],
+                            .out(oneHotIndex[14])
+    );
+    16bitEQComparator C15    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[15],
+                            .out(oneHotIndex[15])
+    );
+    16bitEQComparator C16    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[16],
+                            .out(oneHotIndex[16])
+    );
+    16bitEQComparator C17    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[17],
+                            .out(oneHotIndex[17])
+    );
+    16bitEQComparator C18    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[18],
+                            .out(oneHotIndex[18])
+    );
+    16bitEQComparator C19    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[19],
+                            .out(oneHotIndex[19])
+    );
+    16bitEQComparator C20    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[20],
+                            .out(oneHotIndex[20])
+    );
+    16bitEQComparator C22    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[21],
+                            .out(oneHotIndex[22])
+    );
+    16bitEQComparator C23    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[23],
+                            .out(oneHotIndex[23])
+    );
+    16bitEQComparator C24    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[24],
+                            .out(oneHotIndex[24])
+    );
+    16bitEQComparator C25    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[25],
+                            .out(oneHotIndex[25])
+    );
+    16bitEQComparator C26    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[26],
+                            .out(oneHotIndex[26])
+    );
+    16bitEQComparator C27    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[27],
+                            .out(oneHotIndex[27])
+    );
+    16bitEQComparator C28    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[28],
+                            .out(oneHotIndex[28])
+    );
+    16bitEQComparator C29    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[29],
+                            .out(oneHotIndex[29])
+    );
+    16bitEQComparator C30    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[30],
+                            .out(oneHotIndex[30])
+    );
+    16bitEQComparator C31    (.inA(fSourceID)), 
+                            .inB(neighbors.neighborID[31],
+                            .out(oneHotIndex[31])
+    );
+
+// write to neighbors.valid
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        for(i = 0; i < 32; i++) begin
+            neighbors[i].valid <= 0;
+        end
+    end
+    else begin
+        case(state)
+            s_process: begin
+                neighbors[neighborIndex].valid <= 1;
+            end
+            s_HBreset: begin
+                for(i = 0; i < 32; i++) begin
+                    if(neighbors[i].valid != 0) begin
+                        neighbors[i].valid <= 0;
+                    end
+                end
+            end
+            default: begin
+                neighbors[i].valid <= neighbors[i].valid;
+            end
+        endcase
+    end
 end
 
+// write to neighbors.neighborID
+/* 
+    Here's what you need to do.
+
+    First, enable the ability to write to this struct.
+    When a new neighborID is received, you need to store it to the
+    register whose valid bit is currently 0.
+
+    Once you write to that register, valid bit is asserted to 1, and
+    the neighborID is assigned an index. This information should not be 
+    overwritten unless the valid bit is zero. Every new neighbor info
+    received will be assigned to another register
+
+    By the time you start updating information, you are not adding new
+    information. You're simply updating information, updating according to
+    the assigned index. When you start updating, you're receiving information
+    from a certain sender multiple times. Writing to this register will use
+    a series of comparators, whose outputs served as inputs to a 32-to-5
+    one-hot encoder, whose output serves as the index. This allows for 
+    instantaneous index handling when new information arrives and updates
+    need to happen.
+
+    When reclustering occurs, all valid bits turn to 0, and new neighbor
+    information can overwrite to said registers.
+
+ */
 endmodule
