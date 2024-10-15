@@ -26,7 +26,7 @@ module QTU_FMB #(
     input logic         [WORD_WIDTH-1:0]    mEnergyLeft,
     input logic         [WORD_WIDTH-1:0]    mHopsFromCH,
     input logic         [WORD_WIDTH-1:0]    mChosenCH, */
-// input signals from kCH output
+// input signals from kCH
     input logic         [WORD_WIDTH-1:0]    chosenCH,
     input logic         [WORD_WIDTH-1:0]    hopsFromCH,
 // input signals from myNodeInfo
@@ -37,10 +37,10 @@ module QTU_FMB #(
     output logic        [WORD_WIDTH-1:0]    nodeHops,
     output logic        [WORD_WIDTH-1:0]    nodeEnergy,
     output logic        [WORD_WIDTH-1:0]    nodeQValue,
-    output logic        [4:0]               neighborCount, // nodeIndex, not neighborCount
+    output logic        [4:0]               neighborIndex, // nodeIndex, not neighborCount
 // output from findMyBest
-    output logic        [WORD_WIDTH-1:0]    nextHop,
-    output logic        [WORD_WIDTH-1:0]    nextHopCount,
+    output logic        [WORD_WIDTH-1:0]    chosenHop,
+/*     output logic        [WORD_WIDTH-1:0]    chosenHopCount, */
 // general output
     output logic                            QTUFMB_done
 );
@@ -62,7 +62,7 @@ neighborTableID neighbors[31:0];
 
     // registers used for 32-to-5 one-hot encoder    
     logic               [31:0]              oneHotIndex;
-    logic               [4:0]               neighborIndex;
+    logic               [4:0]               neighborCount;
 /* 
     QT/FMB
                                     check if exist --> write to NeighborTable
@@ -170,38 +170,38 @@ neighborTableID neighbors[31:0];
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(i = 0; i < 32; i++) begin
-                if(neighbors.valid[i] != 0) begin
-                    neighbors.valid[i] <= 0;
+                if(neighbors[i].valid != 0) begin
+                    neighbors[i].valid <= 0;
                 end
                 else begin
-                    neighbors.valid[i] <= neighbors.valid[i];
+                    neighbors[i].valid <= neighbors[i].valid;
                 end
             end
         end
         else begin
             case(state)
                 s_process: begin
-                    if(!neighbors.valid[neighborCount]) begin
-                        neighbors.valid[neighborCount] <= 1;
+                    if(!neighbors[neighborIndex].valid) begin
+                        neighbors[neighborIndex].valid <= 1;
                     end
                 end
                 s_HBreset: begin
                     for(i = 0; i < 32; i++) begin
-                        if(neighbors.valid[i] != 0) begin
-                            neighbors.valid[i] <= 0;
+                        if(neighbors[i].valid != 0) begin
+                            neighbors[i].valid <= 0;
                         end
                         else begin
-                            neighbors.valid[i] <= neighbors.valid[i];
+                            neighbors[i].valid <= neighbors[i].valid;
                         end
                     end
                 end
                 default: begin
-                    neighbors.valid[neighborCount] <= neighbors.valid[neighborCount];
+                    neighbors[neighborIndex].valid <= neighbors[neighborIndex].valid;
                 end
             endcase
         end
     end
-//always block for neighbors.neighborID
+//always block for writing to neighbors.neighborID
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(i=0; i<32; i++) begin
@@ -211,10 +211,15 @@ neighborTableID neighbors[31:0];
         else begin
             case(state) 
                 s_process: begin
-                    neighbors.neighborID <= fSourceID;
+                    if(oneHotIndex == 0 || (!neighbors[neighborIndex].valid)) begin
+                        neighbors[neighborIndex].neighborID <= fSourceID;
+                    end
+                    else begin
+                        neighbors[neighborIndex].neighborID <= neighbors[neighborIndex].neighborID;
+                    end
                 end
                 default:  begin
-                    neighbors.neighborID <= neighbors.neighborID;
+                    neighbors[neighborIndex].neighborID <= neighbors[neighborIndex].neighborID;
                 end
             endcase
         end
@@ -228,8 +233,11 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if(fChosenCH == chosenCH) begin
+                    if((fChosenCH == chosenCH) && (oneHotIndex == 32'b0)) begin
                         neighborCount <= neighborCount + 1;
+                    end
+                    else begin
+                        neighborCount <= neighborCount;
                     end
                 end
                 default: neighborCount <= neighborCount;
@@ -412,7 +420,10 @@ neighborTableID neighbors[31:0];
             case(state)
                 s_process: begin
                     if(iAmDestination) begin
-                        if(fHopsFromCH == hopsNeeded) begin
+                        if(hopsNeeded == 0) begin
+                            bestNeighbor <= chosenCH;
+                        end
+                        else if(fHopsFromCH == hopsNeeded) begin
                             if(fQValue > maxQValue) begin
                                 bestNeighbor <= fSourceID;
                             end
@@ -528,39 +539,39 @@ neighborTableID neighbors[31:0];
 
     always_comb begin
         case(oneHotIndex)
-            32'b00000000000000000000000000000001: neighborIndex <= 5'd0;
-            32'b00000000000000000000000000000010: neighborIndex <= 5'd1;
-            32'b00000000000000000000000000000100: neighborIndex <= 5'd2;
-            32'b00000000000000000000000000001000: neighborIndex <= 5'd3;
-            32'b00000000000000000000000000010000: neighborIndex <= 5'd4;
-            32'b00000000000000000000000000100000: neighborIndex <= 5'd5;
-            32'b00000000000000000000000001000000: neighborIndex <= 5'd6;
-            32'b00000000000000000000000010000000: neighborIndex <= 5'd7;
-            32'b00000000000000000000000100000000: neighborIndex <= 5'd8;
-            32'b00000000000000000000001000000000: neighborIndex <= 5'd9;
-            32'b00000000000000000000010000000000: neighborIndex <= 5'd10;
-            32'b00000000000000000000100000000000: neighborIndex <= 5'd11;
-            32'b00000000000000000001000000000000: neighborIndex <= 5'd12;
-            32'b00000000000000000010000000000000: neighborIndex <= 5'd13;
-            32'b00000000000000000100000000000000: neighborIndex <= 5'd14;
-            32'b00000000000000001000000000000000: neighborIndex <= 5'd15;
-            32'b00000000000000010000000000000000: neighborIndex <= 5'd16;
-            32'b00000000000000100000000000000000: neighborIndex <= 5'd17;
-            32'b00000000000001000000000000000000: neighborIndex <= 5'd18;
-            32'b00000000000010000000000000000000: neighborIndex <= 5'd19;
-            32'b00000000000100000000000000000000: neighborIndex <= 5'd20;
-            32'b00000000001000000000000000000000: neighborIndex <= 5'd21;
-            32'b00000000010000000000000000000000: neighborIndex <= 5'd22;
-            32'b00000000100000000000000000000000: neighborIndex <= 5'd23;
-            32'b00000001000000000000000000000000: neighborIndex <= 5'd24;
-            32'b00000010000000000000000000000000: neighborIndex <= 5'd25;
-            32'b00000100000000000000000000000000: neighborIndex <= 5'd26;
-            32'b00001000000000000000000000000000: neighborIndex <= 5'd27;
-            32'b00010000000000000000000000000000: neighborIndex <= 5'd28;
-            32'b00100000000000000000000000000000: neighborIndex <= 5'd29;
-            32'b01000000000000000000000000000000: neighborIndex <= 5'd30;
-            32'b10000000000000000000000000000000: neighborIndex <= 5'd31;
-            default: neighborIndex <= 5'bZZZZZ;
+            32'b00000000000000000000000000000001: encoder_out <= 5'd0;
+            32'b00000000000000000000000000000010: encoder_out <= 5'd1;
+            32'b00000000000000000000000000000100: encoder_out <= 5'd2;
+            32'b00000000000000000000000000001000: encoder_out <= 5'd3;
+            32'b00000000000000000000000000010000: encoder_out <= 5'd4;
+            32'b00000000000000000000000000100000: encoder_out <= 5'd5;
+            32'b00000000000000000000000001000000: encoder_out <= 5'd6;
+            32'b00000000000000000000000010000000: encoder_out <= 5'd7;
+            32'b00000000000000000000000100000000: encoder_out <= 5'd8;
+            32'b00000000000000000000001000000000: encoder_out <= 5'd9;
+            32'b00000000000000000000010000000000: encoder_out <= 5'd10;
+            32'b00000000000000000000100000000000: encoder_out <= 5'd11;
+            32'b00000000000000000001000000000000: encoder_out <= 5'd12;
+            32'b00000000000000000010000000000000: encoder_out <= 5'd13;
+            32'b00000000000000000100000000000000: encoder_out <= 5'd14;
+            32'b00000000000000001000000000000000: encoder_out <= 5'd15;
+            32'b00000000000000010000000000000000: encoder_out <= 5'd16;
+            32'b00000000000000100000000000000000: encoder_out <= 5'd17;
+            32'b00000000000001000000000000000000: encoder_out <= 5'd18;
+            32'b00000000000010000000000000000000: encoder_out <= 5'd19;
+            32'b00000000000100000000000000000000: encoder_out <= 5'd20;
+            32'b00000000001000000000000000000000: encoder_out <= 5'd21;
+            32'b00000000010000000000000000000000: encoder_out <= 5'd22;
+            32'b00000000100000000000000000000000: encoder_out <= 5'd23;
+            32'b00000001000000000000000000000000: encoder_out <= 5'd24;
+            32'b00000010000000000000000000000000: encoder_out <= 5'd25;
+            32'b00000100000000000000000000000000: encoder_out <= 5'd26;
+            32'b00001000000000000000000000000000: encoder_out <= 5'd27;
+            32'b00010000000000000000000000000000: encoder_out <= 5'd28;
+            32'b00100000000000000000000000000000: encoder_out <= 5'd29;
+            32'b01000000000000000000000000000000: encoder_out <= 5'd30;
+            32'b10000000000000000000000000000000: encoder_out <= 5'd31;
+            default: encoder_out <= 5'bZZZZZ;
         endcase
     end
 
@@ -691,33 +702,38 @@ neighborTableID neighbors[31:0];
     );
 
 // write to neighbors.valid
-always@(posedge clk or negedge nrst) begin
-    if(!nrst) begin
-        for(i = 0; i < 32; i++) begin
-            neighbors[i].valid <= 0;
-        end
-    end
-    else begin
-        case(state)
-            s_process: begin
-                neighbors[neighborIndex].valid <= 1;
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            for(i = 0; i < 32; i++) begin
+                neighbors[i].valid <= 0;
             end
-            s_HBreset: begin
-                for(i = 0; i < 32; i++) begin
-                    if(neighbors[i].valid != 0) begin
-                        neighbors[i].valid <= 0;
+        end
+        else begin
+            case(state)
+                s_process: begin
+                    if(neighbors[neighborIndex].valid == 0) begin
+                        neighbors[neighborIndex].valid <= 1;
+                    end
+                    else begin
+                        neighbors[neighborIndex].valid <= neighbors[neighborIndex].valid;
                     end
                 end
-            end
-            default: begin
-                neighbors[i].valid <= neighbors[i].valid;
-            end
-        endcase
+                s_HBreset: begin
+                    for(i = 0; i < 32; i++) begin
+                        if(neighbors[i].valid != 0) begin
+                            neighbors[i].valid <= 0;
+                        end
+                    end
+                end
+                default: begin
+                    neighbors[neighborIndex].valid <= neighbors[neighborIndex].valid;
+                end
+            endcase
+        end
     end
-end
 
 // write to neighbors.neighborID
-/* 
+    /* 
     Here's what you need to do.
 
     First, enable the ability to write to this struct.
@@ -740,6 +756,52 @@ end
 
     When reclustering occurs, all valid bits turn to 0, and new neighbor
     information can overwrite to said registers.
+    */
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            for(i = 0; i < 32; i++) begin
+                neighbors[i].neighborID <= 0;
+            end
+        end
+        else begin
+            case(state)
+                s_process: begin
+                    if(neighbors[neighborIndex].valid == 0) begin
+                        neighbors[neighborIndex].neighborID <= fSourceID;
+                    end
+                    else begin
+                        neighbors[neighborIndex].neighborID <= neighbors[neighborIndex].neighborID;
+                    end
+                end
+                default: begin
+                    neighbors[neighborIndex].neighborID <= neighbors[neighborIndex].neighborID;
+                end
+            endcase
+        end
+    end
 
- */
+// always block for neighborIndex
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            neighborIndex <= 0;
+        end
+        else begin
+            case(state) 
+                s_process: begin
+                    if(oneHotIndex == 32'b0) begin
+                        neighborIndex <= neighborCount;
+                    end
+                    else begin
+                        neighborIndex <= encoder_out;
+                    end
+                end
+                default: begin
+                    neighborIndex <= neighborIndex;
+                end
+            endcase
+        end
+    end
+
+assign chosenHop = bestNeighbor;
+
 endmodule
