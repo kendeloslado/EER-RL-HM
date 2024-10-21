@@ -233,7 +233,7 @@ neighborTableID neighbors[31:0];
                 end
             endcase
         end
-    end
+    end 
 
 // always block for neighborCount
     always_comb begin
