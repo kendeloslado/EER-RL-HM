@@ -191,7 +191,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if(!neighbors[neighborIndex].valid) begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                 end
@@ -221,7 +221,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state) 
                 s_process: begin
-                    if(oneHotIndex == 0 || (!neighbors[neighborIndex].valid)) begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin
@@ -243,7 +243,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if((fChosenCH == chosenCH) && (oneHotIndex == 32'b0)) begin
+                    if((fChosenCH == chosenCH) && (encoder_out == 6'h20 || (!neighbors[neighborIndex].valid))) begin
                         neighborCount <= neighborCount + 1;
                     end
                     else begin
@@ -671,8 +671,12 @@ neighborTableID neighbors[31:0];
                             .inB(neighbors[20].neighborID),
                             .out(oneHotIndex[20])
     );
-    EQComparator_16bit C22   (.inA(fSourceID), 
+    EQComparator_16bit C21   (.inA(fSourceID), 
                             .inB(neighbors[21].neighborID),
+                            .out(oneHotIndex[21])
+    );
+    EQComparator_16bit C22   (.inA(fSourceID), 
+                            .inB(neighbors[22].neighborID),
                             .out(oneHotIndex[22])
     );
     EQComparator_16bit C23   (.inA(fSourceID), 
@@ -722,7 +726,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if(neighbors[neighborIndex].valid == 0) begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                     else begin
@@ -777,7 +781,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if(neighbors[neighborIndex].valid == 0) begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin
@@ -799,7 +803,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state) 
                 s_process: begin
-                    if(oneHotIndex == 32'b0) begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighborIndex <= neighborCount;
                     end
                     else begin

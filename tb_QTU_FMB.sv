@@ -97,7 +97,35 @@ initial begin
     #`CLOCK_CYCLE
     HB_Reset = 0;
     #`CLOCK_CYCLE
-
+    #800 // some rough estimate 
+    // check if you can get the correct hopsNeeded
+    chosenCH = 16'd25;
+    hopsFromCH = 16'd2;
+    #`CLOCK_CYCLE
+    // receive a packet, but not same CH
+    en = 1;
+    fSourceID = 16'd41;
+    fSourceHops = 16'd3;
+    fQValue = 16'h1000; // 4./12 0.75
+    fEnergyLeft = 16'h3000; // 
+    fHopsFromCH = 16'd2;
+    fChosenCH = 16'd41;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    // receive pkt, same CH as you
+    en = 1;
+    fSourceID = 16'd65;
+    fSourceHops = 16'd1;
+    fQValue = 16'h0c00; // 4./12 0.75
+    fEnergyLeft = 16'h3333; // 2./14 0.8
+    fHopsFromCH = 16'd2;
+    fChosenCH = 16'd25;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
     $finish;
 end
 
