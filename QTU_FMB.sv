@@ -161,14 +161,26 @@ neighborTableID neighbors[31:0];
                     if(en) begin    // you need to move to some state pero parang kulang pa yung nasa utak ko
                         state <= s_process;
                     end
+                    else if(HB_Reset) begin
+                        state <= s_HBreset;
+                    end
                     else begin
                         state <= s_idle;
                     end
                 end
                 s_process: begin
-                    state <= s_output;
+                    /* state <= s_output; */
+                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                        state <= s_output;
+                    end
+                    else begin
+                        state <= s_idle;
+                    end
                 end
                 s_output: begin
+                    state <= s_idle;
+                end
+                s_HBreset: begin
                     state <= s_idle;
                 end
                 default: state <= state;
@@ -191,7 +203,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                 end
@@ -221,7 +233,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state) 
                 s_process: begin
-                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin
@@ -243,12 +255,15 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if((fChosenCH == chosenCH) && (encoder_out == 6'h20 || (!neighbors[neighborIndex].valid))) begin
+                    if((fChosenCH == chosenCH) && (!neighbors[neighborIndex].valid)) begin
                         neighborCount <= neighborCount + 1;
                     end
                     else begin
                         neighborCount <= neighborCount;
                     end
+                end
+                s_HBreset: begin
+                    neighborCount <= 0;
                 end
                 default: neighborCount <= neighborCount;
             endcase
@@ -503,7 +518,7 @@ neighborTableID neighbors[31:0];
 //always block for nextHop
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
-            nextHop <= 16'h0;
+            nextHop <= 16'hffff;
         end
         else begin
             case(state)
@@ -515,7 +530,7 @@ neighborTableID neighbors[31:0];
                         nextHop <= nextHop;
                     end
                     else begin
-                        nextHop <= 16'h0;
+                        nextHop <= 16'hffff;
                     end
                 end
             endcase
@@ -531,7 +546,12 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_output: begin
-                    nextHopCount <= hopsNeeded;
+                    if((fChosenCH == chosenCH) && (encoder_out == 6'h20 && (!neighbors[neighborIndex].valid))) begin
+                        nextHopCount <= hopsNeeded;
+                    end
+                    else begin
+                        nextHopCount <= nextHopCount;
+                    end
                 end
                 default: begin
                     if(!HB_Reset) begin
@@ -726,7 +746,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                     else begin
@@ -781,7 +801,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_process: begin
-                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin

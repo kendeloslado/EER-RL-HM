@@ -117,7 +117,7 @@ initial begin
     // receive pkt, same CH as you
     en = 1;
     fSourceID = 16'd65;
-    fSourceHops = 16'd1;
+    fSourceHops = 16'd2;
     fQValue = 16'h0c00; // 4./12 0.75
     fEnergyLeft = 16'h3333; // 2./14 0.8
     fHopsFromCH = 16'd2;
@@ -126,6 +126,19 @@ initial begin
     en = 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
+    // receive another pkt, same CH
+    en = 1;
+    fSourceID = 16'd71;
+    fSourceHops = 16'd4;
+    fQValue = 16'h0a00;
+    fEnergyLeft = 16'h2000;
+    fHopsFromCH = 16'd3;
+    fChosenCH = 16'd25;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    
     $finish;
 end
 
