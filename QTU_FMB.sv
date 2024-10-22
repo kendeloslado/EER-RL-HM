@@ -170,7 +170,7 @@ neighborTableID neighbors[31:0];
                 end
                 s_process: begin
                     /* state <= s_output; */
-                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                    if(fChosenCH == chosenCH) begin
                         state <= s_output;
                     end
                     else begin
@@ -202,8 +202,8 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state)
-                s_process: begin
-                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                s_output: begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                 end
@@ -232,8 +232,8 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state) 
-                s_process: begin
-                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                s_output: begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin
@@ -254,8 +254,8 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state)
-                s_process: begin
-                    if((fChosenCH == chosenCH) && (!neighbors[neighborIndex].valid)) begin
+                s_output: begin
+                    if((fChosenCH == chosenCH) && ((!neighbors[neighborIndex].valid) || encoder_out == 6'h20)) begin
                         neighborCount <= neighborCount + 1;
                     end
                     else begin
@@ -385,7 +385,7 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state) 
-                s_process: begin
+                s_output: begin
                     if(iAmDestination) begin
                         if(fHopsFromCH == hopsNeeded) begin
                             if(fQValue > maxQValue) begin
@@ -443,7 +443,7 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state)
-                s_process: begin
+                s_output: begin
                     if(iAmDestination) begin
                         if(hopsNeeded == 0) begin
                             bestNeighbor <= chosenCH;
@@ -546,7 +546,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_output: begin
-                    if((fChosenCH == chosenCH) && (encoder_out == 6'h20 && (!neighbors[neighborIndex].valid))) begin
+                    if((fChosenCH == chosenCH) && (encoder_out == 6'h20 || (!neighbors[neighborIndex].valid))) begin
                         nextHopCount <= hopsNeeded;
                     end
                     else begin
@@ -745,8 +745,8 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state)
-                s_process: begin
-                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                s_output: begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].valid <= 1;
                     end
                     else begin
@@ -800,8 +800,8 @@ neighborTableID neighbors[31:0];
         end
         else begin
             case(state)
-                s_process: begin
-                    if((encoder_out == 6'h20 && (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
+                s_output: begin
+                    if((encoder_out == 6'h20 || (!neighbors[neighborIndex].valid)) && (fChosenCH == chosenCH)) begin
                         neighbors[neighborIndex].neighborID <= fSourceID;
                     end
                     else begin

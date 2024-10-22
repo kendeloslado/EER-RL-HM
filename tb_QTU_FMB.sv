@@ -115,6 +115,7 @@ initial begin
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
     // receive pkt, same CH as you
+    // first neighbor
     en = 1;
     fSourceID = 16'd65;
     fSourceHops = 16'd2;
@@ -127,6 +128,7 @@ initial begin
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
     // receive another pkt, same CH
+    // second neighbour
     en = 1;
     fSourceID = 16'd71;
     fSourceHops = 16'd4;
@@ -138,7 +140,55 @@ initial begin
     en = 0;
     #`CLOCK_CYCLE
     #`CLOCK_CYCLE
-    
+    // receive another pkt, not same CH
+    en = 1;
+    fSourceID = 16'd28;
+    fSourceHops = 16'd3;
+    fQValue = 16'h0800;
+    fEnergyLeft = 16'h1000;
+    fHopsFromCH = 16'd3;
+    fChosenCH = 16'd46;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    // receive another pkt, same CH
+    // third neighbour
+    en = 1;
+    fSourceID = 16'd13;
+    fSourceHops = 16'd3;
+    fQValue = 16'h0800;
+    fEnergyLeft = 16'h1000;
+    fHopsFromCH = 16'd1;
+    fChosenCH = 16'd25;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    // receive another pkt, same CH
+    // fourth neighbour.
+    en = 1;
+    fSourceID = 16'd33;
+    fSourceHops = 16'd3;
+    fQValue = 16'h0800;
+    fEnergyLeft = 16'h1000;
+    fHopsFromCH = 16'd2;
+    fChosenCH = 16'd25;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    // let's try updating a neighbour information
+    en = 1;
+    fSourceID = 16'd65;
+    fSourceHops = 16'd2;
+    fQValue = 16'h0d00; // 4./12 0.75
+    fEnergyLeft = 16'h3300; // 2./14 0.8
+    fHopsFromCH = 16'd2;
+    fChosenCH = 16'd25;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE * 3)
     $finish;
 end
 
