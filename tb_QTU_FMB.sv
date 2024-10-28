@@ -189,6 +189,15 @@ initial begin
     #`CLOCK_CYCLE
     en = 0;
     #(`CLOCK_CYCLE * 3)
+    // let's test findMyBest
+    en = 1;
+    fSourceID = 16'd33;
+    fSourceHops = 16'd3;
+    fQValue = 16'h0a00;
+    fEnergyLeft = 16'h3fc0;
+    fHopsFromCH = 16'd1;
+    fChosenCH = 16'd25;
+    iAmDestination = 1;
     $finish;
 end
 
