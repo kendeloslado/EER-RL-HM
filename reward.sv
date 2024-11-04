@@ -41,9 +41,12 @@ module reward #(
     1. The node has received a Heartbeat Packet (HB);
     2. The node has received an Invitation Packet (INV), whose hopsFromCH count 
     is less than 4;
-    3. The node needs to send a Membership Request packet
-    4. The node received a data packet whose destinationID is the node itself.
-    5. 
+    3. The node needs to send a Membership Request packet.
+    4. The node received a data/SOS packet whose destinationID is the node itself,
+    and the node needs to send their data to their nexthop
+    5. The node is a cluster head and they need to pack invitation packets.
+    6. The node is a cluster head and they need to send CH Timeslots
+
  */
 
 endmodule
