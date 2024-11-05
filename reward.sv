@@ -47,13 +47,38 @@ module reward #(
 
     Reward block needs to pack data when the condition is one of the ff.:
     1. The node has received a Heartbeat Packet (HB);
+        To determine whether you received a heartbeat packet, you can use the 
+    fPacketType from a previous module (packetFilter). That's one of the signals
+    down, but you need another signal in order to prevent sending duplicate HB
+    packets. You can use HBLock exactly the same way you would with the one in
+    MY_NODE_INFO.
+
     2. The node has received an Invitation Packet (INV), whose hopsFromCH count 
-    is less than 4;
+    is less than 4. If true, the node ripples the invitation packet;
+        Before the node ripples the invitation packet, the node should check the
+    hopsFromCH field to see if it's less than 4. If this is true, before packing
+    the data, the node needs to increment 1 to the hopsFromCH before rippling it.
+
     3. The node needs to send a Membership Request packet, triggered by a timeout signal.
+        There's a register that is set at a certain count during Cluster Formation. It 
+    will decrement by 1 until it reaches 0. When it reaches 0, this is the time for the
+    individual node to start sending a membership request packet to their desired
+    cluster head.
+
     4. The node received a data/SOS packet whose destinationID is the node itself,
     and the node needs to send their data to their nexthop.
+        Trigger condition is simple, the node must be in communication phase, and 
+    it receives a packet whose destinationID is directed to them.
+    
     5. The node is a cluster head and they need to pack invitation packets.
+        The sink will assign cluster heads using a cluster head election packet.
+    Once a node has been elected cluster head, the node begins packing their info
+    to the packet and broadcasts them to the network. The reward block will be
+    turned on as a result of packing their information into the INV pkt.
+
     6. The node is a cluster head and they need to send CH Timeslots.
+        The node will wait on a timeout register while receiving membership request
+    packets from neighboring nodes. 
     
 
  */
@@ -66,7 +91,7 @@ module reward #(
 
 // internal registers for the module
     logic       [1:0]           state;
-
+    
 
 
 endmodule
