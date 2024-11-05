@@ -8,6 +8,7 @@ module reward #(
 // global inputs
     input logic                         clk,
     input logic                         nrst,
+    input logic                         en,
 // MY_NODE_INFO inputs
     input logic     [WORD_WIDTH-1:0]    myNodeID,
     input logic     [WORD_WIDTH-1:0]    hopsFromSink,
@@ -16,6 +17,13 @@ module reward #(
 // kCH inputs
     input logic     [WORD_WIDTH-1:0]    chosenCH,
     input logic     [WORD_WIDTH-1:0]    hopsFromCH, 
+// neighborTable inputs
+    input logic     [WORD_WIDTH-1:0]    mNodeID,
+    input logic     [WORD_WIDTH-1:0]    mNodeHops,
+    input logic     [WORD_WIDTH-1:0]    mNodeQValue,
+    input logic     [WORD_WIDTH-1:0]    mNodeEnergy,
+    input logic     [WORD_WIDTH-1:0]    mChosenCH,
+    input logic     [WORD_WIDTH-1:0]    mNodeCHHops,
 // reward outputs
     output logic    [WORD_WIDTH-1:0]    rSourceID,
     output logic    [WORD_WIDTH-1:0]    rEnergyLeft,
@@ -41,12 +49,24 @@ module reward #(
     1. The node has received a Heartbeat Packet (HB);
     2. The node has received an Invitation Packet (INV), whose hopsFromCH count 
     is less than 4;
-    3. The node needs to send a Membership Request packet.
+    3. The node needs to send a Membership Request packet, triggered by a timeout signal.
     4. The node received a data/SOS packet whose destinationID is the node itself,
-    and the node needs to send their data to their nexthop
+    and the node needs to send their data to their nexthop.
     5. The node is a cluster head and they need to pack invitation packets.
-    6. The node is a cluster head and they need to send CH Timeslots
+    6. The node is a cluster head and they need to send CH Timeslots.
+    
 
  */
+
+/*  STATE DESCRIPTIONS 
+    s_idle = wait for enable signal to happen
+    s_process = begin packing signals
+    s_done = finish.
+ */
+
+// internal registers for the module
+    logic       [1:0]           state;
+
+
 
 endmodule
