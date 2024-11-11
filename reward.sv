@@ -9,6 +9,7 @@ module reward #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         en,
+    input logic     [2:0]               fPacketType,
 // signal from packetFilter
     input logic                         iAmDestination,
 // MY_NODE_INFO inputs
@@ -127,25 +128,38 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
 
 /* 
     FBType descriptions:
-    3'b0000:    Node has received a Heartbeat (HB) packet and is required to ripple. 
+    4'b0000:    Node has received a Heartbeat (HB) packet and is required to ripple. 
                 Trigger condition: packetType == 3'b000 && HBLock == 0;
-    3'b0001:    Node has received an INV pkt. 
+    4'b0001:    Node has received an INV pkt. 
                 Trigger condition: packetType == 3'b010 && hopsFromCH < 4;
-    3'b0010:    Node is sending a membership request packet. 
+    4'b0010:    Node is sending a membership request packet. 
                 Trigger condition: timeout == 0 && timeout_type == 0;
-    3'b0011:    Node is sending a Data/SOS packet. 
+    4'b0011:    Node is sending a Data/SOS packet. 
                 Trigger condition: iAmDestination.
-    3'b0100:    Node is a CH and should send INV pkts. 
+    4'b0100:    Node is a CH and should send INV pkts. 
                 Trigger condition: role == 1;
-    3'b0101:    Node is a CH and should send CH Timeslot pkts. 
+    4'b0101:    Node is a CH and should send CH Timeslot pkts. 
                 Trigger condition: mr_timeout == 0 && timeout_type == 1;
-    3'b0110:    Node is the source and should send data packet. 
+    4'b0110:    Node is the source and should send data packet. 
                 Trigger condition: [some_sender_defined_signal] == 1;
+    4'b0111:    Invalid FBType.
+                Trigger condition: None of the conditions are met from the above.
  */
 
 parameter s_idle = 2'b00;
 parameter s_process = 2'b01;
 parameter s_done = 2'b10;
+
+/* 
+    state register flow:
+    wait for enable signal
+    process
+    output
+    then go back to idle?
+
+    So far, the state register is basic, to say the least, the only state prolonging is idle state
+    since it's waiting for the enable signal to be asserted
+ */
 // always block for state register
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
@@ -154,19 +168,34 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_idle: begin
-                
+                if(en) begin
+                    state <= s_process;
+                end
+                else begin
+                    state <= state;
+                end 
             end
             s_process: begin
-
+                state <= s_done;
             end
             s_done: begin
-            
+                state <= s_idle;
             end
             default: begin
                 state <= state;
             end
         endcase
     end
+end
+
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        FBType <= 4'b0111;
+    end
+    else begin
+        
+    end
+
 end
 
 endmodule
