@@ -143,5 +143,30 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
                 Trigger condition: [some_sender_defined_signal] == 1;
  */
 
+parameter s_idle = 2'b00;
+parameter s_process = 2'b01;
+parameter s_done = 2'b10;
+// always block for state register
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        state <= s_idle;
+    end
+    else begin
+        case(state)
+            s_idle: begin
+                
+            end
+            s_process: begin
+
+            end
+            s_done: begin
+            
+            end
+            default: begin
+                state <= state;
+            end
+        endcase
+    end
+end
 
 endmodule
