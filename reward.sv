@@ -124,7 +124,7 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
     logic       [1:0]               state;
     logic       [3:0]               FBType; // type of packet to pack in the reward block
     logic       [WORD_WIDTH-1:0]    timeout; // maybe one timeout will be used. Current timeout value is 10.
-    logic                           timeout_type; // INV timeout or MR timeout.
+    logic       [1:0]               timeout_type; // INV timeout or MR timeout.
 
 /* 
     FBType descriptions:
@@ -139,7 +139,7 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
     4'b0100:    Node is a CH and should send INV pkts. 
                 Trigger condition: role == 1;
     4'b0101:    Node is a CH and should send CH Timeslot pkts. 
-                Trigger condition: mr_timeout == 0 && timeout_type == 1;
+                Trigger condition: timeout == 0 && timeout_type == 1;
     4'b0110:    Node is the source and should send data packet. 
                 Trigger condition: [some_sender_defined_signal] == 1;
     4'b0111:    Invalid FBType.
@@ -188,14 +188,83 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
+// always block for FBType
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         FBType <= 4'b0111;
     end
     else begin
-        
+        if(fPacketType == 3'b000 && !HBLock) begin
+            FBType <= 4'b0000;
+        end
+        else if(fPacketType == 3'b010 && hopsFromCH < 4) begin
+            FBType <= 4'b0001;
+        end
+        else if(!timeout && !timeout_type) begin
+            FBType <= 4'b0010;
+        end
+        else if(iAmDestination) begin
+            FBType <= 4'b0011;
+        end 
+        else if(role) begin
+            FBType <= 4'b0100;
+        end
+        else if(!timeout && timeout_type) begin
+            FBType <= 4'b0101;
+        end
+        else if(iAmSender) begin
+            FBType <= 4'b0110;
+        end
+        else begin
+            FBType <= 4'b0111;  
+        end
     end
+end
 
+//always block for timeout
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        timeout <= 16'd15;
+    end
+    else begin
+        case(state)
+            s_idle: begin
+                if(!en) begin
+                    timeout <= timeout - 1;
+                end
+                else begin
+                    timeout <= 16'd15;
+                end
+            end
+            s_process: begin
+                timeout <= timeout;
+            end
+            s_output: begin
+                timeout <= timeout;
+            end
+            default: begin
+                timeout <= timeout;
+            end
+        endcase
+    end
+end
+
+// always block for timeout_type;
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        timeout_type <= 2'b00;
+    end
+    else begin
+        if(!role && (state == s_process)) begin
+            timeout_type <= 2'b01;
+        end
+        else if(role && (state == s_process)) begin
+            timeout_type <= 2'b10;
+        end
+        else begin
+            timeout_type <= 2'b00;
+        end
+    end
 end
 
 endmodule

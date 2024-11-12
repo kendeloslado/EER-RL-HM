@@ -177,5 +177,24 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-always@(posedge clk or negedge nrst) 
+// always block for CHinfo_timeout
+always@(posedge clk or negedge nrst)
+    if(!nrst) begin
+        CHinfo_timeout <= 16'd15;
+    end
+    else begin
+        case(state)
+            s_idle: begin
+                if(!en_KCH) begin
+                CHinfo_timeout <= CHinfo_timeout - 1;
+                end
+                else begin
+                    CHinfo_timeout <= 16'd15;
+                end
+            end
+            default: begin
+                CHinfo_timeout <= 16'd15;
+            end
+        endcase
+    end
 endmodule
