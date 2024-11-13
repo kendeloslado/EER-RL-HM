@@ -126,7 +126,7 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
 
 // internal registers for the module
     logic       [1:0]               state;
-    logic       [3:0]               FBType; // type of packet to pack in the reward block
+/*     logic       [3:0]               FBType; // type of packet to pack in the reward block */
     logic       [WORD_WIDTH-1:0]    timeout; // maybe one timeout will be used. Current timeout value is 10.
     logic       [1:0]               timeout_type; // INV timeout or MR timeout.
     logic                           HBLock;
@@ -192,7 +192,7 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// always block for FBType
+/* // always block for FBType
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         FBType <= 4'b0111;
@@ -224,6 +224,7 @@ always@(posedge clk or negedge nrst) begin
         end
     end
 end
+*/
 
 //always block for timeout
 always@(posedge clk or negedge nrst) begin
@@ -233,7 +234,7 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_idle: begin
-                if(!en) begin
+                if(!en && HBLock) begin
                     timeout <= timeout - 1;
                 end
                 else begin
@@ -372,6 +373,8 @@ always@(posedge clk or negedge nrst) begin
         end
     end
 end
+
+
 
 // assign statements for neighbor node data
 assign rSourceID = mNodeID;
