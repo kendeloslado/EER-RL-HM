@@ -10,13 +10,16 @@ module reward #(
     input logic                         nrst,
     input logic                         en,
     input logic     [2:0]               fPacketType,
+    input logic     [WORD_WIDTH-1:0]    myEnergy,
 // signal from packetFilter
     input logic                         iAmDestination,
 // MY_NODE_INFO inputs
     input logic     [WORD_WIDTH-1:0]    myNodeID,
     input logic     [WORD_WIDTH-1:0]    hopsFromSink,
     input logic     [WORD_WIDTH-1:0]    myQValue,
-    input logic     [WORD_WIDTH-1:0]    myEnergy,
+    
+    input logic                         role,
+    input logic                         low_E
 // kCH inputs
     input logic     [WORD_WIDTH-1:0]    chosenCH,
     input logic     [WORD_WIDTH-1:0]    hopsFromCH, 
@@ -38,6 +41,7 @@ module reward #(
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
 // output signal
     output logic    [WORD_WIDTH-1:0]    reward_done
+    
 );
 
 // reward block essentials
@@ -319,7 +323,7 @@ always@(posedge clk or negedge nrst) begin
         else if(iAmDestination && fPacketType == 3'b101) begin  // data pkt
             rPacketType <= 3'b101;
         end
-        else if(iAmDestination && fPacketType == 3'b110) begin  // SOS pkt
+        else if(iAmDestination && low_E) begin  // SOS pkt
             rPacketType <= 3'b110;
         end
         else begin
@@ -328,8 +332,53 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
+// always block for reward_done
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        reward_done <= 0;
+    end
+    else begin
+        case(state)
+            s_idle: begin
+                reward_done <= 0;
+            end
+            s_process: begin
+                reward_done <= 0;
+            end
+            s_done: begin
+                reward_done <= 1;
+            end
+            default: reward_done <= reward_done
+        endcase
+    end
+end
+
+// always block for destinationID
+/* 
+    logic for destinationID is already taken care of in QTUFMB.sv, so
+    this block is relatively simple.
+ */
+
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        rDestinationID <= 16'hFFFF;
+    end
+    else begin
+        if(hopsFromSink == 1) begin
+            rDestinationID <= 16'd0;
+        end
+        else begin
+            rDestinationID <= chosenHop;
+        end
+    end
+end
+
 // assign statements for neighbor node data
 assign rSourceID = mNodeID;
 assign rEnergyLeft = mNodeEnergy;
+assign rQValue = mNodeQValue;
+assign rSourceHops = mNodeHops;
+assign rChosenCH = mChosenCH;
+assign rHopsFromCH = mNodeCHHops;
 
 endmodule
