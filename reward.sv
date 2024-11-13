@@ -33,7 +33,7 @@ module reward #(
     output logic    [WORD_WIDTH-1:0]    rQValue,
     output logic    [WORD_WIDTH-1:0]    rSourceHops,
     output logic    [WORD_WIDTH-1:0]    rDestinationID,
-    output logic    [WORD_WIDTH-1:0]    rPacketType,
+    output logic    [2:0]               rPacketType,
     output logic    [WORD_WIDTH-1:0]    rChosenCH,
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
 // output signal
@@ -125,7 +125,7 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
     logic       [3:0]               FBType; // type of packet to pack in the reward block
     logic       [WORD_WIDTH-1:0]    timeout; // maybe one timeout will be used. Current timeout value is 10.
     logic       [1:0]               timeout_type; // INV timeout or MR timeout.
-
+    logic                           HBLock;
 /* 
     FBType descriptions:
     4'b0000:    Node has received a Heartbeat (HB) packet and is required to ripple. 
@@ -134,7 +134,7 @@ Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
                 Trigger condition: packetType == 3'b010 && hopsFromCH < 4;
     4'b0010:    Node is sending a membership request packet. 
                 Trigger condition: timeout == 0 && timeout_type == 0;
-    4'b0011:    Node is sending a Data/SOS packet. 
+    4'b0011:    Node is sending a Data/SOS packet.  
                 Trigger condition: iAmDestination.
     4'b0100:    Node is a CH and should send INV pkts. 
                 Trigger condition: role == 1;
@@ -249,22 +249,87 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// always block for timeout_type;
+// always block for timeout_type
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         timeout_type <= 2'b00;
     end
     else begin
-        if(!role && (state == s_process)) begin
+        if(!role && (state == s_process)) begin // MR pkt
             timeout_type <= 2'b01;
         end
-        else if(role && (state == s_process)) begin
+        else if(role && (state == s_process)) begin // CH Timeslot
             timeout_type <= 2'b10;
         end
-        else begin
+        else begin  // timeout is not used in this instance
             timeout_type <= 2'b00;
         end
     end
 end
+
+// always block for HBLock
+always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            HBLock_buf <= 0;
+        end
+        else begin
+            case(fPktType)
+                3'b000: begin   // heartbeat packet
+                    if(/* !HBLock_buf &&  */en_MNI)
+                        HBLock_buf <= 1;
+                    else
+                        HBLock_buf <= HBLock_buf;
+                end
+                3'b101: begin   // Data Packet
+                    HBLock_buf <= 0;
+                end
+                default: HBLock_buf <= HBLock_buf;
+            endcase
+        end
+    end
+
+// always block for rPacketType
+/* 
+    Reminders on packetType:
+    HB [000] - ripple HB packet
+    CHE [001] - don't ripple, NO TRANSMISSION
+    INV [010] - ripple only if hopsFromCH < 4
+    MR [011] - send to CH of choice, TRANSMIT on CHInfo timeout
+    CHT [100] - send as CH, TRANSMIT on MR timeout
+    Data [101] - TRANSMIT data if(iAmDestination) is true
+    SOS [110] - same as Data
+ */
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        rPacketType <= 3'b111; // invalid value
+    end
+    else begin
+        if(fPacketType == 3'b000) begin // ripple HB packet
+            rPacketType <= 3'b000;
+        end
+        else if(fPacketType == 3'b010 && hopsFromCH < 4) begin // ripple INV
+            rPacketType <= 3'b010;
+        end 
+        else if(timeout == 0 && timeout_type == 2'b01 && !role) begin // send MR
+            rPacketType <= 3'b011;
+        end
+        else if(timeout == 0 && timeout_type == 2'b10 && role) begin // send CHT as CH
+            rPacketType <= 3'b100;
+        end
+        else if(iAmDestination && fPacketType == 3'b101) begin  // data pkt
+            rPacketType <= 3'b101;
+        end
+        else if(iAmDestination && fPacketType == 3'b110) begin  // SOS pkt
+            rPacketType <= 3'b110;
+        end
+        else begin
+            rPacketType <= 3'b111; // invalid value
+        end
+    end
+end
+
+// assign statements for neighbor node data
+assign rSourceID = mNodeID;
+assign rEnergyLeft = mNodeEnergy;
 
 endmodule
