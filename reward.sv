@@ -11,6 +11,7 @@ module reward #(
     input logic                         en,
     input logic     [2:0]               fPacketType,
     input logic     [WORD_WIDTH-1:0]    myEnergy,
+    input logic                         iHaveData,
 // signal from packetFilter
     input logic                         iAmDestination,
 // MY_NODE_INFO inputs
@@ -79,8 +80,8 @@ module reward #(
     4. The node receives a data/SOS packet whose destinationID is the node itself,
     and the node needs to send their data to their nexthop;
 
-        Trigger condition is that the node must receive a packet whose destinationID is 
-    directed to them.
+        Trigger condition is that the node must receive a data/SOS packet whose 
+    destinationID is directed to them.
     
     5. The node is a cluster head and they need to pack invitation packets;
 
@@ -275,34 +276,39 @@ end
 // always block for HBLock
 always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
-            HBLock_buf <= 0;
+            HBLock <= 0;
         end
         else begin
-            case(fPktType)
-                3'b000: begin   // heartbeat packet
-                    if(/* !HBLock_buf &&  */en_MNI)
-                        HBLock_buf <= 1;
-                    else
-                        HBLock_buf <= HBLock_buf;
-                end
-                3'b101: begin   // Data Packet
-                    HBLock_buf <= 0;
-                end
-                default: HBLock_buf <= HBLock_buf;
-            endcase
+            if(en) begin
+                case(fPktType)
+                    3'b000: begin   // heartbeat packet
+                        if(!HBLock)
+                            HBLock <= 1;
+                        else
+                            HBLock <= HBLock;
+                    end
+                    3'b101: begin   // Data Packet
+                        HBLock <= 0;
+                    end
+                    default: HBLock <= HBLock;
+                endcase
+            end
+            else begin
+                HBLock <= HBLock;
+            end
         end
     end
 
 // always block for rPacketType
 /* 
     Reminders on packetType:
-    HB [000] - ripple HB packet
+    HB [000] - ripple HB packet, TRANSMIT
     CHE [001] - don't ripple, NO TRANSMISSION
-    INV [010] - ripple only if hopsFromCH < 4
+    INV [010] - ripple only if hopsFromCH < 4, conditional TRANSMIT
     MR [011] - send to CH of choice, TRANSMIT on CHInfo timeout
     CHT [100] - send as CH, TRANSMIT on MR timeout
     Data [101] - TRANSMIT data if(iAmDestination) is true
-    SOS [110] - same as Data
+    SOS [110] - same as Data, TRANSMIT
  */
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
@@ -321,7 +327,7 @@ always@(posedge clk or negedge nrst) begin
         else if(timeout == 0 && timeout_type == 2'b10 && role) begin // send CHT as CH
             rPacketType <= 3'b100;
         end
-        else if(iAmDestination && fPacketType == 3'b101) begin  // data pkt
+        else if((iAmDestination && fPacketType == 3'b101) || iHaveData) begin  // data pkt
             rPacketType <= 3'b101;
         end
         else if(iAmDestination && low_E) begin  // SOS pkt
