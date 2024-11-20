@@ -9,7 +9,6 @@ module knownCHv3 #(
     input logic                         nrst,
     input logic                         en_KCH,
     input logic                         HB_reset,
-    input logic     [WORD_WIDTH-1:0]    HB_CHlimit, // defined at HB packet
     input logic     [WORD_WIDTH-1:0]    fCH_ID,
     input logic     [WORD_WIDTH-1:0]    fCH_Hops,
     input logic     [WORD_WIDTH-1:0]    fCH_QValue,
