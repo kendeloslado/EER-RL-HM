@@ -12,14 +12,14 @@ module neighborTable #(
     input logic     [WORD_WIDTH-1:0]    nodeHops,
     input logic     [WORD_WIDTH-1:0]    nodeQValue,
     input logic     [WORD_WIDTH-1:0]    nodeEnergy,
-    input logic     [WORD_WIDTH-1:0]    chosenCH,
+/*     input logic     [WORD_WIDTH-1:0]    chosenCH, */
     input logic     [WORD_WIDTH-1:0]    nodeCHHops,
     input logic     [WORD_WIDTH-1:0]    neighborCount
     output logic    [WORD_WIDTH-1:0]    mNodeID,
     output logic    [WORD_WIDTH-1:0]    mNodeHops,
     output logic    [WORD_WIDTH-1:0]    mNodeQValue,
     output logic    [WORD_WIDTH-1:0]    mNodeEnergy,
-    output logic    [WORD_WIDTH-1:0]    mChosenCH,
+/*     output logic    [WORD_WIDTH-1:0]    mChosenCH,*/    
     output logic    [WORD_WIDTH-1:0]    mNodeCHHops
 );
 
@@ -29,7 +29,7 @@ typedef struct packed {
     logic            [WORD_WIDTH-1:0]   rNodeHops;
     logic            [WORD_WIDTH-1:0]   rNodeQValue;
     logic            [WORD_WIDTH-1:0]   rNodeEnergy;
-    logic            [WORD_WIDTH-1:0]   rChosenCH;
+/*     logic            [WORD_WIDTH-1:0]   rChosenCH; */    
     logic            [WORD_WIDTH-1:0]   rNodeCHHops;
     logic                               rValid;
 } neighborNodeTable;
@@ -41,7 +41,7 @@ assign mNodeID = neighborNodeTable.rNodeID[neighborCount];
 assign mNodeHops = neighborNodeTable.rNodeHops[neighborCount];
 assign mNodeQValue = neighborNodeTable.rNodeQValue[neighborCount];
 assign mNodeEnergy = neighborNodeTable.rNodeEnergy[neighborCount];
-assign mChosenCH = neighborNodeTable.rChosenCH[neighborCount];
+/* assign mChosenCH = neighborNodeTable.rChosenCH[neighborCount]; */
 assign mNodeCHHops = neighborNodeTable.rNodeCHHops[neighborCount];
 // FSM register details:
 
@@ -230,7 +230,7 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// always block for rChosenCH
+/* // always block for rChosenCH
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
@@ -246,7 +246,7 @@ always@(posedge clk or negedge nrst) begin
             s_write: begin
                 neighborNodeTable.rChosenCH[neighborCount] <= chosenCH;
             end
-            /* s_HBreset: begin
+            s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
                     if(neighborNodeTable.rValid[i]) begin
                         neighborNodeTable.rChosenCH[i] <= 0;
@@ -255,11 +255,11 @@ always@(posedge clk or negedge nrst) begin
                         neighborNodeTable.rChosenCH[i] <= neighborNodeTable.rChosenCH[i];
                     end
                 end
-            end */
+            end 
             default: rChosenCH <= rChosenCH;
         endcase
     end
-end
+end */
 
 // always block for rNodeCHHops
 always@(posedge clk or negedge nrst) begin

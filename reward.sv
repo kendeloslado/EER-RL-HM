@@ -29,7 +29,7 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    mNodeHops,
     input logic     [WORD_WIDTH-1:0]    mNodeQValue,
     input logic     [WORD_WIDTH-1:0]    mNodeEnergy,
-    input logic     [WORD_WIDTH-1:0]    mChosenCH,
+/*     input logic     [WORD_WIDTH-1:0]    mChosenCH, */
     input logic     [WORD_WIDTH-1:0]    mNodeCHHops,
 // reward outputs
     output logic    [WORD_WIDTH-1:0]    rSourceID,
@@ -387,7 +387,7 @@ assign rSourceID = mNodeID;
 assign rEnergyLeft = mNodeEnergy;
 assign rQValue = mNodeQValue;
 assign rSourceHops = mNodeHops;
-assign rChosenCH = mChosenCH;
+assign rChosenCH = chosenCH;
 assign rHopsFromCH = mNodeCHHops;
 
 endmodule
