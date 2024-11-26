@@ -43,7 +43,7 @@ module reward #(
     output logic    [WORD_WIDTH-1:0]    rChosenCH,
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
 // output signal
-    output logic    [5:0]               nTableIndex,
+    output logic    [5:0]               nTableIndex_reward,
     output logic    [WORD_WIDTH-1:0]    reward_done
     
 );
@@ -386,12 +386,12 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// always block for nTableIndex
+// always block for nTableIndex_reward
 /* 
     The reward block will have to seek the neighbor information from the neighborTable sequentially
 in cases such as the node being a CH and requiring to pack CH timeslot messages. In that case, the
 reward block will sequentially go through the neighborTable, assigning them a timeslot in the packet.
-nTableIndex is not part of the packet information to be broadcasted, so its output signal will behave
+nTableIndex_reward is not part of the packet information to be broadcasted, so its output signal will behave
 differently from the other output signals.
 
     When do you need to get neighbor information?
@@ -400,17 +400,17 @@ differently from the other output signals.
  */
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
-        nTableIndex <= 6'b100000;
+        nTableIndex_reward <= 6'b100000;
     end
     else begin
         if(timeout == 0 && timeout_type == 2'b10) begin
             for(i=0; i < neighborCount; i++) begin
-                nTableIndex <= i;
+                nTableIndex_reward <= i;
             end
         end
 
         else begin
-            nTableIndex <= nTableIndex;
+            nTableIndex_reward <= nTableIndex_reward;
         end
     end
 end
