@@ -98,6 +98,36 @@ initial begin
     en = 0;
     fPacketType = 0;
     myEnergy = 16'h8000;
+    iHaveData = 0;
+
+    iAmDestination = 0;
+
+    myNodeID = 16'h000c;
+    hopsFromSink = 16'hffff;
+    myQValue = 16'h0;
+    role = 0;
+    low_E = 0;
+
+    chosenCH = 0;
+    hopsFromCH = 16'hffff;
+
+    chosenHop = 0;
+    mNodeID = 0;
+    mNodeHops = 16'hffff;
+    mNodeQValue = 0;
+    mNodeEnergy = 0;
+    mNodeCHHops = 16'hffff;
+
+    // post-initial conditions
+
+    // start by receiving a heartbeat packet
+    #`CLOCK_CYCLE
+    hopsFromSink = 16'd1;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    
 end
 
 endmodule
