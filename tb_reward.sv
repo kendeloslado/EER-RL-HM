@@ -11,40 +11,41 @@ module tb_reward;
     logic                               nrst;
     logic                               en;
     logic       [2:0]                   fPacketType;
-    logic       [WORD_WIDTH-1:0]        myEnergy;
+    logic       [`WORD_WIDTH-1:0]       myEnergy;
     logic                               iHaveData;
 
 // signal from packetFilter
     logic                               iAmDestination;
 // MY_NODE_INFO inputs
-    logic       [WORD_WIDTH-1:0]        myNodeID;
-    logic       [WORD_WIDTH-1:0]        hopsFromSink;
-    logic       [WORD_WIDTH-1:0]        myQValue;
+    logic       [`WORD_WIDTH-1:0]       myNodeID;
+    logic       [`WORD_WIDTH-1:0]       hopsFromSink;
+    logic       [`WORD_WIDTH-1:0]       myQValue;
     logic                               role;
     logic                               low_E;
 // KCH Inputs
-    logic       [WORD_WIDTH-1:0]        chosenCH;
-    logic       [WORD_WIDTH-1:0]        hopsFromCH;
+    logic       [`WORD_WIDTH-1:0]       chosenCH;
+    logic       [`WORD_WIDTH-1:0]       hopsFromCH;
 // QTUFMB signals
-    logic       [WORD_WIDTH-1:0]        chosenHop;
+    logic       [`WORD_WIDTH-1:0]       chosenHop;
+    logic       [4:0]                   neighborCount;
 // neighborTable Inputs
-    logic       [WORD_WIDTH-1:0]        mNodeID;
-    logic       [WORD_WIDTH-1:0]        mNodeHops;
-    logic       [WORD_WIDTH-1:0]        mNodeQValue;
-    logic       [WORD_WIDTH-1:0]        mNodeEnergy;
-    logic       [WORD_WIDTH-1:0]        mNodeCHHops;
+    logic       [`WORD_WIDTH-1:0]       mNodeID;
+    logic       [`WORD_WIDTH-1:0]       mNodeHops;
+    logic       [`WORD_WIDTH-1:0]       mNodeQValue;
+    logic       [`WORD_WIDTH-1:0]       mNodeEnergy;
+    logic       [`WORD_WIDTH-1:0]       mNodeCHHops;
 // reward outputs
-    logic       [WORD_WIDTH-1:0]        rSourceID;
-    logic       [WORD_WIDTH-1:0]        rEnergyLeft;
-    logic       [WORD_WIDTH-1:0]        rQValue;
-    logic       [WORD_WIDTH-1:0]        rSourceHops;
-    logic       [WORD_WIDTH-1:0]        rDestinationID;
+    logic       [`WORD_WIDTH-1:0]       rSourceID;
+    logic       [`WORD_WIDTH-1:0]       rEnergyLeft;
+    logic       [`WORD_WIDTH-1:0]       rQValue;
+    logic       [`WORD_WIDTH-1:0]       rSourceHops;
+    logic       [`WORD_WIDTH-1:0]       rDestinationID;
     logic       [2:0]                   rPacketType;
-    logic       [WORD_WIDTH-1:0]        rChosenCH;
-    logic       [WORD_WIDTH-1:0]        rHopsFromCH;
+    logic       [`WORD_WIDTH-1:0]       rChosenCH;
+    logic       [`WORD_WIDTH-1:0]       rHopsFromCH;
 // output
     wire        [5:0]                   nTableIndex_reward;
-    wire        [WORD_WIDTH-1:0]        reward_done;
+    wire        [`WORD_WIDTH-1:0]       reward_done;
 
 reward UUT(
         .clk(clk),
@@ -64,6 +65,7 @@ reward UUT(
         .chosenCH(chosenCH),
         .hopsFromCH(hopsFromCH),
         .chosenHop(chosenHop),
+        .neighborCount(neighborCount),
         .mNodeID(mNodeID),
         .mNodeHops(mNodeHops),
         .mNodeQValue(mNodeQValue),
