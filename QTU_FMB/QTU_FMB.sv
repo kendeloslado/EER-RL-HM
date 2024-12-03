@@ -42,6 +42,7 @@ module QTU_FMB #(
     output logic        [WORD_WIDTH-1:0]    chosenHop,
 /*     output logic        [WORD_WIDTH-1:0]    chosenHopCount, */
 // general output
+    output logic        [4:0]               neighborCount,
     output logic                            QTUFMB_done
 );
 
@@ -56,8 +57,7 @@ neighborTableID neighbors[31:0];
     logic               [2:0]               state;
     logic               [WORD_WIDTH-1:0]    hopsNeeded; // number of hops for nexthop
     logic               [WORD_WIDTH-1:0]    maxQValue; 
-    logic               [4:0]               neighborCount;
-    // maxQValue will be local within the entries meeting hopsNeeded value
+/*     logic               [4:0]               neighborCount; */    // maxQValue will be local within the entries meeting hopsNeeded value
     logic               [WORD_WIDTH-1:0]    bestNeighbor;
                         // register containing the nodeID of the best neighbor
 
