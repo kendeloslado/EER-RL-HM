@@ -251,7 +251,7 @@ always@(posedge clk or negedge nrst) begin
             s_process: begin
                 timeout <= timeout;
             end
-            s_output: begin
+            s_done: begin
                 timeout <= timeout;
             end
             default: begin
@@ -361,7 +361,7 @@ always@(posedge clk or negedge nrst) begin
             s_done: begin
                 reward_done <= 1;
             end
-            default: reward_done <= reward_done
+            default: reward_done <= reward_done;
         endcase
     end
 end
