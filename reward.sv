@@ -286,7 +286,7 @@ always@(posedge clk or negedge nrst) begin
         end
         else begin
             if(en) begin
-                case(fPktType)
+                case(fPacketType)
                     3'b000: begin   // heartbeat packet
                         if(!HBLock)
                             HBLock <= 1;
