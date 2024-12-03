@@ -20,7 +20,7 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    myQValue,
     
     input logic                         role,
-    input logic                         low_E
+    input logic                         low_E,
 // kCH inputs
     input logic     [WORD_WIDTH-1:0]    chosenCH,
     input logic     [WORD_WIDTH-1:0]    hopsFromCH, 
