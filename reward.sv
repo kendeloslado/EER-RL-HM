@@ -27,6 +27,7 @@ module reward #(
 // QTUFMB signals
     input logic     [WORD_WIDTH-1:0]    chosenHop,
     input logic     [WORD_WIDTH-1:0]    neighborCount,
+
 // neighborTable inputs
     input logic     [WORD_WIDTH-1:0]    mNodeID,
     input logic     [WORD_WIDTH-1:0]    mNodeHops,
@@ -405,7 +406,7 @@ always@(posedge clk or negedge nrst) begin
     end
     else begin
         if(timeout == 0 && timeout_type == 2'b10) begin
-            for(i=0; i < nTableIndex_reward; i++) begin
+            for(i=0; i < neighborCount; i++) begin
                 nTableIndex_reward <= i;
             end
         end
@@ -414,7 +415,7 @@ always@(posedge clk or negedge nrst) begin
             nTableIndex_reward <= nTableIndex_reward;
         end
     end
-end
+end // add ntableindex functionality
 
 // assign statements for neighbor node data
 assign rSourceID = mNodeID;
