@@ -115,7 +115,7 @@ module reward #(
     s_done = finish.
  */
 
- /* 
+/* 
  Ma'am Belay questions:
  Related sa network. Prior to communication phase, ang protocol nya is CSMA, after cluster formation, TDMA na yung protocol.
  As of now, it is assumed there's a separate block handling CSMA. Check current implementations what the assumed packet would look
@@ -128,7 +128,7 @@ module reward #(
 
 Wednesday after Lunch should be okay (mga around 2pm onward) [November 13]
 
-  */
+*/
 
 // internal registers for the module
     logic       [1:0]               state;
