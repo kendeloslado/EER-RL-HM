@@ -21,6 +21,13 @@ module reward #(
     
     input logic                         role,
     input logic                         low_E,
+// Inputs from Packet
+    input logic     [WORD_WIDTH-1:0]    fSourceID,
+    input logic     [WORD_WIDTH-1:0]    fSourceHops,
+    input logic     [WORD_WIDTH-1:0]    fQValue,
+    input logic     [WORD_WIDTH-1:0]    fEnergyLeft,
+    input logic     [WORD_WIDTH-1:0]    fHopsFromCH,
+    input logic     [WORD_WIDTH-1:0]    fChosenCH,
 // kCH inputs
     input logic     [WORD_WIDTH-1:0]    chosenCH,
     input logic     [WORD_WIDTH-1:0]    hopsFromCH, 
@@ -68,14 +75,36 @@ module reward #(
     packets. You can use HBLock exactly the same way you would with the one in
     MY_NODE_INFO.
 
+    Signals required:
+        * hopsFromSink
+        * HBLock
+
+    Heartbeat requirement:
+        The node should increment the hopsFromSink header from when they first
+    receive the message. Reward block can simply increment this field before 
+    packing the data. 
+
     2. The node has received an Invitation Packet (INV), whose hopsFromCH count 
     is less than 4. If true, the node ripples the invitation packet;
+
+    Signals required:
+        * CH_ID (fSourceID)
+        * hopsFromCH (fHopsFromCH)
+        * CH_QValue (fQValue)
 
         Before the node ripples the invitation packet, the node should check the
     hopsFromCH field to see if it's less than 4. If this is true, before packing
     the data, the node needs to increment 1 to the hopsFromCH before rippling it.
 
     3. The node sends a Membership Request packet, triggered by a timeout signal.
+
+    Signals required to pack:
+        * myNodeID (rSourceID) [rSourceID]
+        * nodeHops (hopsFromSink) [rSourceHops]
+        * nodeQValue (fQValue) [fQValue]
+        * nodeEnergy (myEnergy)
+        * destinationID (chosenCH)
+        * hopsFromCH (fHopsFromCH)
 
         There's a register that is set at a certain count during Cluster Formation. It 
     will decrement by 1 until it reaches 0. When it reaches 0, this is the time for the
@@ -85,10 +114,26 @@ module reward #(
     4. The node receives a data/SOS packet whose destinationID is the node itself,
     and the node needs to send their data to their nexthop;
 
+    Signals required to pack: 
+        * rSourceID (fSourceID)
+        * rSourceHops (fSourceHops)
+        * rQValue (fQValue)
+        * rEnergyLeft (fEnergyLeft)
+        * rHopsFromCH (fHopsFromCH)
+        * rChosenCH (fChosenCH)
+        * rDestinationID (chosenHop)
+        * rPacketType (determined by reward block)
+
         Trigger condition is that the node must receive a data/SOS packet whose 
     destinationID is directed to them.
     
     5. The node is a cluster head and they need to pack invitation packets;
+
+    Signals required to pack:
+        * rSourceID (myNodeID)
+        * rQValue (myQValue)
+        * rPacketType [010]
+        * rSourceHops (hopsFromCH == 1)
 
         The sink will assign cluster heads using a cluster head election packet.
     Once a node has been elected cluster head, the node begins packing their info
@@ -97,12 +142,28 @@ module reward #(
 
     6. The node is a cluster head and they need to send CH Timeslots.
 
+    Signals required to pack: 
+        * rSourceID (myNodeID)
+        * rQValue (myQValue)
+        * rDestinationID (cluster member)
+        * timeslot (currently unknown input signal)
+
+        
         The node will wait on a timeout register while waiting for membership 
     request packets from neighboring nodes. When this timeout register runs out,
     the cluster head will begin sending CH timeslot packets to its cluster members.
     
     7. The node has received enough information and needs to send data to their nexthop.
 
+    Signals required to pack:
+        * rSourceID (myNodeID)
+        * rSourceHops (hopsFromSink)
+        * rQValue (myQValue)
+        * rEnergyLeft (myEnergy)
+        * rHopsFromCH (hopsFromCH)
+        * rChosenCH (chosenCH)
+        * rDestinationID (chosenHop)
+        * rPacketType [101/110]
         This particular condition is not exactly defined, but a certain signal needs to
     be asserted if the node wants to send data. The data sending proper is not covered
     in this block, as the reward block packs data relating to node information.

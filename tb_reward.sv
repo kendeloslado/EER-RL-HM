@@ -22,6 +22,13 @@ module tb_reward;
     logic       [`WORD_WIDTH-1:0]       myQValue;
     logic                               role;
     logic                               low_E;
+// Inputs from Packet
+    logic       [`WORD_WIDTH-1:0]       fSourceID;
+    logic       [`WORD_WIDTH-1:0]       fSourceHops;
+    logic       [`WORD_WIDTH-1:0]       fQValue;
+    logic       [`WORD_WIDTH-1:0]       fEnergyLeft;
+    logic       [`WORD_WIDTH-1:0]       fHopsFromCH;
+    logic       [`WORD_WIDTH-1:0]       fChosenCH;
 // KCH Inputs
     logic       [`WORD_WIDTH-1:0]       chosenCH;
     logic       [`WORD_WIDTH-1:0]       hopsFromCH;
@@ -62,6 +69,12 @@ reward UUT(
         .myQValue(myQValue),
         .role(role),
         .low_E(low_E),
+        .fSourceID(fSourceID),
+        .fSourceHops(fSourceHops),
+        .fQValue(fQValue),
+        .fEnergyLeft(fEnergyLeft),
+        .fHopsFromCH(fHopsFromCH),
+        .fChosenCH(fChosenCH),
         .chosenCH(chosenCH),
         .hopsFromCH(hopsFromCH),
         .chosenHop(chosenHop),
