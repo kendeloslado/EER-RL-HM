@@ -164,6 +164,7 @@ module reward #(
         * rChosenCH (chosenCH)
         * rDestinationID (chosenHop)
         * rPacketType [101/110]
+        
         This particular condition is not exactly defined, but a certain signal needs to
     be asserted if the node wants to send data. The data sending proper is not covered
     in this block, as the reward block packs data relating to node information.
@@ -308,7 +309,7 @@ always@(posedge clk or negedge nrst) begin
                     timeout <= timeout;
                 end
                 else begin
-                    timeout <= 16'd15;
+                    timeout <= 16'd8; // propagation delay is about at least 2-4 times the RTT
                 end
             end
             s_process: begin
