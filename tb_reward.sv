@@ -107,7 +107,9 @@ initial begin
     $vcdpluson;
     $vcdplusmemon;
     $sdf_annotate("../mapped/reward_mapped.sdf", UUT);
+end
 
+initial begin
     // initial conditions
     nrst = 0;
     en = 0;
