@@ -143,6 +143,7 @@ initial begin
     en = 0;
     #`CLOCK_CYCLE
     
+    $finish;
 end
 
 endmodule
