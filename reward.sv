@@ -468,7 +468,7 @@ always@(posedge clk or negedge nrst) begin
     end
     else begin
         if(timeout == 0 && timeout_type == 2'b10) begin
-            for(i=0; i < neighborCount; i++) begin
+            for(int i=0; i < neighborCount; i++) begin
                 nTableIndex_reward <= i;
             end
         end
