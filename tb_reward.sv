@@ -142,7 +142,7 @@ initial begin
     #`CLOCK_CYCLE
     en = 0;
     #`CLOCK_CYCLE
-    
+    #(`CLOCK_CYCLE*2)
     $finish;
 end
 

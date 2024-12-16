@@ -14,7 +14,7 @@ module neighborTable #(
     input logic     [WORD_WIDTH-1:0]    nodeEnergy,
 /*     input logic     [WORD_WIDTH-1:0]    chosenCH, */
     input logic     [WORD_WIDTH-1:0]    nodeCHHops,
-    input logic     [4:0]    neighborCount
+    input logic     [4:0]               neighborCount
     output logic    [WORD_WIDTH-1:0]    mNodeID,
     output logic    [WORD_WIDTH-1:0]    mNodeHops,
     output logic    [WORD_WIDTH-1:0]    mNodeQValue,
