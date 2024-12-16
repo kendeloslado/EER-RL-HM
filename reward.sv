@@ -33,7 +33,7 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    hopsFromCH, 
 // QTUFMB signals
     input logic     [WORD_WIDTH-1:0]    chosenHop,
-    input logic     [WORD_WIDTH-1:0]    neighborCount,
+    input logic     [4:0]               neighborCount,
 
 // neighborTable inputs
     input logic     [WORD_WIDTH-1:0]    mNodeID,

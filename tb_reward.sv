@@ -59,8 +59,6 @@ reward UUT(
         .nrst(nrst),
         .en(en),
         .fPacketType(fPacketType),
-        .en(en),
-        .fPacketType(fPacketType),
         .myEnergy(myEnergy),
         .iHaveData(iHaveData),
         .iAmDestination(iAmDestination),
