@@ -20,7 +20,7 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    myQValue,
     
     input logic                         role,
-    input logic                         low_E,
+    input logic                         low_E,  
 // Inputs from Packet
     input logic     [WORD_WIDTH-1:0]    fSourceID,
     input logic     [WORD_WIDTH-1:0]    fSourceHops,
@@ -169,6 +169,26 @@ module reward #(
     be asserted if the node wants to send data. The data sending proper is not covered
     in this block, as the reward block packs data relating to node information.
 
+ */
+
+/* 
+    Reward block basic flow:
+    1. Wait for a new message.
+    2. Everytime the node receives a new message, begin packing data when the following happens:
+        a. The node has received a heartbeat packet for the first time (!HBLock).
+        b. The node has a received a INV packet, with hopsFromCH < 4.
+        c. Timeout occurs.
+            Timeouts occur from the following:
+            * Waiting for INV messages. When timeouts occur on receiving INV messages,
+            it is time for the node to pack a membership request pkt (MR)
+            * Waiting for MR messages. On the side of the CH, timeouts occur while waiting
+            MR packets from other non-CH nodes. CHs will then send CH timeslots once the
+            timeout happens.
+        d. The node receives a message whose destinationID is directed to them. (Data/SOS pkt
+        type)
+        e. The node gets a signal that they need to send messages (gathered enough data,
+        iAmSender, etc.)
+        f. The node is a CH and needs to pack an INV pkt.
  */
 
 /*  STATE DESCRIPTIONS 

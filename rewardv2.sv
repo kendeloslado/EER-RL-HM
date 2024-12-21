@@ -21,6 +21,25 @@ module reward #(
     input logic                         role,
     input logic                         low_E,
 // Inputs from Packet
+    input logic     [WORD_WIDTH-1:0]    fSourceID,
+    input logic     [WORD_WIDTH-1:0]    fSourceHops,
+    input logic     [WORD_WIDTH-1:0]    fQValue,
+    input logic     [WORD_WIDTH-1:0]    fEnergyLeft,
+    input logic     [WORD_WIDTH-1:0]    fHopsFromCH,
+    input logic     [WORD_WIDTH-1:0]    fChosenCH,
+// kCH inputs
+    input logic     [WORD_WIDTH-1:0]    chosenCH,
+    input logic     [WORD_WIDTH-1:0]    hopsFromCH,
+// QTUFMB signals
+    input logic     [WORD_WIDTH-1:0]    chosenHop,
+    input logic     [4:0]               neighborCount,
+// neighborTable inputs
+    input logic     [WORD_WIDTH-1:0]    mNodeID,
+    input logic     [WORD_WIDTH-1:0]    mNodeHops,
+    input logic     [WORD_WIDTH-1:0]    mNodeQValue,
+    input logic     [WORD_WIDTH-1:0]    mNodeEnergy,
+    input logic     [WORD_WIDTH-1:0]    mNodeCHHops,
+// reward outputs
     
 
 );
