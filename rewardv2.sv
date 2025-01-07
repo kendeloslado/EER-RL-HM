@@ -67,7 +67,7 @@ module reward #(
     1. The node has received a Heartbeat Packet (HB);
 
         To determine whether you received a heartbeat packet, you can use the 
-    fPacketType from a previous module (packetFilte r). That's one of the signals
+    fPacketType from a previous module (packetFilter). That's one of the signals
     down, but you need another signal in order to prevent sending duplicate HB
     packets. You can use HBLock exactly the same way you would with the one in
     MY_NODE_INFO.
@@ -75,6 +75,7 @@ module reward #(
     Signals required:
         * hopsFromSink
         * HBLock
+        * fPacketType == 3'b000;
 
     Heartbeat requirement:
         The node should increment the hopsFromSink header from when they first
@@ -88,6 +89,8 @@ module reward #(
         * CH_ID (fSourceID)
         * hopsFromCH (fHopsFromCH)
         * CH_QValue (fQValue)
+    Condition Signal:
+        * hopsFromCH
 
         Before the node ripples the invitation packet, the node should check the
     hopsFromCH field to see if it's less than 4. If this is true, before packing
@@ -102,6 +105,9 @@ module reward #(
         * nodeEnergy (myEnergy)
         * destinationID (chosenCH)
         * hopsFromCH (fHopsFromCH)
+    Trigger to start packing data:  
+        * timeout == 0 
+        * timeout_type = 2'b10
 
         There's a register that is set at a certain count during Cluster Formation. It 
     will decrement by 1 until it reaches 0. When it reaches 0, this is the time for the
@@ -120,7 +126,9 @@ module reward #(
         * rChosenCH (fChosenCH)
         * rDestinationID (chosenHop)
         * rPacketType (determined by reward block)
-
+    Conditional signal:
+        * rPacketType == 3'b101 OR 3'b110
+        * iAmDestination == 1
         Trigger condition is that the node must receive a data/SOS packet whose 
     destinationID is directed to them.
     
@@ -131,6 +139,8 @@ module reward #(
         * rQValue (myQValue)
         * rPacketType [010]
         * rSourceHops (hopsFromCH == 1)
+    Conditional Signal:
+        * role == 1 
 
         The sink will assign cluster heads using a cluster head election packet.
     Once a node has been elected cluster head, the node begins packing their info
@@ -144,7 +154,9 @@ module reward #(
         * rQValue (myQValue)
         * rDestinationID (cluster member)
         * timeslot (currently unknown input signal)
-
+    Trigger signal:
+        * timeout == 0
+        * timeout_type = 2'b01
         
         The node will wait on a timeout register while waiting for membership 
     request packets from neighboring nodes. When this timeout register runs out,
@@ -161,6 +173,8 @@ module reward #(
         * rChosenCH (chosenCH)
         * rDestinationID (chosenHop)
         * rPacketType [101/110]
+    Trigger condition:
+        * 
         
         This particular condition is not exactly defined, but a certain signal needs to
     be asserted if the node wants to send data. The data sending proper is not covered
@@ -383,5 +397,55 @@ end
             end
         end
     end
+
+// always block for reward_done
+    // this is only a block to display that the node has finished doing its
+    // assigned job.
+
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            reward_done <= 0;
+        end
+        else begin
+            case(state)
+                s_idle: begin
+                    reward_done <= 0;
+                end
+                s_process: begin
+                    reward_done <= 0;
+                end
+                s_done: begin
+                    reward_done <= 1;
+                end
+                default: reward_done <= reward_done;
+            endcase
+        end
+    end
+
+// always block for destinationID
+    // destinationID will take the input signal chosenHop if
+    // hopsFromSink > 1
+
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        rDestinationID <= 16'hFFFF;
+    end
+    else begin
+        if(hopsFromSink == 1) begin
+            rDestinationID <= 16'd0;
+        end
+        else begin
+            rDestinationID <= chosenHop;
+        end
+    end
+end
+
+// assign statements for neighbor node data
+assign rSourceID = mNodeID;
+assign rEnergyLeft = mNodeEnergy;
+assign rQValue = mNodeQValue;
+assign rSourceHops = mNodeHops;
+assign rChosenCH = chosenCH;
+assign rHopsFromCH = mNodeCHHops;
 
 endmodule
