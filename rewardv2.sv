@@ -20,6 +20,8 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    myQValue,
     input logic                         role,
     input logic                         low_E,
+    // additional signal required
+    input logic     [WORD_WIDTH-1:0]    timeslot,
 // Inputs from Packet
     input logic     [WORD_WIDTH-1:0]    fSourceID,
     input logic     [WORD_WIDTH-1:0]    fSourceHops,
@@ -48,6 +50,8 @@ module reward #(
     output logic    [2:0]               rPacketType,
     output logic    [WORD_WIDTH-1:0]    rChosenCH,
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
+    // additional signal
+    output logic    [WORD_WIDTH-1:0]    rTimeslot,
 // output signals
     output logic    [5:0]               nTableIndex_reward,
     output logic    [WORD_WIDTH-1:0]    reward_done
@@ -174,7 +178,8 @@ module reward #(
         * rDestinationID (chosenHop)
         * rPacketType [101/110]
     Trigger condition:
-        * 
+        * iHaveData or something similar. Assume it's a signal outside the scope of this 
+    module.
         
         This particular condition is not exactly defined, but a certain signal needs to
     be asserted if the node wants to send data. The data sending proper is not covered
@@ -238,6 +243,13 @@ module reward #(
     parameter s_process = 2'b01;
     parameter s_done = 2'b10;
 // state always block
+/* 
+    The basic flow for this state block is the reward block waiting for enable to be asserted
+    before doing anything.
+
+    Once the trigger occurs, there's at least one cycle spent preparing the data, hence
+    s_process. After that, the node will output their signals at s_done.
+*/
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         state <= s_idle;
@@ -265,17 +277,20 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// timeout always block
-// timeout only starts counting down on idle. It stays frozen otherwise.
-// timeout is used in two instances:
-// 1. When a non-CH member times out waiting for INV packets from CH
-// 2. When a CH member times out waiting for MR packets from non-CH members 
-// While this timeout appears universal, it needs to be reset when a node meets
-// those conditions.
-// Timeout should start counting down when:
-// a. a non-CH member is waiting for an INV message; OR
-// b. a CH member is waiting for an MR message;
-// The node should be able to identify what state of the network they're in.
+/*  
+    timeout always block
+ timeout only starts counting down on idle. It stays frozen otherwise.
+ timeout is used in two instances:
+    1. When a non-CH member times out waiting for INV packets from CH
+    2. When a CH member times out waiting for MR packets from non-CH members 
+ While this timeout appears universal, it needs to be reset when a node meets
+ those conditions.
+ Timeout should start counting down when:
+    a. a non-CH member is waiting for an INV message; OR
+    b. a CH member is waiting for an MR message;
+
+ The node should be able to identify what state of the network they're in. 
+ */
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             timeout <= 16'd10;
@@ -389,7 +404,7 @@ end
             else if((iAmDestination && fPacketType == 3'b101) || iHaveData) begin  // data pkt
                 rPacketType <= 3'b101;
             end
-            else if(iAmDestination && low_E) begin  // SOS pkt
+            else if((iAmDestination || iHaveData) && low_E) begin  // SOS pkt
                 rPacketType <= 3'b110;
             end
             else begin

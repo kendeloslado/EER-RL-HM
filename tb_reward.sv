@@ -22,6 +22,8 @@ module tb_reward;
     logic       [`WORD_WIDTH-1:0]       myQValue;
     logic                               role;
     logic                               low_E;
+    // new signal
+    logic       [`WORD_WIDTH-1:0]       timeslot;
 // Inputs from Packet
     logic       [`WORD_WIDTH-1:0]       fSourceID;
     logic       [`WORD_WIDTH-1:0]       fSourceHops;
@@ -50,6 +52,8 @@ module tb_reward;
     logic       [2:0]                   rPacketType;
     logic       [`WORD_WIDTH-1:0]       rChosenCH;
     logic       [`WORD_WIDTH-1:0]       rHopsFromCH;
+    // new signal
+    logic       [`WORD_WIDTH-1:0]       rTimeslot;
 // output
     wire        [5:0]                   nTableIndex_reward;
     wire        [`WORD_WIDTH-1:0]       reward_done;
