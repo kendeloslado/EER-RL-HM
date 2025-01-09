@@ -9,7 +9,6 @@ module reward #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         en,
-    input logic     [2:0]               fPacketType,
     input logic     [WORD_WIDTH-1:0]    myEnergy,
     input logic                         iHaveData,
 // signal from packetFilter
@@ -20,9 +19,9 @@ module reward #(
     input logic     [WORD_WIDTH-1:0]    myQValue,
     input logic                         role,
     input logic                         low_E,
-    // additional signal required
-    input logic     [WORD_WIDTH-1:0]    timeslot,
+    input logic     [WORD_WIDTH-1:0]    timeslot, // additional signal required
 // Inputs from Packet
+    input logic     [2:0]               fPacketType,
     input logic     [WORD_WIDTH-1:0]    fSourceID,
     input logic     [WORD_WIDTH-1:0]    fSourceHops,
     input logic     [WORD_WIDTH-1:0]    fQValue,
@@ -50,8 +49,7 @@ module reward #(
     output logic    [2:0]               rPacketType,
     output logic    [WORD_WIDTH-1:0]    rChosenCH,
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
-    // additional signal
-    output logic    [WORD_WIDTH-1:0]    rTimeslot,
+    output logic    [WORD_WIDTH-1:0]    rTimeslot, // additional signal
 // output signals
     output logic    [5:0]               nTableIndex_reward,
     output logic    [WORD_WIDTH-1:0]    reward_done
@@ -83,7 +81,7 @@ module reward #(
 
     Heartbeat requirement:
         The node should increment the hopsFromSink header from when they first
-    receive the message. Reward block can simply increment this field before 
+    receive the message. Reward block will increment this field before 
     packing the data. 
 
     2. The node has received an Invitation Packet (INV), whose hopsFromCH count 
@@ -392,7 +390,7 @@ end
             if(fPacketType == 3'b000) begin // ripple HB packet
                 rPacketType <= 3'b000;
             end
-            else if(fPacketType == 3'b010 && hopsFromCH < 4) begin // ripple INV
+            else if(fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
                 rPacketType <= 3'b010;
             end 
             else if(timeout == 0 && timeout_type == 2'b01 && !role) begin // send MR
@@ -441,20 +439,159 @@ end
     // destinationID will take the input signal chosenHop if
     // hopsFromSink > 1
 
-always@(posedge clk or negedge nrst) begin
-    if(!nrst) begin
-        rDestinationID <= 16'hFFFF;
-    end
-    else begin
-        if(hopsFromSink == 1) begin
-            rDestinationID <= 16'd0;
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rDestinationID <= 16'hFFFF;
         end
         else begin
-            rDestinationID <= chosenHop;
+            if(hopsFromSink == 1) begin
+                rDestinationID <= 16'd0;
+            end
+            else begin
+                rDestinationID <= chosenHop;
+            end
         end
     end
-end
 
+// always block for rSourceID
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rSourceID <= 16'hffff;
+        end
+        else begin
+            if(iHaveData) begin
+                rSourceID <= myNodeID;
+            end
+            else if(fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                                // HB                       INV
+                rSourceID <= fSourceID;
+            end
+            else begin
+                rSourceID <= rSourceID;
+            end
+        end
+    end
+
+// always block for rEnergyLeft
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rEnergyLeft <= 16'h0; // invalid
+        end
+        else begin
+            if(iHaveData) begin     // "i need to send data"
+                rEnergyLeft <= myEnergy;
+            end
+            else if(fPacketType == 3'b010) begin
+                // "I'm rippling INV pkt"
+                rEnergyLeft <= fEnergyLeft;
+            end
+            else begin
+                // my value isn't needed
+                rEnergyLeft <= myEnergy;
+            end
+        end
+    end
+
+// always block for rQValue
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rQValue <= 16'h0;
+        end
+        else begin
+            if(iHaveData) begin // "I need to send data"
+                rQValue <= myQValue;
+            end
+            else if(fPacketType == 3'b010) begin
+                // "I'm rippling INV pkt"
+                rQValue <= fQValue;
+            end
+            else begin
+                // "I'm not needed right now"
+                rQValue <= rQValue;
+            end
+        end
+    end
+
+// always block for rSourceHops
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rSourceHops <= 16'hffff;
+        end
+        else begin
+            if(iHaveData) begin //
+                if(hopsFromSink == 1) begin
+                    rSourceHops <= hopsFromSink + 1;
+                end
+                else begin
+                    rSourceHops <= hopsFromCH;
+                end
+            end
+            else if(fPacketType == 3'b000) begin
+                // "I'm rippling HB packet"
+                rSourceHops <= hopsFromSink;
+            end
+            else if(fPacketType == 3'b010) begin
+                // "I'm rippling INV pkt"
+                rSourceHops <= hopsFromCH;
+            end
+            else begin
+                // "I'm not needed right now"
+                rSourceHops <= rSourceHops;
+            end
+        end
+    end
+
+// always block for rChosenCH
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rChosenCH <= 16'h0;
+        end
+        else begin
+            if(iHaveData) begin
+                if(hopsFromSink == 1) begin
+                    // "I'm right next to sink"
+                    rChosenCH <= 16'h0;
+                end
+                else begin
+                    // Send to chosenCH
+                    rChosenCH <= chosenCH;
+                end
+            end
+            else begin
+                    // I'm not needed right now
+                rChosenCH <= 16'h0;
+            end
+        end
+    end
+
+// always block for rHopsFromCH
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rHopsFromCH <= 16'hffff;
+        end
+        else begin
+            if(iHaveData) begin
+                rHopsFromCH <= hopsFromCH;
+            end
+            else if(fPacketType == 3'b010) begin
+                rHopsFromCH <= fHopsFromCH + 1;
+            end
+            else begin
+                // "I'm not needed right now"
+                rHopsFromCH <= 16'hffff;
+            end
+        end
+    end
+
+
+
+/* 
+    output packet contents are either...
+    rippled because of broadcast messages (HB, INV, Data/SOS towards the sink); OR
+    you're the source of the data (iHaveData)
+*/
+// this assign statement is just wrong... there's two outcomes for this.
+/* 
 // assign statements for neighbor node data
 assign rSourceID = mNodeID;
 assign rEnergyLeft = mNodeEnergy;
@@ -462,5 +599,8 @@ assign rQValue = mNodeQValue;
 assign rSourceHops = mNodeHops;
 assign rChosenCH = chosenCH;
 assign rHopsFromCH = mNodeCHHops;
+*/
+
+
 
 endmodule
