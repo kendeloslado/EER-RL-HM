@@ -9,6 +9,27 @@ module reward #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         en,
+    // en is currently not covering every scenario (i.e. CSMA giving an a-OK to pack)
+    // "wait lang, busy ako."
+    /* 
+        do u want a separate controller, or u can work with your current block diagram?
+        start from datapath controller
+        check your block diagram
+        anong signals kelangan nung datapath controller para maupdate mo sya
+
+    Tuesday @ 2pm deliverables:
+        * updated block diagram
+        * controller diagram
+        * heartbeat packet waveform in reward testbench
+            a. send once. If may ibang HB, do NOT ripple
+
+            CSMA Signal: OkayToSend
+     */
+
+    /* 
+        When making template testbench, make sure to make it foolproof per scenario.
+        check your test scenarios kung ubra gumawa ng c-program-esque testbench para mas mabilis
+     */
     input logic     [WORD_WIDTH-1:0]    myEnergy,
     input logic                         iHaveData,
 // signal from packetFilter
@@ -583,8 +604,51 @@ end
         end
     end
 
+// always block for rTimeslot
+/* 
+    rTimeslot is attached at the end of every message IN THE COMMUNICATION PHASE.
+    rTimeslot will also be used by the CH to distribute CH Timeslots.
+ */
 
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            rTimeslot <= 16'hffff; // invalid value
+        end
+        else begin
 
+        end
+    end
+
+// always block for nTableIndex
+
+/* 
+    When a node is assigned as the CH for the round, they will send INV pkts and wait for MR
+    packets afterward. This MR packet will form the cluster and create a list of cluster members.
+    The CH node needs to go through the neighborTable sequentially and give them their assigned
+    CH Timeslot.
+*/
+
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        nTableIndex_reward <= 6'b100000;
+    end
+    else begin
+        if(timeout == 0 && timeout_type == 2'b010) begin
+            for(int i = 0; i < neighborCount; i++) begin
+                nTableIndex_reward <= i;
+            end
+        end
+        else begin
+            nTableIndex_reward <= nTableIndex_reward;
+        end
+    end
+
+end
+
+/* 
+POTENTIAL IDEA: Cluster members send their MR packets towards their CH, and the CH can give their
+assigned timeslot immediately as feedback.
+ */
 /* 
     output packet contents are either...
     rippled because of broadcast messages (HB, INV, Data/SOS towards the sink); OR

@@ -1,9 +1,12 @@
-`define RECV_PKT_NRG    16'h0004
+`define RX_PKT_NRG      16'h0004
 `define HOP1_TX         16'h0005
 `define HOP2_TX         16'h0009
 `define HOP3_TX         16'h0011
 `define HOP4_TX         16'h001b
-
+/* 
+    Pretend this file is a text file, this is a series of signals for the testbench, 
+    meant to be copy-pasted around the module to test the rewards block.
+*/
 // Initial Conditions
 
     // Global Inputs
@@ -53,7 +56,7 @@
 // receive a heartbeat packet
     hopsFromSink = 16'd1;
     fPacketType = 3'b000;
-    myEnergy = myEnergy - 16'h0004;
+    myEnergy = myEnergy - `RX_PKT_NRG;
     en = 1;
     #`CLOCK_CYCLE
     en = 0;
@@ -70,7 +73,51 @@
 
 // if CH, start packing INV packets
     role = 1;
+    myEnergy = myEnergy - `HOP1_TX;
     /* 
         pack my node info into packet
      */
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// if not CH, wait for INV packets
+    role = 0;
+    myEnergy = myEnergy - `HOP1_TX;
+    en = 1;
+    /* 
+        ripple incoming INV pkts
+    */
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// pack CH Timeslots (1H)
+    role = 1;
+    myEnergy = myEnergy - `HOP1_TX;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// pack CH Timeslost (2H)
+    role = 1;
+    myEnergy = myEnergy - `HOP2_TX;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// pack CH timeslots (3H)
+    role = 1;
+    myEnergy = myEnergy - `HOP3_TX;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// pack CH timeslots (4H)
+    role = 1;
+    myEnergy = myEnergy - `HOP4_TX;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*5)
+// pack Data/SOS Packet
     
