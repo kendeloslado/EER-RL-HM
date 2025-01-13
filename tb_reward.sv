@@ -56,7 +56,7 @@ module tb_reward;
     wire        [5:0]                   nTableIndex_reward;
     wire        [`WORD_WIDTH-1:0]       reward_done;
 
-reward UUT(
+rewardv2 UUT(
         .clk(clk),
         .nrst(nrst),
         .en(en),
