@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module reward #(
+module rewardv2 #(
     parameter MEM_DEPTH = 2048,
     parameter MEM_WIDTH = 8,
     parameter WORD_WIDTH = 16
@@ -328,7 +328,7 @@ end
                     // count timeout down while the node is idle and 
                     // the node has received a heartbeat packet at least once
                     // (HBLock == 1)
-                        timeout <= timeout - 1;
+                        timeout <= timeout - 1'd1;
                     end
                     else begin
                         timeout <= timeout <= 16'd10;
@@ -380,7 +380,7 @@ end
             HBLock <= 0;
         end
         else begin
-            if(en) begin
+            /* if(en) begin
                 case(fPacketType)
                     3'b000: begin   // heartbeat packet
                         if(!HBLock)
@@ -396,9 +396,29 @@ end
             end
             else begin
                 HBLock <= HBLock;
+            end 
+            */
+            if(state == s_done && okToSend) begin
+                case(fPacketType) 
+                    3'b000: begin
+                        if(!HBLock) begin
+                            HBLock <= 1;
+                        end
+                        else begin
+                            HBLock <= HBLock;
+                        end 
+                    end
+                    3'b101: begin
+                        HBLock <= 0;
+                    end
+                endcase
+            end
+            else begin
+                HBLock <= HBLock;
             end
         end
     end
+        
 // always block for rPacketType
 /* 
     Reminders on packetType:
@@ -645,7 +665,7 @@ always@(posedge clk or negedge nrst) begin
         nTableIndex_reward <= 6'b100000;
     end
     else begin
-        if(timeout == 0 && timeout_type == 2'b010) begin
+        if(timeout == 0 && timeout_type == 2'b01) begin
             for(int i = 0; i < neighborCount; i++) begin
                 nTableIndex_reward <= i;
             end

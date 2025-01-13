@@ -4,6 +4,12 @@
 `define CLOCK_CYCLE 20
 `define MEM_WIDTH 8
 
+`define RX_PKT_NRG      16'h0004
+`define HOP1_TX         16'h0005
+`define HOP2_TX         16'h0009
+`define HOP3_TX         16'h0011
+`define HOP4_TX         16'h001b
+
 module tb_reward;
 
 // global inputs
@@ -22,6 +28,7 @@ module tb_reward;
     logic       [`WORD_WIDTH-1:0]       myQValue;
     logic                               role;
     logic                               low_E;
+    logic       [`WORD_WIDTH-1:0]       timeslot;
 // Inputs from Packet
     logic       [2:0]                   fPacketType;
     logic       [`WORD_WIDTH-1:0]       fSourceID;
@@ -136,6 +143,7 @@ initial begin
     en = 0;
     myEnergy = 16'h8000;
     iHaveData = 0;
+    okToSend = 0;
 
     // packetFilter
 
@@ -185,10 +193,13 @@ initial begin
     #`CLOCK_CYCLE
     en = 0;
     #`CLOCK_CYCLE
-    okToSend = 1;
+//    okToSend = 1;
     #`CLOCK_CYCLE
     #(`CLOCK_CYCLE*5) // process and adjust as necessary
-
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    okToSend = 0;
+    #(`CLOCK_CYCLE*5)
     $finish;
 end
 
