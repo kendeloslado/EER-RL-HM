@@ -10,9 +10,9 @@ module tb_reward;
     logic                               clk;
     logic                               nrst;
     logic                               en;
-    logic       [2:0]                   fPacketType;
     logic       [`WORD_WIDTH-1:0]       myEnergy;
     logic                               iHaveData;
+    logic                               okToSend;
 
 // signal from packetFilter
     logic                               iAmDestination;
@@ -22,9 +22,8 @@ module tb_reward;
     logic       [`WORD_WIDTH-1:0]       myQValue;
     logic                               role;
     logic                               low_E;
-    // new signal
-    logic       [`WORD_WIDTH-1:0]       timeslot;
 // Inputs from Packet
+    logic       [2:0]                   fPacketType;
     logic       [`WORD_WIDTH-1:0]       fSourceID;
     logic       [`WORD_WIDTH-1:0]       fSourceHops;
     logic       [`WORD_WIDTH-1:0]       fQValue;
@@ -44,16 +43,15 @@ module tb_reward;
     logic       [`WORD_WIDTH-1:0]       mNodeEnergy;
     logic       [`WORD_WIDTH-1:0]       mNodeCHHops;
 // reward outputs
-    logic       [`WORD_WIDTH-1:0]       rSourceID;
-    logic       [`WORD_WIDTH-1:0]       rEnergyLeft;
-    logic       [`WORD_WIDTH-1:0]       rQValue;
-    logic       [`WORD_WIDTH-1:0]       rSourceHops;
-    logic       [`WORD_WIDTH-1:0]       rDestinationID;
-    logic       [2:0]                   rPacketType;
-    logic       [`WORD_WIDTH-1:0]       rChosenCH;
-    logic       [`WORD_WIDTH-1:0]       rHopsFromCH;
-    // new signal
-    logic       [`WORD_WIDTH-1:0]       rTimeslot;
+    wire        [`WORD_WIDTH-1:0]       rSourceID;
+    wire        [`WORD_WIDTH-1:0]       rEnergyLeft;
+    wire        [`WORD_WIDTH-1:0]       rQValue;
+    wire        [`WORD_WIDTH-1:0]       rSourceHops;
+    wire        [`WORD_WIDTH-1:0]       rDestinationID;
+    wire        [2:0]                   rPacketType;
+    wire        [`WORD_WIDTH-1:0]       rChosenCH;
+    wire        [`WORD_WIDTH-1:0]       rHopsFromCH;
+    wire        [5:0]                   rTimeslot;
 // output
     wire        [5:0]                   nTableIndex_reward;
     wire        [`WORD_WIDTH-1:0]       reward_done;
@@ -62,30 +60,40 @@ reward UUT(
         .clk(clk),
         .nrst(nrst),
         .en(en),
-        .fPacketType(fPacketType),
+
         .myEnergy(myEnergy),
         .iHaveData(iHaveData),
+        .okToSend(okToSend),
+
         .iAmDestination(iAmDestination),
+
         .myNodeID(myNodeID),
         .hopsFromSink(hopsFromSink),
         .myQValue(myQValue),
         .role(role),
         .low_E(low_E),
+        .timeslot(timeslot),
+
+        .fPacketType(fPacketType),
         .fSourceID(fSourceID),
         .fSourceHops(fSourceHops),
         .fQValue(fQValue),
         .fEnergyLeft(fEnergyLeft),
         .fHopsFromCH(fHopsFromCH),
         .fChosenCH(fChosenCH),
+
         .chosenCH(chosenCH),
         .hopsFromCH(hopsFromCH),
+
         .chosenHop(chosenHop),
         .neighborCount(neighborCount),
+
         .mNodeID(mNodeID),
         .mNodeHops(mNodeHops),
         .mNodeQValue(mNodeQValue),
         .mNodeEnergy(mNodeEnergy),
         .mNodeCHHops(mNodeCHHops),
+
         .rSourceID(rSourceID),
         .rEnergyLeft(rEnergyLeft),
         .rQValue(rQValue),
@@ -94,6 +102,8 @@ reward UUT(
         .rPacketType(rPacketType),
         .rChosenCH(rChosenCH),
         .rHopsFromCH(rHopsFromCH),
+        .rTimeslot(rTimeslot),
+
         .nTableIndex_reward(nTableIndex_reward),
         .reward_done(reward_done)
 );
@@ -110,16 +120,29 @@ initial begin
     $vcdplusmemon;
     $sdf_annotate("../mapped/reward_mapped.sdf", UUT);
 end
-
+/* 
+    I wanted to simulate random packets and energy consumptions
+    make myEnergy fairly random in consumption
+    we have values for myEnergy consumption. it can be
+    16'h0004,   16'h0005, 16'h0009, 16'h0011, 16'h001b
+    recv'd msg, 1HTX,     2HTX,     3HTX,     4HTX
+    HTX = Hop Transmission
+ */
 initial begin
-    // initial conditions
+// Initial Conditions
+
+    // Global Inputs
     nrst = 0;
     en = 0;
-    fPacketType = 0;
     myEnergy = 16'h8000;
     iHaveData = 0;
 
+    // packetFilter
+
+    fPacketType = 3'b111; // Invalid
     iAmDestination = 0;
+
+    // MY_NODE_INFO inputs
 
     myNodeID = 16'h000c;
     hopsFromSink = 16'hffff;
@@ -127,26 +150,45 @@ initial begin
     role = 0;
     low_E = 0;
 
-    chosenCH = 0;
+    // KCH inputs
+
+    chosenCH = 16'h0;
     hopsFromCH = 16'hffff;
 
-    chosenHop = 0;
+    // QTUFMB signals
+
+    chosenHop = 16'hFFFF;   // invalid value
+    neighborCount = 6'h20;  // invalid value
+
+    // neighborTable Inputs
+
+    mNodeID = 0;
     mNodeID = 0;
     mNodeHops = 16'hffff;
     mNodeQValue = 0;
     mNodeEnergy = 0;
     mNodeCHHops = 16'hffff;
 
-    // post-initial conditions
-
-    // start by receiving a heartbeat packet
+// post-initial conditions
+    
     #`CLOCK_CYCLE
+    nrst = 1;
+    #`CLOCK_CYCLE
+
+// receive a heartbeat packet
+
+    fSourceID = 16'd0;
     hopsFromSink = 16'd1;
+    fPacketType = 3'b000;
+    myEnergy = myEnergy - `RX_PKT_NRG;
     en = 1;
     #`CLOCK_CYCLE
     en = 0;
     #`CLOCK_CYCLE
-    #(`CLOCK_CYCLE*2)
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    #(`CLOCK_CYCLE*5) // process and adjust as necessary
+
     $finish;
 end
 

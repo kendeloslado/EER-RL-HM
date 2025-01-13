@@ -11,27 +11,9 @@ module reward #(
     input logic                         en,
     // en is currently not covering every scenario (i.e. CSMA giving an a-OK to pack)
     // "wait lang, busy ako."
-    /* 
-        do u want a separate controller, or u can work with your current block diagram?
-        start from datapath controller
-        check your block diagram
-        anong signals kelangan nung datapath controller para maupdate mo sya
-
-    Tuesday @ 2pm deliverables:
-        * updated block diagram
-        * controller diagram
-        * heartbeat packet waveform in reward testbench
-            a. send once. If may ibang HB, do NOT ripple
-
-            CSMA Signal: OkayToSend
-     */
-
-    /* 
-        When making template testbench, make sure to make it foolproof per scenario.
-        check your test scenarios kung ubra gumawa ng c-program-esque testbench para mas mabilis
-     */
     input logic     [WORD_WIDTH-1:0]    myEnergy,
     input logic                         iHaveData,
+    input logic                         okToSend,   // CSMA Output signal
 // signal from packetFilter
     input logic                         iAmDestination,
 // MY_NODE_INFO inputs
@@ -76,6 +58,26 @@ module reward #(
     output logic    [WORD_WIDTH-1:0]    reward_done
 
 );
+
+    /* 
+        do u want a separate controller, or u can work with your current block diagram?
+        start from datapath controller
+        check your block diagram
+        anong signals kelangan nung datapath controller para maupdate mo sya
+
+    Tuesday @ 2pm deliverables:
+        * updated block diagram
+        * controller diagram
+        * heartbeat packet waveform in reward testbench
+            a. send once. If may ibang HB, do NOT ripple
+
+            CSMA Signal: OkayToSend
+     */
+
+    /* 
+        When making template testbench, make sure to make it foolproof per scenario.
+        check your test scenarios kung ubra gumawa ng c-program-esque testbench para mas mabilis
+    */
 
 // reward block essentials
 
@@ -290,7 +292,12 @@ always@(posedge clk or negedge nrst) begin
                 state <= s_done;
             end
             s_done: begin
-                state <= s_idle;
+                if(okToSend) begin
+                    state <= s_idle;
+                end
+                else begin
+                    state <= state;
+                end
             end
         endcase
     end
@@ -449,7 +456,12 @@ end
                     reward_done <= 0;
                 end
                 s_done: begin
-                    reward_done <= 1;
+                    if(okToSend) begin
+                        reward_done <= 1;
+                    end
+                    else begin
+                        reward_done <= 0;
+                    end
                 end
                 default: reward_done <= reward_done;
             endcase
@@ -541,7 +553,7 @@ end
         else begin
             if(iHaveData) begin //
                 if(hopsFromSink == 1) begin
-                    rSourceHops <= hopsFromSink + 1;
+                    rSourceHops <= hopsFromSink;
                 end
                 else begin
                     rSourceHops <= hopsFromCH;
@@ -549,7 +561,7 @@ end
             end
             else if(fPacketType == 3'b000) begin
                 // "I'm rippling HB packet"
-                rSourceHops <= hopsFromSink;
+                rSourceHops <= hopsFromSink + 1;
             end
             else if(fPacketType == 3'b010) begin
                 // "I'm rippling INV pkt"
@@ -615,7 +627,7 @@ end
             rTimeslot <= 16'hffff; // invalid value
         end
         else begin
-
+            rTimeslot <= timeslot;
         end
     end
 
