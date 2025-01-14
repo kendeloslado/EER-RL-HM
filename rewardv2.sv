@@ -55,6 +55,7 @@ module rewardv2 #(
     output logic    [WORD_WIDTH-1:0]    rTimeslot, // additional signal
 // output signals
     output logic    [5:0]               nTableIndex_reward,
+    output logic                        tx_setting,
     output logic    [WORD_WIDTH-1:0]    reward_done
 
 );
@@ -675,6 +676,50 @@ always@(posedge clk or negedge nrst) begin
         end
     end
 
+end
+
+// always block for tx_setting
+/* 
+    tx_setting is a binary signal, which tells what kind of broadcast 
+    the reward block is going to do. A signal of 0 indicates a 1-hop
+    broadcast, while the signal of 1 indicates a 4-hop broadcast.
+    
+    For the purposes of controlling antenna strength, it is easier to
+    toggle between two settings, so this signal will tell the communication
+    media to use this amount of strength for broadcasting.
+
+    1-hop broadcast occurs on the following:
+    1. Rippling a heartbeat packet;
+    2. Rippling an INV packet until hop count is 4;
+    3. CHs pack an INV packet;
+    4. Non-CH nodes send Membership Request that is only one hop away;
+    5. CH nodes send CH Timeslots to neighbors who are only one hop away; AND
+    6. It is communication phase and cluster members are sending towards
+    their cluster heads.
+
+    Otherwise, a 4-hop broadcast will occur.
+*/
+always@(posedge clk or negedge nrst) begin
+    if(!nrst) begin
+        tx_setting <= 0;
+    end
+    else begin
+        /* 
+        HB packets are one hop only majority of the time
+        INV packets are also one hop only
+        MR requests need to check hop count before deciding which signal
+        strength one uses
+        CH timeslots same statement as above
+        Communication phase prioritizes one-hop communication. Otherwise,
+        do a 4-hop broadcast.
+        */
+        case(fPacketType)
+            3'b000: begin // HB
+                tx_setting <= 0;
+            end
+            
+        endcase
+    end
 end
 
 /* 

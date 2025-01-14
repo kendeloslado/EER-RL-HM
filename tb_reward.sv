@@ -61,6 +61,7 @@ module tb_reward;
     wire        [5:0]                   rTimeslot;
 // output
     wire        [5:0]                   nTableIndex_reward;
+    wire                                tx_setting;
     wire        [`WORD_WIDTH-1:0]       reward_done;
 
 rewardv2 UUT(
@@ -112,6 +113,7 @@ rewardv2 UUT(
         .rTimeslot(rTimeslot),
 
         .nTableIndex_reward(nTableIndex_reward),
+        .tx_setting(tx_setting),
         .reward_done(reward_done)
 );
 
