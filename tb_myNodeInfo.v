@@ -47,6 +47,9 @@ initial begin
     fPktType = 3'b111; // This packet type doesn't exist. Assume it's a don't care value.
     energy = 16'h8000;
     e_threshold = 16'h8000;
+    destinationID = 16'hffff;
+    hops = 16'hffff;
+    timeslot = 16'hffff;
 // Let's simulate receiving a heartbeat packet first
     
     #100
