@@ -704,20 +704,46 @@ always@(posedge clk or negedge nrst) begin
         tx_setting <= 0;
     end
     else begin
-        /* 
-        HB packets are one hop only majority of the time
+/* 
+        HB packets are one hop most of the time
+        CHE packets are done by the base station exclusively. This setting
+        isn't needed.
         INV packets are also one hop only
         MR requests need to check hop count before deciding which signal
         strength one uses
         CH timeslots same statement as above
         Communication phase prioritizes one-hop communication. Otherwise,
         do a 4-hop broadcast.
-        */
+*/
         case(fPacketType)
             3'b000: begin // HB
                 tx_setting <= 0;
             end
-            
+            3'b010: begin
+                tx_setting <= 0;
+            end
+            3'b011: begin
+                if(hopsFromCH > 1) begin
+                    tx_setting <= 1;
+                end
+                else begin
+                    tx_setting <= 0;
+                end
+            end
+            3'b100: begin
+                if(mNodeCHHops > 1) begin
+                    tx_setting <= 1;
+                end
+                else begin
+                    tx_setting <= 0;
+                end
+            end
+            3'b101: begin
+                tx_setting <= 0;
+            end
+            3'b110: begin
+                tx_setting <= 0;
+            end
         endcase
     end
 end

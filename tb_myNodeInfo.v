@@ -3,6 +3,9 @@
 `define MEM_WIDTH 8
 `define WORD_WIDTH 16
 
+`define RX_PKT_NRG      16'h0004
+`define HOP1_TX         16'h0005
+`define HOP4_TX         16'h001b
 module tb_myNodeInfo();
 
     reg                   clk;
@@ -61,7 +64,7 @@ initial begin
     hops = 1;
     /*     e_max = 16'h8000; // 14./2 fixed-point == 2
     e_min = 16'h4000; // 14./2 fixed-point == 1 */
-    energy = 16'h8000;
+    energy = energy - `RX_PKT_NRG;
     e_threshold = 16'h3333; // 14./2 fixed-point == 0.8
     // no timeslot, destinationID
     #40
@@ -75,7 +78,7 @@ initial begin
     hops = 2;
     /*     e_max = 16'h8000;   
     e_min = 16'h4000; */
-    energy = 16'h7FC0;  // fixed-point ~= 1.9961
+    energy = energy - `RX_PKT_NRG;  // fixed-point ~= 1.9961
     e_threshold = 16'h3333;
     #40
     en_MNI = 1;
@@ -91,6 +94,7 @@ initial begin
 // receive CHE packet
     fPktType = 3'b001;
     destinationID = 16'd32; // sample destinationID, not cluster head for this CH.
+    energy = energy - `RX_PKT_NRG;
     #20
     en_MNI = 1; // go check if you're a CH for the round
     #20
@@ -100,6 +104,7 @@ initial begin
 // receive an INV packet
     fPktType = 3'b010; // this packet type should not do anything in the node
     destinationID = 16'd32;
+    energy = energy - `RX_PKT_NRG;
     #20
     en_MNI = 1;
     #20
@@ -109,6 +114,7 @@ initial begin
     fPktType = 3'b001;
     destinationID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
                       // packet should change your role into 1.
+    energy = energy - `RX_PKT_NRG;
     #20
     en_MNI = 1;
     #20
@@ -122,6 +128,7 @@ initial begin
     timeslot = 3'd4;        // simulate that you are at timeslot #4
     destinationID = 8'd21;  // not your ID
     hops = 2;
+    energy = energy - `RX_PKT_NRG;
     #20
     en_MNI = 1;
     #20
@@ -131,6 +138,7 @@ initial begin
     // this data packet should de-assert HBLock
     fPktType = 3'b101;
     destinationID = 8'd14;  // not your ID
+    energy = energy - `RX_PKT_NRG;
     hops = 3;
     #20
     en_MNI = 1;
@@ -140,7 +148,7 @@ initial begin
 // receive heartbeat packet
     fPktType = 3'b000;
     hops = 1;
-    energy = 16'h6000;
+    energy = energy - `RX_PKT_NRG;
     e_threshold = 16'h3333; // 14./2 fixed-point == 0.8
     // no timeslot, destinationID
     #40
@@ -153,6 +161,7 @@ initial begin
     fPktType = 3'b100;
     timeslot = 3'd5;
     destinationID = 8'h000C;
+    energy = energy - `RX_PKT_NRG;
     hops = 2;
     #20
     en_MNI = 1;
