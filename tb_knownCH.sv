@@ -17,7 +17,7 @@ module tb_knownCH;
     wire    [`WORD_WIDTH-1:0]    chosenCH;
     wire    [`WORD_WIDTH-1:0]    hopsfromCH;
 
-knownCHv2 UUT(
+knownCHv3 UUT(
         .clk        (clk        ),
         .nrst       (nrst       ),
         .en_KCH     (en_KCH     ),
@@ -26,7 +26,7 @@ knownCHv2 UUT(
         .fCH_Hops   (fCH_Hops   ),
         .fCH_QValue (fCH_QValue ),
         .chosenCH   (chosenCH   ),
-        .hopsfromCH (hopsfromCH )
+        .hopsFromCH (hopsfromCH )
 );
 
 initial begin
@@ -60,14 +60,29 @@ initial begin
     #`CLOCK_CYCLE
     HB_reset <= 0;
     #`CLOCK_CYCLE
-    // receive CHE packets
+/*     // receive CHE packets
     fCH_ID = 16'd23;
+    en_KCH = 1;
+    #`CLOCK_CYCLE
+    en_KCH = 0;
     #`CLOCK_CYCLE
     fCH_ID = 16'd45;
+    en_KCH = 1;
+    #`CLOCK_CYCLE
+    en_KCH = 0;
+    #`CLOCK_CYCLE */
     /* #`CLOCK_CYCLE
     fCH_ID = 16'd12; // you're CH */
+/*     #`CLOCK_CYCLE
+    en_KCH = 1;
+    #`CLOCK_CYCLE
+    en_KCH = 0;
     #`CLOCK_CYCLE
     fCH_ID = 16'd6;
+    en_KCH = 1;
+    #`CLOCK_CYCLE
+    en_KCH = 0;
+    #`CLOCK_CYCLE */
     // receive your first cluster head information
     fCH_ID = 16'd23;
     fCH_Hops = 16'd2;
