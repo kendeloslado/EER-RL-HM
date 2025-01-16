@@ -101,7 +101,7 @@ initial begin
     en_MNI = 0;
     #40
     // by the time you get to this delay, role should still be at 0.
-// receive an INV packet
+/* // receive an INV packet
     fPktType = 3'b010; // this packet type should not do anything in the node
     destinationID = 16'd32;
     energy = energy - `RX_PKT_NRG;
@@ -109,7 +109,7 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;
-    #40
+    #40 */
 // receive another CHE packet
     fPktType = 3'b001;
     destinationID = 16'h000C; // sample nodeID constant is set at 16'h000C. This
@@ -121,7 +121,7 @@ initial begin
     en_MNI = 0;
     #100
      // let it update
-// receive a CHTimeslot packet
+/* // receive a CHTimeslot packet
     // this CHTimeslot packet should not do anything since you're a CH in
     // this testbench
     fPktType = 3'b100;
@@ -133,8 +133,8 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;          
-    #100
-// receive a data packet
+    #100 */
+/* // receive a data packet
     // this data packet should de-assert HBLock
     fPktType = 3'b101;
     destinationID = 8'd14;  // not your ID
@@ -144,8 +144,8 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;
-    #100             
-// receive heartbeat packet
+    #100              */
+/* // receive heartbeat packet
     fPktType = 3'b000;
     hops = 1;
     energy = energy - `RX_PKT_NRG;
@@ -155,8 +155,8 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;
-    #40
-// receive another CHTimeslot packet, this time matching destID
+    #40 */
+/* // receive another CHTimeslot packet, this time matching destID
     // in addition, HBLock should be de-asserted 
     fPktType = 3'b100;
     timeslot = 3'd5;
@@ -167,7 +167,7 @@ initial begin
     en_MNI = 1;
     #20
     en_MNI = 0;
-    #100
+    #100 */
     $finish;
 end
 

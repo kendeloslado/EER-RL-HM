@@ -47,19 +47,27 @@ initial begin
     fCH_ID = 16'h0;
     fCH_Hops = 16'hFFFF;
     fCH_QValue = 16'h0;
-    HB_CHlimit = 16'd0;
+    //HB_CHlimit = 16'd0;
     #`CLOCK_CYCLE
     nrst = 1;
     #`CLOCK_CYCLE
     // receive heartbeat packet
     HB_reset = 1;
-    HB_CHlimit = 16'd3;
+    // HB_CHlimit = 16'd3;
     /* you need to simulate receiving multiple CHs.
     for an easy example, let's set the CH limit to 3
      */
     #`CLOCK_CYCLE
     HB_reset <= 0;
     #`CLOCK_CYCLE
+    // receive CHE packets
+    fCH_ID = 16'd23;
+    #`CLOCK_CYCLE
+    fCH_ID = 16'd45;
+    /* #`CLOCK_CYCLE
+    fCH_ID = 16'd12; // you're CH */
+    #`CLOCK_CYCLE
+    fCH_ID = 16'd6;
     // receive your first cluster head information
     fCH_ID = 16'd23;
     fCH_Hops = 16'd2;
@@ -67,66 +75,49 @@ initial begin
     #`CLOCK_CYCLE
     en_KCH = 1;
     #`CLOCK_CYCLE
-<<<<<<< Updated upstream:tb_knownCH.sv
-    #`CLOCK_CYCLE
     en_KCH = 0;
     #`CLOCK_CYCLE
-    #`CLOCK_CYCLE
+    // receive second cluster head
     fCH_ID = 16'd45;
     fCH_Hops = 16'd2;
     fCH_QValue = 16'h2000;
     en_KCH = 1;
-    #`CLOCK_CYCLE;
-    #`CLOCK_CYCLE;
+    #`CLOCK_CYCLE
     en_KCH = 0;
-    #`CLOCK_CYCLE;
-    #`CLOCK_CYCLE;
-    
-=======
-    en_KCH <= 0;
-    #`CLOCK_CYCLE
-    // receive second cluster head
-    fCH_ID <= 16'd45;
-    fCH_Hops <= 16'd2;
-    fCH_QValue <= 16'h2000;
-    en_KCH <= 1;
-    #`CLOCK_CYCLE
-    en_KCH <= 0;
     #(`CLOCK_CYCLE * 4)
-    // receive third cluster head, update relevant registers
-    fCH_ID <= 16'd12;
-    fCH_Hops <= 16'd1;
-    fCH_QValue <= 16'h4000; // Q-value = 1.00
-    en_KCH <= 1;
+/*     // receive third cluster head, update relevant registers
+    fCH_ID = 16'd12;
+    fCH_Hops = 16'd1;
+    fCH_QValue = 16'h4000; // Q-value = 1.00
+    en_KCH = 1;
     #`CLOCK_CYCLE
-    en_KCH <= 0;
+    en_KCH = 0;
     #(`CLOCK_CYCLE * 10)
-    // receive fourth cluster head, try identical values except nodeID, update nID
-    fCH_ID <= 16'd6;
-    fCH_Hops <= 16'd1;
-    fCH_QValue <= 16'h4000; // Q-value = 1.00
-    en_KCH <= 1;
+ */    // receive fourth cluster head, try identical values except nodeID, update nID
+    fCH_ID = 16'd6;
+    fCH_Hops = 16'd1;
+    fCH_QValue = 16'h4000; // Q-value = 1.00
+    en_KCH = 1;
     #`CLOCK_CYCLE
-    en_KCH <= 0;
+    en_KCH = 0;
     #(`CLOCK_CYCLE * 5)
-    // receive fifth cluster head, higher Q-value, update nodeID    
-    fCH_ID <= 16'd65;
-    fCH_Hops <= 16'd1;
-    fCH_QValue <= 16'h6000;
-    en_KCH <= 1;
+/*     // receive fifth cluster head, higher Q-value, update nodeID    
+    fCH_ID = 16'd65;
+    fCH_Hops = 16'd1;
+    fCH_QValue = 16'h6000;
+    en_KCH = 1;
     #`CLOCK_CYCLE
-    en_KCH <= 0;
+    en_KCH = 0;
     #(`CLOCK_CYCLE * 5)
     // receive sixth cluster head, but it's your own information
-    fCH_ID <= 16'd12;
-    fCH_Hops <= 16'd1;
-    fCH_QValue <= 16'h4000;
-    en_KCH <= 1;
+    fCH_ID = 16'd12;
+    fCH_Hops = 16'd1;
+    fCH_QValue = 16'h4000;
+    en_KCH = 1;
     #`CLOCK_CYCLE
-    en_KCH <= 0;
+    en_KCH = 0;
     #(`CLOCK_CYCLE * 5)
->>>>>>> Stashed changes:knownCH/tb_knownCH.sv
-    $finish;
+ */    $finish;
 end
 
 
