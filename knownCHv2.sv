@@ -9,7 +9,7 @@ module knownCHv2 #(
     input logic                         nrst,
     input logic                         en_KCH,
     input logic                         HB_reset,
-    input logic     [WORD_WIDTH-1:0]    HB_CHlimit, // defined at HB packet
+/*     input logic     [WORD_WIDTH-1:0]    HB_CHlimit, // defined at HB packet */
     input logic     [WORD_WIDTH-1:0]    fCH_ID,
     input logic     [WORD_WIDTH-1:0]    fCH_Hops,
     input logic     [WORD_WIDTH-1:0]    fCH_QValue,
@@ -24,6 +24,7 @@ module knownCHv2 #(
 // defining the struct for cluster head information
 
 typedef struct packed{
+    logic                               valid;
     logic           [WORD_WIDTH-1:0]    CH_ID;
     logic           [WORD_WIDTH-1:0]    CH_Hops;
     logic           [WORD_WIDTH-1:0]    CH_QValue;        
@@ -38,12 +39,13 @@ s_idle = 3'b000;
 s_collect = 3'b001;
 s_filter = 3'b010;
 s_out = 3'b011;
+s_HBreset = 3'b100;
 
  */
 
 
 
-    logic           [WORD_WIDTH-1:0]    HB_CHlimit_buf;
+/*     logic           [WORD_WIDTH-1:0]    HB_CHlimit_buf; */    
     logic           [2:0]    state;
     logic           [WORD_WIDTH-1:0]    kCH_index;
     logic           [WORD_WIDTH-1:0]    minHops_bitmask;
@@ -51,6 +53,9 @@ s_out = 3'b011;
     logic           [WORD_WIDTH-1:0]    maxQ_bitmask;
     logic           [WORD_WIDTH-1:0]    maxQ_count;
     logic                               iHaveChosen;
+
+    logic           [15:0]              oneHotIndex;
+    logic           [4:0]               encoder_out;
 
 // let's start with the FSM register
 always@(posedge clk or negedge nrst) begin
@@ -68,7 +73,8 @@ always@(posedge clk or negedge nrst) begin
                 end
             end
             3'b001: begin   // s_collect
-                if(HB_CHlimit == kCH_index) begin
+/*                 if(HB_CHlimit == kCH_index) begin */
+                if(timeout) begin
                     state <= 3'b010;
                 end
                 else begin
@@ -120,7 +126,7 @@ always@(posedge clk or negedge nrst) begin
     end
 end
 
-// always block for HB_CHlimit_buf
+/* // always block for HB_CHlimit_buf
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         HB_CHlimit_buf <= 0;
@@ -133,7 +139,7 @@ always@(posedge clk or negedge nrst) begin
             HB_CHlimit_buf <= HB_CHlimit_buf;
         end
     end
-end
+end */
 
 // always block for kCH_index
 always@(posedge clk or negedge nrst) begin
@@ -447,5 +453,92 @@ always@(posedge clk or negedge nrst) begin
         //iHaveChosen <= 1;
     end
 end
+// one-hot encoder for kCH_index
+    always_comb begin
+        case(oneHotIndex)
+            16'h0001: encoder_out <= 5'd0;
+            16'h0002: encoder_out <= 5'd1;
+            16'h0004: encoder_out <= 5'd2;
+            16'h0008: encoder_out <= 5'd3;
+            16'h0010: encoder_out <= 5'd4;
+            16'h0020: encoder_out <= 5'd5;
+            16'h0040: encoder_out <= 5'd6;
+            16'h0080: encoder_out <= 5'd7;
+            16'h0100: encoder_out <= 5'd8;
+            16'h0200: encoder_out <= 5'd9;
+            16'h0400: encoder_out <= 5'd10;
+            16'h0800: encoder_out <= 5'd11;
+            16'h1000: encoder_out <= 5'd12;
+            16'h2000: encoder_out <= 5'd13;
+            16'h4000: encoder_out <= 5'd14;
+            16'h8000: encoder_out <= 5'd15;
+            default: encoder_out <= 5'd16;
+        endcase
+    end
 
+// instantiate comparator modules for register comparison
+    EQComparator_16bit C0 ( .inA(fCH_ID),
+                            .inB(cluster_heads[0].CH_ID),
+                            .out(oneHotIndex[0]);
+    );
+    EQComparator_16bit C1 ( .inA(fCH_ID),
+                            .inB(cluster_heads[1].CH_ID),
+                            .out(oneHotIndex[1]);
+    );
+    EQComparator_16bit C2 ( .inA(fCH_ID),
+                            .inB(cluster_heads[2].CH_ID),
+                            .out(oneHotIndex[2]);
+    );
+    EQComparator_16bit C3 ( .inA(fCH_ID),
+                            .inB(cluster_heads[3].CH_ID),
+                            .out(oneHotIndex[3]);
+    );
+    EQComparator_16bit C4 ( .inA(fCH_ID),
+                            .inB(cluster_heads[4].CH_ID),
+                            .out(oneHotIndex[4]);
+    );
+    EQComparator_16bit C5 ( .inA(fCH_ID),
+                            .inB(cluster_heads[5].CH_ID),
+                            .out(oneHotIndex[5]);
+    );
+    EQComparator_16bit C6 ( .inA(fCH_ID),
+                            .inB(cluster_heads[6].CH_ID),
+                            .out(oneHotIndex[6]);
+    );
+    EQComparator_16bit C7 ( .inA(fCH_ID),
+                            .inB(cluster_heads[7].CH_ID),
+                            .out(oneHotIndex[7]);
+    );
+    EQComparator_16bit C8 ( .inA(fCH_ID),
+                            .inB(cluster_heads[8].CH_ID),
+                            .out(oneHotIndex[8]);
+    );
+    EQComparator_16bit C9 ( .inA(fCH_ID),
+                            .inB(cluster_heads[9].CH_ID),
+                            .out(oneHotIndex[9]);
+    );
+    EQComparator_16bit C10 ( .inA(fCH_ID),
+                            .inB(cluster_heads[10].CH_ID),
+                            .out(oneHotIndex[10]);
+    );
+    EQComparator_16bit C11 ( .inA(fCH_ID),
+                            .inB(cluster_heads[11].CH_ID),
+                            .out(oneHotIndex[11]);
+    );
+    EQComparator_16bit C12 ( .inA(fCH_ID),
+                            .inB(cluster_heads[12].CH_ID),
+                            .out(oneHotIndex[12]);
+    );
+    EQComparator_16bit C13 ( .inA(fCH_ID),
+                            .inB(cluster_heads[13].CH_ID),
+                            .out(oneHotIndex[13]);
+    );
+    EQComparator_16bit C14 ( .inA(fCH_ID),
+                            .inB(cluster_heads[14].CH_ID),
+                            .out(oneHotIndex[14]);
+    );
+    EQComparator_16bit C15 ( .inA(fCH_ID),
+                            .inB(cluster_heads[15].CH_ID),
+                            .out(oneHotIndex[15]);
+    );
 endmodule

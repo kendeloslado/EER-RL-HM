@@ -223,7 +223,7 @@ neighborTableID neighbors[31:0];
             endcase
         end
     end
-//always block for writing to neighbors.neighborID
+/* //always block for writing to neighbors.neighborID
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(int i=0; i<32; i++) begin
@@ -245,7 +245,7 @@ neighborTableID neighbors[31:0];
                 end
             endcase
         end
-    end 
+    end  */
 
 // always block for neighborCount
     always_comb begin

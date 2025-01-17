@@ -66,9 +66,9 @@ initial begin
     #`CLOCK_CYCLE
     en_KCH = 0;
     #`CLOCK_CYCLE
-    fCH_ID = 16'd45;
-    en_KCH = 1;
-    #`CLOCK_CYCLE
+    fCH_ID = 16'd45;            // THESE LINES OF CODE ARE TEMPORARILY COMMENTED OUT BECAUSE
+    en_KCH = 1;                 // some of the base logic for knownCH is not yet here.
+    #`CLOCK_CYCLE               // this is a working version of storing CH informatoin
     en_KCH = 0;
     #`CLOCK_CYCLE */
     /* #`CLOCK_CYCLE

@@ -202,6 +202,16 @@ initial begin
     #`CLOCK_CYCLE
     okToSend = 0;
     #(`CLOCK_CYCLE*5)
+
+// receive an invitation packet and ripple it
+/*     fCH_ID = 16'd23;
+    fCH_Hops = 16'd2;
+    fCH_QValue = 16'h3000; // Q-value = 0.75 */
+    fSourceID = 16'd23;
+    fSourceHops = 16'd2;
+    fQValue = 16'h3000;
+    fPacketType = 3'b010;
+
     $finish;
 end
 
