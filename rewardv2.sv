@@ -513,7 +513,7 @@ end
             rSourceID <= 16'hffff;
         end
         else begin
-            if(iHaveData) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
                 rSourceID <= myNodeID;
             end
             else if(fPacketType == 3'b000 || fPacketType == 3'b010) begin
@@ -532,7 +532,7 @@ end
             rEnergyLeft <= 16'h0; // invalid
         end
         else begin
-            if(iHaveData) begin     // "i need to send data"
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin     // "i need to send data"
                 rEnergyLeft <= myEnergy;
             end
             else if(fPacketType == 3'b010) begin
@@ -552,7 +552,7 @@ end
             rQValue <= 16'h0;
         end
         else begin
-            if(iHaveData) begin // "I need to send data"
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin // "I need to send data"
                 rQValue <= myQValue;
             end
             else if(fPacketType == 3'b010) begin
@@ -572,7 +572,7 @@ end
             rSourceHops <= 16'hffff;
         end
         else begin
-            if(iHaveData) begin //
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin //
                 if(hopsFromSink == 1) begin
                     rSourceHops <= hopsFromSink;
                 end
@@ -601,7 +601,7 @@ end
             rChosenCH <= 16'h0;
         end
         else begin
-            if(iHaveData) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
                 if(hopsFromSink == 1) begin
                     // "I'm right next to sink"
                     rChosenCH <= 16'h0;
@@ -624,7 +624,7 @@ end
             rHopsFromCH <= 16'hffff;
         end
         else begin
-            if(iHaveData) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
                 rHopsFromCH <= hopsFromCH;
             end
             else if(fPacketType == 3'b010) begin

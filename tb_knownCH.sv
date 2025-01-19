@@ -17,7 +17,7 @@ module tb_knownCH;
     wire    [`WORD_WIDTH-1:0]    chosenCH;
     wire    [`WORD_WIDTH-1:0]    hopsfromCH;
 
-knownCHv3 UUT(
+knownCH_small UUT(
         .clk        (clk        ),
         .nrst       (nrst       ),
         .en_KCH     (en_KCH     ),
@@ -116,6 +116,7 @@ initial begin
     #`CLOCK_CYCLE
     en_KCH = 0;
     #(`CLOCK_CYCLE * 5)
+    #(`CLOCK_CYCLE * 10)
 /*     // receive fifth cluster head, higher Q-value, update nodeID    
     fCH_ID = 16'd65;
     fCH_Hops = 16'd1;

@@ -212,6 +212,7 @@ initial begin
     fQValue = 16'h3000;
     fPacketType = 3'b010;
 
+// send out a membership request packet
     $finish;
 end
 
