@@ -68,7 +68,6 @@ rewardv2 UUT(
         .clk(clk),
         .nrst(nrst),
         .en(en),
-
         .myEnergy(myEnergy),
         .iHaveData(iHaveData),
         .okToSend(okToSend),
@@ -147,6 +146,16 @@ initial begin
     iHaveData = 0;
     okToSend = 0;
 
+    // packetContents
+
+    fPacketType = 3'b111;
+    fSourceID = 16'hffff;
+    fSourceHops = 16'hffff;
+    fQValue = 16'h0;
+    fEnergyLeft = 16'h0;
+    fHopsFromCH = 16'hffff;
+    fChosenCH = 16'h0;
+
     // packetFilter
 
     fPacketType = 3'b111; // Invalid
@@ -159,6 +168,7 @@ initial begin
     myQValue = 16'h0;
     role = 0;
     low_E = 0;
+    timeslot = 16'hffff;
 
     // KCH inputs
 
@@ -211,8 +221,13 @@ initial begin
     fSourceHops = 16'd2;
     fQValue = 16'h3000;
     fPacketType = 3'b010;
+    myEnergy = myEnergy - `HOP1_TX;
 
 // send out a membership request packet
+    // triggered by timeout
+    myEnergy = myEnergy - `HOP1_TX;
+    #(`CLOCK_CYCLE * 15)
+
     $finish;
 end
 

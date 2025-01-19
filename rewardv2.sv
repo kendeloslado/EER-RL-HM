@@ -331,8 +331,11 @@ end
                     // (HBLock == 1)
                         timeout <= timeout - 1'd1;
                     end
+                    else if (timeout == 0) begin
+                        timeout <= 16'd10;
+                    end
                     else begin
-                        timeout <= timeout <= 16'd10;
+                        timeout <= 16'd10;
                     end
                 end
                 s_process: begin
