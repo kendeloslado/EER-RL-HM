@@ -325,7 +325,7 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    if(!en && HBLock) begin
+                    if(!en && HBLock && timeout != 0) begin
                     // count timeout down while the node is idle and 
                     // the node has received a heartbeat packet at least once
                     // (HBLock == 1)
@@ -365,10 +365,10 @@ end
         end
         else begin
             if(!role) begin
-                timeout_type <= 2'b01;
+                timeout_type <= 2'b10;
             end
             else if(role) begin
-                timeout_type <= 2'b10;
+                timeout_type <= 2'b01;
             end
             else begin
                 timeout_type <= 2'b00;
@@ -439,22 +439,22 @@ end
             rPacketType <= 3'b111; // invalid value
         end
         else begin
-            if(fPacketType == 3'b000) begin // ripple HB packet
+            if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
                 rPacketType <= 3'b000;
             end
-            else if(fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
+            else if(timeout != 0 && fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
                 rPacketType <= 3'b010;
             end 
-            else if(timeout == 0 && timeout_type == 2'b01 && !role) begin // send MR
+            else if(timeout == 0 && timeout_type == 2'b10 && !role) begin // send MR
                 rPacketType <= 3'b011;
             end
-            else if(timeout == 0 && timeout_type == 2'b10 && role) begin // send CHT as CH
+            else if(timeout == 0 && timeout_type == 2'b01 && role) begin // send CHT as CH
                 rPacketType <= 3'b100;
             end
-            else if((iAmDestination && fPacketType == 3'b101) || iHaveData) begin  // data pkt
+            else if(timeout != 0 && (iAmDestination && fPacketType == 3'b101) || iHaveData ) begin  // data pkt
                 rPacketType <= 3'b101;
             end
-            else if((iAmDestination || iHaveData) && low_E) begin  // SOS pkt
+            else if(timeout != 0 && (iAmDestination || iHaveData) && low_E) begin  // SOS pkt
                 rPacketType <= 3'b110;
             end
             else begin
@@ -504,6 +504,9 @@ end
             if(hopsFromSink == 1) begin
                 rDestinationID <= 16'd0;
             end
+            else if (timeout == 0 && timeout_type == 2'b10) begin
+                rDestinationID <= chosenCH;
+            end
             else begin
                 rDestinationID <= chosenHop;
             end
@@ -516,7 +519,7 @@ end
             rSourceID <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 rSourceID <= myNodeID;
             end
             else if(fPacketType == 3'b000 || fPacketType == 3'b010) begin
@@ -535,7 +538,7 @@ end
             rEnergyLeft <= 16'h0; // invalid
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin     // "i need to send data"
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin     // "i need to send data"
                 rEnergyLeft <= myEnergy;
             end
             else if(fPacketType == 3'b010) begin
@@ -555,7 +558,7 @@ end
             rQValue <= 16'h0;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin // "I need to send data"
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin // "I need to send data"
                 rQValue <= myQValue;
             end
             else if(fPacketType == 3'b010) begin
@@ -575,7 +578,7 @@ end
             rSourceHops <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin //
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin //
                 if(hopsFromSink == 1) begin
                     rSourceHops <= hopsFromSink;
                 end
@@ -589,7 +592,7 @@ end
             end
             else if(fPacketType == 3'b010) begin
                 // "I'm rippling INV pkt"
-                rSourceHops <= hopsFromCH;
+                rSourceHops <= hopsFromCH + 1;
             end
             else begin
                 // "I'm not needed right now"
@@ -604,7 +607,7 @@ end
             rChosenCH <= 16'h0;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 if(hopsFromSink == 1) begin
                     // "I'm right next to sink"
                     rChosenCH <= 16'h0;
@@ -627,7 +630,7 @@ end
             rHopsFromCH <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 0)) begin
+            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 rHopsFromCH <= hopsFromCH;
             end
             else if(fPacketType == 3'b010) begin

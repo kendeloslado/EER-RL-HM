@@ -198,7 +198,8 @@ initial begin
 // receive a heartbeat packet
 
     fSourceID = 16'd0;
-    hopsFromSink = 16'd1;
+    hopsFromSink = 16'd3;
+    myQValue = 16'h3555;
     fPacketType = 3'b000;
     myEnergy = myEnergy - `RX_PKT_NRG;
     en = 1;
@@ -218,13 +219,16 @@ initial begin
     fCH_Hops = 16'd2;
     fCH_QValue = 16'h3000; // Q-value = 0.75 */
     fSourceID = 16'd23;
-    fSourceHops = 16'd2;
+    fSourceHops = 16'd1;
     fQValue = 16'h3000;
     fPacketType = 3'b010;
+    hopsFromCH = 16'd1;
     myEnergy = myEnergy - `HOP1_TX;
 
 // send out a membership request packet
     // triggered by timeout
+    chosenCH = 16'd23;
+    hopsFromCH = 16'd1;
     myEnergy = myEnergy - `HOP1_TX;
     #(`CLOCK_CYCLE * 15)
 
