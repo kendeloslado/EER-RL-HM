@@ -504,7 +504,11 @@ end
             rDestinationID <= 16'hFFFF;
         end
         else begin
-            if(hopsFromSink == 1) begin
+            case(state)
+
+            default: rDestinationID <= rDestinationID;
+            endcase
+/*             if(hopsFromSink == 1) begin
                 rDestinationID <= 16'd0;
             end
             else if (timeout == 0 && timeout_type == 2'b10) begin
@@ -512,7 +516,7 @@ end
             end
             else begin
                 rDestinationID <= chosenHop;
-            end
+            end */
         end
     end
 
