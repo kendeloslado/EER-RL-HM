@@ -227,6 +227,15 @@ initial begin
 
 // send out a membership request packet
     // triggered by timeout
+/* 
+    membership request packet should contain the following:
+        myNodeID
+        hopsFromSink
+        myQValue
+        myEnergy
+        rDestinationID (chosenCH)
+        hopsFromCH
+*/
     chosenCH = 16'd23;
     hopsFromCH = 16'd1;
     myEnergy = myEnergy - `HOP1_TX;
