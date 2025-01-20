@@ -282,6 +282,9 @@ always@(posedge clk or negedge nrst) begin
                 if(en) begin
                     state <= s_process;
                 end
+                else if(timeout == 0) begin
+                    state <= s_process;
+                end
                 else begin
                     state <= state;
                 end
@@ -519,7 +522,28 @@ end
             rSourceID <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+            case(state)
+                s_idle: begin
+                    rSourceID <= rSourceID;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rSourceID <= myNodeID;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rSourceID <= fSourceID;
+                    end
+                    else begin
+                        rSourceID <= rSourceID;
+                    end
+                end
+                s_done: begin
+                    rSourceID <= rSourceID;
+                end
+                default: rSourceID <= rSourceID;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 rSourceID <= myNodeID;
             end
             else if(fPacketType == 3'b000 || fPacketType == 3'b010) begin
@@ -528,7 +552,8 @@ end
             end
             else begin
                 rSourceID <= rSourceID;
-            end
+            end 
+*/
         end
     end
 
@@ -538,7 +563,28 @@ end
             rEnergyLeft <= 16'h0; // invalid
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin     // "i need to send data"
+            case(state)
+                s_idle: begin
+                    rEnergyLeft <= rEnergyLeft;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rEnergyLeft <= myEnergy;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rEnergyLeft <= fEnergyLeft;
+                    end
+                    else begin
+                        rEnergyLeft <= rEnergyLeft;
+                    end
+                end
+                s_done: begin
+                    rEnergyLeft <= rEnergyLeft;
+                end
+                default: rEnergyLeft <= rEnergyLeft;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin     // "i need to send data"
                 rEnergyLeft <= myEnergy;
             end
             else if(fPacketType == 3'b010) begin
@@ -549,6 +595,7 @@ end
                 // my value isn't needed
                 rEnergyLeft <= myEnergy;
             end
+ */        
         end
     end
 
@@ -558,7 +605,28 @@ end
             rQValue <= 16'h0;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin // "I need to send data"
+            case(state)
+                s_idle: begin
+                    rQValue <= rQValue;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rQValue <= myQValue;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rQValue <= fQValue;
+                    end
+                    else begin
+                        rQValue <= rQValue;
+                    end
+                end
+                s_done: begin
+                    rQValue <= rQValue;
+                end
+                default: rQValue <= rQValue;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin // "I need to send data"
                 rQValue <= myQValue;
             end
             else if(fPacketType == 3'b010) begin
@@ -568,7 +636,8 @@ end
             else begin
                 // "I'm not needed right now"
                 rQValue <= rQValue;
-            end
+            end 
+*/
         end
     end
 
@@ -578,7 +647,39 @@ end
             rSourceHops <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin //
+            case(state)
+                s_idle: begin
+                    rSourceHops <= rSourceHops;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        if(hopsFromSink == 1) begin
+                            rSourceHops <= hopsFromSink;
+                        end
+                        else begin
+                        
+                        end
+                        rSourceHops <= myNodeID;
+                    end
+                    else if (fPacketType == 3'b000) begin
+                    // 3'b000 = HB
+                        // "I'm rippling HB packet"
+                        rSourceHops <= hopsFromSink + 1;
+                    end
+                    else if(fPacketType == 3'b010 && hopsFromCH < 4) begin
+                        // "I'm rippling INV pkt"
+                        rSourceHops <= hopsFromCH + 1;
+                    end
+                    else begin
+                        rSourceHops <= rSourceHops;
+                    end
+                end
+                s_done: begin
+                    rSourceHops <= rSourceHops;
+                end
+                default: rSourceHops <= rSourceHops;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin //
                 if(hopsFromSink == 1) begin
                     rSourceHops <= hopsFromSink;
                 end
@@ -597,7 +698,8 @@ end
             else begin
                 // "I'm not needed right now"
                 rSourceHops <= rSourceHops;
-            end
+            end 
+*/
         end
     end
 
@@ -607,7 +709,29 @@ end
             rChosenCH <= 16'h0;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+            case(state)
+                s_idle: begin
+                    rChosenCH <= rChosenCH;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        if(hopsFromSink == 1) begin
+                            rChosenCH <= 16'h0;
+                        end
+                        else begin 
+                            rChosenCH <= chosenCH;
+                        end
+                    end
+                    else begin
+                        rChosenCH <= rChosenCH;
+                    end
+                end
+                s_done: begin
+                    rChosenCH <= rChosenCH;
+                end
+                default: rChosenCH <= rChosenCH;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 if(hopsFromSink == 1) begin
                     // "I'm right next to sink"
                     rChosenCH <= 16'h0;
@@ -620,7 +744,8 @@ end
             else begin
                     // I'm not needed right now
                 rChosenCH <= 16'h0;
-            end
+            end 
+*/
         end
     end
 
@@ -630,7 +755,27 @@ end
             rHopsFromCH <= 16'hffff;
         end
         else begin
-            if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+            case(state)
+                s_idle: begin
+                    rHopsFromCH <= rHopsFromCH;
+                end
+                s_process: begin
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rHopsFromCH <= hopsFromCH;
+                    end
+                    else if(fPacketType == 3'b010) begin
+                        rHopsFromCH <= fHopsFromCH + 1;
+                    end
+                    else begin
+                        rHopsFromCH <= rHopsFromCH;
+                    end
+                end
+                s_done: begin
+                    rHopsFromCH <= rHopsFromCH;
+                end
+                default: rHopsFromCH <= rHopsFromCH;
+            endcase
+/*             if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                 rHopsFromCH <= hopsFromCH;
             end
             else if(fPacketType == 3'b010) begin
@@ -639,7 +784,7 @@ end
             else begin
                 // "I'm not needed right now"
                 rHopsFromCH <= 16'hffff;
-            end
+            end */
         end
     end
 
