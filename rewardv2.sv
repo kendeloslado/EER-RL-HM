@@ -442,27 +442,39 @@ end
             rPacketType <= 3'b111; // invalid value
         end
         else begin
-            if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
-                rPacketType <= 3'b000;
-            end
-            else if(timeout != 0 && fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
-                rPacketType <= 3'b010;
-            end 
-            else if(timeout == 0 && timeout_type == 2'b10 && !role) begin // send MR
-                rPacketType <= 3'b011;
-            end
-            else if(timeout == 0 && timeout_type == 2'b01 && role) begin // send CHT as CH
-                rPacketType <= 3'b100;
-            end
-            else if(timeout != 0 && (iAmDestination && fPacketType == 3'b101) || iHaveData ) begin  // data pkt
-                rPacketType <= 3'b101;
-            end
-            else if(timeout != 0 && (iAmDestination || iHaveData) && low_E) begin  // SOS pkt
-                rPacketType <= 3'b110;
-            end
-            else begin
-                rPacketType <= 3'b111; // invalid value
-            end
+            case(state)
+                s_idle: begin
+                    rPacketType <= rPacketType;
+                end
+                s_process: begin
+                    if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
+                        rPacketType <= 3'b000;
+                    end
+                    else if(timeout != 0 && fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
+                        rPacketType <= 3'b010;
+                    end 
+                    else if(timeout == 0 && timeout_type == 2'b10 && !role) begin // send MR
+                        rPacketType <= 3'b011;
+                    end
+                    else if(timeout == 0 && timeout_type == 2'b01 && role) begin // send CHT as CH
+                        rPacketType <= 3'b100;
+                    end
+                    else if(timeout != 0 && (iAmDestination && fPacketType == 3'b101) || iHaveData ) begin  // data pkt
+                        rPacketType <= 3'b101;
+                    end
+                    else if(timeout != 0 && (iAmDestination || iHaveData) && low_E) begin  // SOS pkt
+                        rPacketType <= 3'b110;
+                    end
+                    else begin
+                        rPacketType <= 3'b111; // invalid value
+                    end
+                end
+                s_done: begin
+                    rPacketType <= rPacketType;
+                end
+                default: rPacketType <= rPacketType;
+            endcase 
+
         end
     end
 
@@ -495,7 +507,7 @@ end
         end
     end
 
-// always block for destinationID
+// always block for rDestinationID
     // destinationID will take the input signal chosenHop if
     // hopsFromSink > 1
 
@@ -505,8 +517,24 @@ end
         end
         else begin
             case(state)
-
-            default: rDestinationID <= rDestinationID;
+                s_idle: begin
+                    rDestinationID <= rDestinationID;
+                end
+                s_process: begin
+                    if(hopsFromSink == 1) begin
+                        rDestinationID <= 16'd0;
+                    end
+                    else if(timeout == 0 && timeout_type == 2'b10) begin
+                        rDestinationID <= chosenCH;
+                    end
+                    else begin
+                        rDestinationID <= chosenHop;
+                    end
+                end
+                s_done: begin
+                    rDestinationID <= rDestinationID;
+                end
+                default: rDestinationID <= rDestinationID;
             endcase
 /*             if(hopsFromSink == 1) begin
                 rDestinationID <= 16'd0;
