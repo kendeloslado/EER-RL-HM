@@ -240,7 +240,10 @@ initial begin
     hopsFromCH = 16'd1;
     myEnergy = myEnergy - `HOP1_TX;
     #(`CLOCK_CYCLE * 15)
-
+    #(`CLOCK_CYCLE * 5)
+    okToSend = 1;
+    #(`CLOCK_CYCLE * 4)
+    
     $finish;
 end
 
