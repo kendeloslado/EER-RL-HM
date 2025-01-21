@@ -746,9 +746,9 @@ end
                             rSourceHops <= hopsFromSink;
                         end
                         else begin
-                        
+                            rSourceHops <= hopsFromCH;
                         end
-                        rSourceHops <= myNodeID;
+                        
                     end
                     else if (fPacketType == 3'b000) begin
                     // 3'b000 = HB

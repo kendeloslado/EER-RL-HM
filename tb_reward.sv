@@ -224,13 +224,13 @@ initial begin
     fPacketType = 3'b010;
     hopsFromCH = 16'd1;
     myEnergy = myEnergy - `HOP1_TX;
-
+    #(`CLOCK_CYCLE)
 // send out a membership request packet
     // triggered by timeout
 /* 
     membership request packet should contain the following:
-        myNodeID
-        hopsFromSink
+        myNodeID = 16'h000c
+        hopsFromSink = 
         myQValue
         myEnergy
         rDestinationID (chosenCH)
@@ -242,8 +242,16 @@ initial begin
     #(`CLOCK_CYCLE * 15)
     #(`CLOCK_CYCLE * 5)
     okToSend = 1;
+    myEnergy = myEnergy - `HOP1_TX;
+    #`CLOCK_CYCLE
+    okToSend = 0;
     #(`CLOCK_CYCLE * 4)
-    
+
+
+// receive a CH timeslot
+/*  
+    this is outside this testbench na pala.
+*/
     $finish;
 end
 
