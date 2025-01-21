@@ -467,7 +467,7 @@ end
                     end
 /*                     rPacketType <= rPacketType; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
                         rPacketType <= 3'b000;
                     end
@@ -489,7 +489,7 @@ end
                     else begin
                         rPacketType <= 3'b111; // invalid value
                     end
-                end
+                end */
                 s_done: begin
                     rPacketType <= rPacketType;
                 end
@@ -550,7 +550,7 @@ end
                     end
 /*                     rDestinationID <= rDestinationID; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(hopsFromSink == 1) begin
                         rDestinationID <= 16'd0;
                     end
@@ -560,7 +560,7 @@ end
                     else begin
                         rDestinationID <= chosenHop;
                     end
-                end
+                end */
                 s_done: begin
                     rDestinationID <= rDestinationID;
                 end
@@ -598,7 +598,7 @@ end
                     end
 /*                     rSourceID <= rSourceID; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         rSourceID <= myNodeID;
                     end
@@ -609,7 +609,7 @@ end
                     else begin
                         rSourceID <= rSourceID;
                     end
-                end
+                end */
                 s_done: begin
                     rSourceID <= rSourceID;
                 end
@@ -649,7 +649,7 @@ end
                     end
 /*                     rEnergyLeft <= rEnergyLeft; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         rEnergyLeft <= myEnergy;
                     end
@@ -660,7 +660,7 @@ end
                     else begin
                         rEnergyLeft <= rEnergyLeft;
                     end
-                end
+                end */
                 s_done: begin
                     rEnergyLeft <= rEnergyLeft;
                 end
@@ -701,7 +701,7 @@ end
                     end
 /*                     rQValue <= rQValue; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         rQValue <= myQValue;
                     end
@@ -712,7 +712,7 @@ end
                     else begin
                         rQValue <= rQValue;
                     end
-                end
+                end */
                 s_done: begin
                     rQValue <= rQValue;
                 end
@@ -764,7 +764,7 @@ end
                     end
 /*                     rSourceHops <= rSourceHops; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         if(hopsFromSink == 1) begin
                             rSourceHops <= hopsFromSink;
@@ -786,7 +786,7 @@ end
                     else begin
                         rSourceHops <= rSourceHops;
                     end
-                end
+                end */
                 s_done: begin
                     rSourceHops <= rSourceHops;
                 end
@@ -837,7 +837,7 @@ end
                         rChosenCH <= rChosenCH;
                     end
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         if(hopsFromSink == 1) begin
                             rChosenCH <= 16'h0;
@@ -849,7 +849,7 @@ end
                     else begin
                         rChosenCH <= rChosenCH;
                     end
-                end
+                end */
                 s_done: begin
                     rChosenCH <= rChosenCH;
                 end
@@ -892,7 +892,7 @@ end
                     end
 /*                     rHopsFromCH <= rHopsFromCH; */
                 end
-                s_process: begin
+/*                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         rHopsFromCH <= hopsFromCH;
                     end
@@ -902,7 +902,7 @@ end
                     else begin
                         rHopsFromCH <= rHopsFromCH;
                     end
-                end
+                end */
                 s_done: begin
                     rHopsFromCH <= rHopsFromCH;
                 end
