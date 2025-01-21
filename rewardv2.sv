@@ -444,7 +444,28 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rPacketType <= rPacketType;
+                    if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
+                        rPacketType <= 3'b000;
+                    end
+                    else if(timeout != 0 && fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
+                        rPacketType <= 3'b010;
+                    end 
+                    else if(timeout == 0 && timeout_type == 2'b10 && !role) begin // send MR
+                        rPacketType <= 3'b011;
+                    end
+                    else if(timeout == 0 && timeout_type == 2'b01 && role) begin // send CHT as CH
+                        rPacketType <= 3'b100;
+                    end
+                    else if(timeout != 0 && (iAmDestination && fPacketType == 3'b101) || iHaveData ) begin  // data pkt
+                        rPacketType <= 3'b101;
+                    end
+                    else if(timeout != 0 && (iAmDestination || iHaveData) && low_E) begin  // SOS pkt
+                        rPacketType <= 3'b110;
+                    end
+                    else begin
+                        rPacketType <= 3'b111; // invalid value
+                    end
+/*                     rPacketType <= rPacketType; */
                 end
                 s_process: begin
                     if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
@@ -518,7 +539,16 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rDestinationID <= rDestinationID;
+                    if(hopsFromSink == 1) begin
+                        rDestinationID <= 16'd0;
+                    end
+                    else if(timeout == 0 && timeout_type == 2'b10) begin
+                        rDestinationID <= chosenCH;
+                    end
+                    else begin
+                        rDestinationID <= chosenHop;
+                    end
+/*                     rDestinationID <= rDestinationID; */
                 end
                 s_process: begin
                     if(hopsFromSink == 1) begin
@@ -556,7 +586,17 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rSourceID <= rSourceID;
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rSourceID <= myNodeID;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rSourceID <= fSourceID;
+                    end
+                    else begin
+                        rSourceID <= rSourceID;
+                    end
+/*                     rSourceID <= rSourceID; */
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
@@ -597,7 +637,17 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rEnergyLeft <= rEnergyLeft;
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rEnergyLeft <= myEnergy;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rEnergyLeft <= fEnergyLeft;
+                    end
+                    else begin
+                        rEnergyLeft <= rEnergyLeft;
+                    end
+/*                     rEnergyLeft <= rEnergyLeft; */
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
@@ -639,7 +689,17 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rQValue <= rQValue;
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rQValue <= myQValue;
+                    end
+                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    // 3'b000 = HB, 3'b010 = INV
+                        rQValue <= fQValue;
+                    end
+                    else begin
+                        rQValue <= rQValue;
+                    end
+/*                     rQValue <= rQValue; */
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
@@ -681,7 +741,28 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rSourceHops <= rSourceHops;
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        if(hopsFromSink == 1) begin
+                            rSourceHops <= hopsFromSink;
+                        end
+                        else begin
+                        
+                        end
+                        rSourceHops <= myNodeID;
+                    end
+                    else if (fPacketType == 3'b000) begin
+                    // 3'b000 = HB
+                        // "I'm rippling HB packet"
+                        rSourceHops <= hopsFromSink + 1;
+                    end
+                    else if(fPacketType == 3'b010 && hopsFromCH < 4) begin
+                        // "I'm rippling INV pkt"
+                        rSourceHops <= hopsFromCH + 1;
+                    end
+                    else begin
+                        rSourceHops <= rSourceHops;
+                    end
+/*                     rSourceHops <= rSourceHops; */
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
@@ -743,7 +824,18 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rChosenCH <= rChosenCH;
+/*                     rChosenCH <= rChosenCH; */
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        if(hopsFromSink == 1) begin
+                            rChosenCH <= 16'h0;
+                        end
+                        else begin 
+                            rChosenCH <= chosenCH;
+                        end
+                    end
+                    else begin
+                        rChosenCH <= rChosenCH;
+                    end
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
@@ -789,7 +881,16 @@ end
         else begin
             case(state)
                 s_idle: begin
-                    rHopsFromCH <= rHopsFromCH;
+                    if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
+                        rHopsFromCH <= hopsFromCH;
+                    end
+                    else if(fPacketType == 3'b010) begin
+                        rHopsFromCH <= fHopsFromCH + 1;
+                    end
+                    else begin
+                        rHopsFromCH <= rHopsFromCH;
+                    end
+/*                     rHopsFromCH <= rHopsFromCH; */
                 end
                 s_process: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
