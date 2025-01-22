@@ -4,8 +4,8 @@ module controller #(
     parameter WORD_WIDTH = 16
 )(
 // global inputs
-    input logic                         clk,
-    input logic                         nrst,
+    input logic                             clk,
+    input logic                             nrst,
 // inputs from packet
     input logic     [2:0]                   fPacketType,
     input logic     [WORD_WIDTH-1:0]        fHopsFromCH,
@@ -117,6 +117,47 @@ module controller #(
             endcase
         end
     end
+// always block for en_neighborTable
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            en_neighborTable <= 0;
+        end
+        else begin
+            /* 
+                activate neighborTable when:
+                MR packet, fChosenCH == chosenCH
+                Data/SOS packet, fChosenCH == chosenCH
+             */
+            case(fPacketType)
+                3'b011: begin           // membership request
+                    if(fChosenCH == chosenCH) begin
+                        en_neighborTable <= 1;
+                    end
+                    else begin
+                        en_neighborTable <= 0;
+                    end
+                end
+                3'b101: begin           // data 
+                    if(fChosenCH == chosenCH) begin
+                        en_neighborTable <= 1;
+                    end
+                    else begin
+                        en_neighborTable <= 0;
+                    end
+                end
+                3'b110: begin           // SOS
+                    if(fChosenCH == chosenCH) begin
+                        en_neighborTable <= 1;
+                    end
+                    else begin
+                        en_neighborTable <= 0;
+                    end
+                end
+                default: en_neighborTable <= 0;
+            endcase
+        end
+    end
+
 // always block for en_reward
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
@@ -129,6 +170,14 @@ module controller #(
                 end
                 3'b010: begin       // Invitation
                     if(fHopsFromCH < 4) begin
+                        en_reward <= 1;
+                    end
+                    else begin
+                        en_reward <= 0;
+                    end
+                end
+                3'b011: begin       // Membership Request
+                    if(role) begin
                         en_reward <= 1;
                     end
                     else begin

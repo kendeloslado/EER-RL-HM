@@ -82,7 +82,7 @@ module tb_controller;
 */
 
     initial begin
-        $vcsplusfile("tb_controller.vpd");
+        $vcdplusfile("tb_controller.vpd");
         $vcdpluson;
         $sdf_annotate("../mapped/packetFilter_mapped.sdf", UUT);
 
@@ -107,13 +107,55 @@ module tb_controller;
     // assert nrst
         nrst = 1;
         #`CLOCK_CYCLE
-        nrst = 0;
-        #`CLOCK_CYCLE
     // receive a heartbeat packet
         fPacketType = 3'b000;
         #`CLOCK_CYCLE
+        #`CLOCK_CYCLE
+        channel_clear = 1;
+        #`CLOCK_CYCLE
+        channel_clear = 0;
+        #`CLOCK_CYCLE
+    // receive a cluster head election packet
+        fPacketType = 3'b001;
+        // relevant signals like the destinationID is not used for this,
+        // this is up to myNodeInfo
+        #(`CLOCK_CYCLE * 3)
+    // receive an invitation packet
+        fPacketType = 3'b010;
+/* 
+        relevant signals like destinationID is still not really relevant
+        fPacketType only needs the type mismo, the relevant information is
+        handled by knownCH
+*/
+        #(`CLOCK_CYCLE*3)
+    // receive a membership request packet
+        fPacketType = 3'b011;
+/* 
+        in this part, the node needs to see whether the MR packet belongs
+        to their neighbor, so this portion needs
+        fChosenCH and chosenCH, from the packet and knownCH's output respectively.
 
-
+*/
+        fChosenCH = 16'd35;
+        chosenCH = 16'd23;
+        // mismatch, do not write as neighbors
+        #(`CLOCK_CYCLE * 3)
+        // next MR, match
+        fChosenCH = 16'd23;
+        #(`CLOCK_CYCLE * 3)
+    // receive a CH Timeslot packet
+        fPacketType = 3'b100;
+/*
+        the relevant compare 
+*/
+        #(`CLOCK_CYCLE * 3)
+    // receive a data packet
+        fPacketType = 3'b101;
+        #(`CLOCK_CYCLE * 3)
+    // receive an SOS packet
+        fPacketType = 3'b110;
+        #(`CLOCK_CYCLE * 3)
+        
         $finish;
     end
 
