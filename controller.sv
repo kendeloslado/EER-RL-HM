@@ -17,6 +17,7 @@ module controller #(
     input logic     [WORD_WIDTH-1:0]        myTimeslot,
     input logic     [WORD_WIDTH-1:0]        myNodeID,
     input logic                             role,
+
 // external signal 
     input logic                             iHaveData,
 // from knownCH
@@ -28,10 +29,10 @@ module controller #(
     output logic                            en_neighborTable,
     output logic                            en_reward,
     output logic                            iAmDestination,
-    output logic                            okayToSend
+    output logic                            okToSend
 );
 
-// always block for en_QTU
+// always block for en_QTU  
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             en_QTU_FMB <= 0;
@@ -160,6 +161,20 @@ module controller #(
                 end
                 default: en_reward <= 0;
             endcase
+        end
+    end
+// always block for okToSend
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            okToSend <= 0;
+        end
+        else begin
+            if(channel_clear) begin
+                okToSend <= 1;
+            end
+            else begin
+                okToSend <= 0;
+            end
         end
     end
 endmodule
