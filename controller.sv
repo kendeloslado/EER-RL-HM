@@ -97,7 +97,12 @@ module controller #(
                     en_MNI <= 1;
                 end
                 3'b100: begin       // Cluster Head Timeslot
-                    en_MNI <= 1;
+                    if(destinationID == myNodeID) begin
+                        en_MNI <= 1;
+                    end
+                    else begin
+                        en_MNI <= 0;
+                    end
                 end
                 default: en_MNI <= 0;
             endcase

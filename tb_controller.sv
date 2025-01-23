@@ -122,10 +122,16 @@ module tb_controller;
         #(`CLOCK_CYCLE * 3)
     // receive an invitation packet
         fPacketType = 3'b010;
+        fHopsFromCH = 3'd1;
+        #`CLOCK_CYCLE
+        channel_clear = 1;
+        #`CLOCK_CYCLE
+        channel_clear = 0;
 /* 
         relevant signals like destinationID is still not really relevant
         fPacketType only needs the type mismo, the relevant information is
         handled by knownCH
+
 */
         #(`CLOCK_CYCLE*3)
     // receive a membership request packet
@@ -145,16 +151,26 @@ module tb_controller;
         #(`CLOCK_CYCLE * 3)
     // receive a CH Timeslot packet
         fPacketType = 3'b100;
-/*
-        the relevant compare 
-*/
+        destinationID = 12'd3;      // not match
         #(`CLOCK_CYCLE * 3)
+        destinationID = 12'd12;     // match
+        #(`CLOCK_CYCLE * 3)
+/*
+        when processing a CHTimeslot packet, information of the timeslot
+        goes to myNodeInfo. The only signal/s the controller checks is
+        destinationID and myNodeID. When receiving a CH Timeslot, the node
+        checks if the destinationID matches their nodeID. And then 
+        myNodeInfo takes in the fTimeslot and takes it as their own
+        the assigned timeslot gets use later once the node gets into 
+        communication phase
+*/
+/*         #(`CLOCK_CYCLE * 3)
     // receive a data packet
         fPacketType = 3'b101;
         #(`CLOCK_CYCLE * 3)
     // receive an SOS packet
         fPacketType = 3'b110;
-        #(`CLOCK_CYCLE * 3)
+        #(`CLOCK_CYCLE * 3) */
         
         $finish;
     end
