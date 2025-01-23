@@ -84,7 +84,7 @@ module tb_controller;
     initial begin
         $vcdplusfile("tb_controller.vpd");
         $vcdpluson;
-        $sdf_annotate("../mapped/packetFilter_mapped.sdf", UUT);
+        $sdf_annotate("../mapped/controller_mapped.sdf", UUT);
 
     // initial conditions
         nrst = 0;
