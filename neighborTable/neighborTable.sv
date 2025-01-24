@@ -8,14 +8,14 @@ module neighborTable #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         wr_en,
-    input logic                         HB_reset,
+    input logic                         HB_Reset,
     input logic     [WORD_WIDTH-1:0]    nodeID,
     input logic     [WORD_WIDTH-1:0]    nodeHops,
     input logic     [WORD_WIDTH-1:0]    nodeQValue,
     input logic     [WORD_WIDTH-1:0]    nodeEnergy,
 /*     input logic     [WORD_WIDTH-1:0]    chosenCH, */
     input logic     [WORD_WIDTH-1:0]    nodeCHHops,
-    input logic     [4:0]               neighborCount
+    input logic     [4:0]               neighborCount,
     output logic    [WORD_WIDTH-1:0]    mNodeID,
     output logic    [WORD_WIDTH-1:0]    mNodeHops,
     output logic    [WORD_WIDTH-1:0]    mNodeQValue,
