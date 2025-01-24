@@ -70,7 +70,7 @@ initial begin
     $vcdplusfile("tb_QTU_FMB.vpd");
     $vcdpluson;
     $vcdplusmemon;
-    $sdf_annotate("../mapped/QTU_FMB_mapped.sdf", UUT);
+    /* $sdf_annotate("../mapped/QTU_FMB_mapped.sdf", UUT); */
 
 // initial conditions
     nrst = 0;
@@ -198,6 +198,15 @@ initial begin
     fHopsFromCH = 16'd1;
     fChosenCH = 16'd25;
     iAmDestination = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #(`CLOCK_CYCLE*4)
+    // try getting another heartbeat packet
+    // heartbeat pkt
+    HB_Reset = 1;
+    #`CLOCK_CYCLE
+    HB_Reset = 0;
+    #(`CLOCK_CYCLE * 10)
     $finish;
 end
 

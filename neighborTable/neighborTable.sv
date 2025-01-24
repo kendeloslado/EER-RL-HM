@@ -8,6 +8,7 @@ module neighborTable #(
     input logic                         clk,
     input logic                         nrst,
     input logic                         wr_en,
+    input logic                         HB_reset,
     input logic     [WORD_WIDTH-1:0]    nodeID,
     input logic     [WORD_WIDTH-1:0]    nodeHops,
     input logic     [WORD_WIDTH-1:0]    nodeQValue,
@@ -84,7 +85,7 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_idle: begin   // wait for incoming messages
-                if(wr_en && (nodeID != MY_NODE_ID)) begin
+                if(wr_en && (nodeID != MY_NODE_ID) && !HB_reset) begin
                     state <= s_write;
                 end
                 else if(HB_reset) begin
@@ -135,7 +136,7 @@ always@(posedge clk or negedge nrst) begin
                     end
                 end
             end */
-            default: rNodeID <= rNodeID;
+            default: neighborNodeTable.rNodeID[neighborCount] <= neighborNodeTable.rNodeID[neighborCount];
         endcase
     end
 end
@@ -165,7 +166,7 @@ always@(posedge clk or negedge nrst) begin
                     end
                 end
             end */
-            default: rNodeHops <= rNodeHops;
+            default: neighborNodeTable.rNodeHops[neighborCount] <= neighborNodeTable.rNodeHops[neighborCount];
         endcase
     end
 end
@@ -195,7 +196,7 @@ always@(posedge clk or negedge nrst) begin
                     end
                 end
             end */
-            default: rNodeQValue <= rNodeQValue;
+            default: neighborNodeTable.rNodeQValue[neighborCount] <= neighborNodeTable.rNodeQValue[neighborCount];
         endcase
     end
 end
@@ -225,7 +226,7 @@ always@(posedge clk or negedge nrst) begin
                     end
                 end
             end */
-            default: rNodeEnergy <= rNodeEnergy;
+            default: neighborNodeTable.rNodeEnergy[neighborCount] <= neighborNodeTable.rNodeEnergy[neighborCount];
         endcase
     end
 end
@@ -287,7 +288,7 @@ always@(posedge clk or negedge nrst) begin
                     end
                 end
             end */
-            default: rNodeCHHops <= rNodeCHHops;
+            default: neighborNodeTable.rNodeCHHops[neighborCount] <= neighborNodeTable.rNodeCHHops[neighborCount];
         endcase
     end
 end
@@ -315,8 +316,8 @@ always@(posedge clk or negedge nrst) begin
                 end
             end
             default: begin
-
-            end
+                neighborNodeTable.rValid[neighborCount] <= neighborNodeTable.rValid[neighborCount] 
+            end 
         endcase
     end
 end

@@ -54,7 +54,7 @@ typedef struct packed{
 neighborTableID neighbors[31:0];
 
 // internal registers
-    logic               [2:0]               state;
+    logic               [1:0]               state;
     logic               [WORD_WIDTH-1:0]    hopsNeeded; // number of hops for nexthop
     logic               [WORD_WIDTH-1:0]    maxQValue; 
 /*     logic               [4:0]               neighborCount; */    // maxQValue will be local within the entries meeting hopsNeeded value
@@ -158,7 +158,7 @@ neighborTableID neighbors[31:0];
         else begin
             case(state)
                 s_idle: begin
-                    if(en) begin    // you need to move to some state pero parang kulang pa yung nasa utak ko
+                    if(en && !HB_Reset) begin    // you need to move to some state pero parang kulang pa yung nasa utak ko
                         state <= s_process;
                     end
                     else if(HB_Reset) begin
@@ -192,13 +192,16 @@ neighborTableID neighbors[31:0];
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(int i = 0; i < 32; i++) begin
+                neighbors[i].valid <= 0;
+            end
+            /* for(int i = 0; i < 32; i++) begin
                 if(neighbors[i].valid != 0) begin
                     neighbors[i].valid <= 0;
                 end
                 else begin
                     neighbors[i].valid <= neighbors[i].valid;
                 end
-            end
+            end */
         end
         else begin
             case(state)
@@ -248,7 +251,8 @@ neighborTableID neighbors[31:0];
     end  */
 
 // always block for neighborCount
-    always_comb begin
+/*     always_comb begin */
+    always@(posedge clk or negedge nrst)  begin
         if(!nrst) begin
             neighborCount <= 0;
         end
@@ -736,7 +740,7 @@ neighborTableID neighbors[31:0];
                             .out(oneHotIndex[31])
     );
 
-// write to neighbors.valid
+/* // write to neighbors.valid
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             for(int i = 0; i < 32; i++) begin
@@ -765,7 +769,7 @@ neighborTableID neighbors[31:0];
                 end
             endcase
         end
-    end
+    end */
 
 // write to neighbors.neighborID
     /* 
