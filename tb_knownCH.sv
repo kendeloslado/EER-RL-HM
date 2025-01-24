@@ -48,9 +48,13 @@ initial begin
     fCH_Hops = 16'hFFFF;
     fCH_QValue = 16'h0;
     //HB_CHlimit = 16'd0;
-    #(`CLOCK_CYCLE * 5)
+/*     #(`CLOCK_CYCLE)
+    nrst = 1; */
+/*     #(`CLOCK_CYCLE)
+    nrst = 0; */
+    #(`CLOCK_CYCLE)
     nrst = 1;
-    #(`CLOCK_CYCLE * 5)
+    #(`CLOCK_CYCLE)
     // receive heartbeat packet
     HB_reset = 1;
     // HB_CHlimit = 16'd3;

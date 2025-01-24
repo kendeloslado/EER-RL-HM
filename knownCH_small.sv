@@ -21,7 +21,7 @@ module knownCH_small #(
 // timeout register
     logic           [WORD_WIDTH-1:0]    timeout_count;
 // FSM register
-    logic           [2:0]               state;
+    logic           [1:0]               state;
 
 /* 
     FSM explanation for knownCH
@@ -35,10 +35,10 @@ module knownCH_small #(
     s_HBreset = 3'b011;
         Reset registers, reclustering is happening.
  */
-    parameter s_idle = 3'b000;
-    parameter s_process = 3'b001;
-    parameter s_out = 3'b010;
-    parameter s_HBreset = 3'b011;
+    parameter s_idle = 2'b00;
+    parameter s_process = 2'b01;
+    parameter s_out = 2'b10;
+    parameter s_HBreset = 2'b11;
 /* 
     tracking best CH candidates:
     priority list: minHops > maxQ > minNodeID
