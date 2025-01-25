@@ -26,24 +26,26 @@ module neighborTable #(
 
 // define a struct for neighbor node information
 typedef struct packed {
+    logic                               rValid;
     logic            [WORD_WIDTH-1:0]   rNodeID;    // behaves a bit like tag bits
     logic            [WORD_WIDTH-1:0]   rNodeHops;
     logic            [WORD_WIDTH-1:0]   rNodeQValue;
     logic            [WORD_WIDTH-1:0]   rNodeEnergy;
 /*     logic            [WORD_WIDTH-1:0]   rChosenCH; */    
     logic            [WORD_WIDTH-1:0]   rNodeCHHops;
-    logic                               rValid;
+
 } neighborNodeTable;
 
-neighborTableInformation neighborNodes[31:0];
-    logic            [2:0]               state;
+neighborNodeTable neighborNodes[31:0];
+
+    logic            [1:0]               state;
     
-assign mNodeID = neighborNodeTable.rNodeID[neighborCount];
-assign mNodeHops = neighborNodeTable.rNodeHops[neighborCount];
-assign mNodeQValue = neighborNodeTable.rNodeQValue[neighborCount];
-assign mNodeEnergy = neighborNodeTable.rNodeEnergy[neighborCount];
-/* assign mChosenCH = neighborNodeTable.rChosenCH[neighborCount]; */
-assign mNodeCHHops = neighborNodeTable.rNodeCHHops[neighborCount];
+assign mNodeID = neighborNodes[neighborCount].rNodeID;
+assign mNodeHops = neighborNodes[neighborCount].rNodeHops;
+assign mNodeQValue = neighborNodes[neighborCount].rNodeQValue;
+assign mNodeEnergy = neighborNodes[neighborCount].rNodeEnergy;
+/* assign mChosenCH = neighborNodes[neighborCount].rChosenCH; */
+assign mNodeCHHops = neighborNodes[neighborCount].rNodeCHHops;
 // FSM register details:
 
 /* 
@@ -72,7 +74,7 @@ assign mNodeCHHops = neighborNodeTable.rNodeCHHops[neighborCount];
 
 logic               [WORD_WIDTH-1:0]    MY_NODE_ID;
 localparam MY_NODE_ID_CONST = 16'h000C;
-
+assign MY_NODE_ID = MY_NODE_ID_CONST;
 parameter s_idle = 3'b000;
 parameter s_write = 3'b001;
 parameter s_HBreset = 3'b010;
@@ -85,10 +87,10 @@ always@(posedge clk or negedge nrst) begin
     else begin
         case(state)
             s_idle: begin   // wait for incoming messages
-                if(wr_en && (nodeID != MY_NODE_ID) && !HB_reset) begin
+                if(wr_en && (nodeID != MY_NODE_ID) && !HB_Reset) begin
                     state <= s_write;
                 end
-                else if(HB_reset) begin
+                else if(HB_Reset) begin
                     state <= s_HBreset;
                 end
                 else begin
@@ -115,28 +117,28 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rNodeID[i] <= 0;
+            neighborNodes[i].rNodeID <= 0;
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rNodeID[neighborCount] <= neighborNodeTable.rNodeID[neighborCount];
+                neighborNodes[neighborCount].rNodeID <= neighborNodes[neighborCount].rNodeID;
             end
             s_write: begin
-                neighborNodeTable.rNodeID[neighborCount] <= nodeID;
+                neighborNodes[neighborCount].rNodeID <= nodeID;
             end
             /* s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rNodeID[i] <= 0;
+                    if(neighborNodes.rValid[i]) begin
+                        neighborNodes.rNodeID[i] <= 0;
                     end
                     else begin
-                        neighborNodeTable.rNodeID[i] <= neighborNodeTable.rNodeID[i];
+                        neighborNodes.rNodeID[i] <= neighborNodes.rNodeID[i];
                     end
                 end
             end */
-            default: neighborNodeTable.rNodeID[neighborCount] <= neighborNodeTable.rNodeID[neighborCount];
+            default: neighborNodes[neighborCount].rNodeID <= neighborNodes[neighborCount].rNodeID;
         endcase
     end
 end
@@ -145,28 +147,28 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rNodeID[i] <= 0;
+            neighborNodes[i].rNodeHops <= 0;
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rNodeHops[neighborCount] <= neighborNodeTable.rNodeHops[neighborCount];
+                neighborNodes[neighborCount].rNodeHops <= neighborNodes[neighborCount].rNodeHops;
             end
             s_write: begin
-                neighborNodeTable.rNodeHops[neighborCount] <= nodeHops;
+                neighborNodes[neighborCount].rNodeHops <= nodeHops;
             end
             /* s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rNodeHops[i] <= 0;
+                    if(neighborNodes[i].rValid) begin
+                        neighborNodes[i].rNodeHops <= 0;
                     end
                     else begin
-                        neighborNodeTable.rNodeHops[i] <= neighborNodeTable.rNodeHops[i];
+                        neighborNodes[i].rNodeHops <= neighborNodes[i].rNodeHops;
                     end
                 end
             end */
-            default: neighborNodeTable.rNodeHops[neighborCount] <= neighborNodeTable.rNodeHops[neighborCount];
+            default: neighborNodes[neighborCount].rNodeHops <= neighborNodes[neighborCount].rNodeHops;
         endcase
     end
 end
@@ -175,28 +177,28 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rNodeQValue[i] <= 0;
+            neighborNodes[i].rNodeQValue <= 0;
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rNodeQValue[neighborCount] <= neighborNodeTable.rNodeQValue[neighborCount];
+                neighborNodes[neighborCount].rNodeQValue <= neighborNodes[neighborCount].rNodeQValue;
             end
             s_write: begin
-                neighborNodeTable.rNodeQValue[neighborCount] <= nodeQValue;
+                neighborNodes[neighborCount].rNodeQValue <= nodeQValue;
             end
             /* s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rNodeQValue[i] <= 0;
+                    if(neighborNodes.rValid[i]) begin
+                        neighborNodes.rNodeQValue[i] <= 0;
                     end
                     else begin
-                        neighborNodeTable.rNodeQValue[i] <= neighborNodeTable.rNodeQValue[i];
+                        neighborNodes.rNodeQValue[i] <= neighborNodes.rNodeQValue[i];
                     end
                 end
             end */
-            default: neighborNodeTable.rNodeQValue[neighborCount] <= neighborNodeTable.rNodeQValue[neighborCount];
+            default: neighborNodes[neighborCount].rNodeQValue <= neighborNodes[neighborCount].rNodeQValue;
         endcase
     end
 end
@@ -205,28 +207,28 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rNodeEnergy[i] <= 0;
+            neighborNodes[i].rNodeEnergy <= 0;
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rNodeEnergy[neighborCount] <= neighborNodeTable.rNodeEnergy[neighborCount];
+                neighborNodes[neighborCount].rNodeEnergy <= neighborNodes[neighborCount].rNodeEnergy;
             end
             s_write: begin
-                neighborNodeTable.rNodeEnergy[neighborCount] <= nodeEnergy;
+                neighborNodes[neighborCount].rNodeEnergy <= nodeEnergy;
             end
             /* s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rNodeEnergy[i] <= 0;
+                    if(neighborNodes[i].rValid) begin
+                        neighborNodes[i].rNodeEnergy <= 0;
                     end
                     else begin
-                        neighborNodeTable.rNodeEnergy[i] <= neighborNodeTable.rNodeEnergy[i];
+                        neighborNodes[i].rNodeEnergy <= neighborNodes[i].rNodeEnergy;
                     end
                 end
             end */
-            default: neighborNodeTable.rNodeEnergy[neighborCount] <= neighborNodeTable.rNodeEnergy[neighborCount];
+            default: neighborNodes[neighborCount].rNodeEnergy <= neighborNodes[neighborCount].rNodeEnergy;
         endcase
     end
 end
@@ -235,25 +237,25 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rChosenCH[i] <= 0;
+            neighborNodes.rChosenCH[i] <= 0;
             
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rChosenCH[neighborCount] <= neighborNodeTable.rChosenCH[neighborCount];
+                neighborNodes[neighborCount].rChosenCH <= neighborNodes[neighborCount].rChosenCH;
             end
             s_write: begin
-                neighborNodeTable.rChosenCH[neighborCount] <= chosenCH;
+                neighborNodes[neighborCount].rChosenCH <= chosenCH;
             end
             s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rChosenCH[i] <= 0;
+                    if(neighborNodes[i].rValid) begin
+                        neighborNodes[i].rChosenCH <= 0;
                     end
                     else begin
-                        neighborNodeTable.rChosenCH[i] <= neighborNodeTable.rChosenCH[i];
+                        neighborNodes[i].rChosenCH <= neighborNodes[i].rChosenCH;
                     end
                 end
             end 
@@ -266,29 +268,29 @@ end */
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rNodeCHHops[i] <= 0;
+            neighborNodes[i].rNodeCHHops <= 0;
             
         end
     end
     else begin
         case(state)
             s_idle: begin
-                neighborNodeTable.rNodeCHHops[neighborCount] <= neighborNodeTable.rNodeCHHops[neighborCount];
+                neighborNodes[neighborCount].rNodeCHHops <= neighborNodes[neighborCount].rNodeCHHops;
             end
             s_write: begin
-                neighborNodeTable.rNodeCHHops[neighborCount] <= nodeCHHops;
+                neighborNodes[neighborCount].rNodeCHHops <= nodeCHHops;
             end
             /* s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rNodeCHHops[i] <= 0;
+                    if(neighborNodes[i].rValid) begin
+                        neighborNodes[i].rNodeCHHops <= 0;
                     end
                     else begin
-                        neighborNodeTable.rNodeCHHops[i] <= neighborNodeTable.rNodeCHHops[i];
+                        neighborNodes[i].rNodeCHHops <= neighborNodes[i].rNodeCHHops;
                     end
                 end
             end */
-            default: neighborNodeTable.rNodeCHHops[neighborCount] <= neighborNodeTable.rNodeCHHops[neighborCount];
+            default: neighborNodes[neighborCount].rNodeCHHops <= neighborNodes[neighborCount].rNodeCHHops;
         endcase
     end
 end
@@ -297,26 +299,26 @@ end
 always@(posedge clk or negedge nrst) begin
     if(!nrst) begin
         for(int i = 0; i < 32; i++) begin
-            neighborNodeTable.rValid[i] <= 0;
+            neighborNodes[i].rValid <= 0;
         end
     end
     else begin
         case(state)
-            s_record: begin
-                neighborNodeTable.rValid[neighborCount] <= 1;
+            s_write: begin
+                neighborNodes[neighborCount].rValid <= 1;
             end
             s_HBreset: begin
                 for(int i = 0; i < 32; i++) begin
-                    if(neighborNodeTable.rValid[i]) begin
-                        neighborNodeTable.rValid[i] <= 0;
+                    if(neighborNodes[i].rValid) begin
+                        neighborNodes[i].rValid <= 0;
                     end
                     else begin
-                        neighborNodeTable.rValid[i] <= neighborNodeTable.rValid[i];
+                        neighborNodes[i].rValid <= neighborNodes[i].rValid;
                     end
                 end
             end
             default: begin
-                neighborNodeTable.rValid[neighborCount] <= neighborNodeTable.rValid[neighborCount] 
+                neighborNodes[neighborCount].rValid <= neighborNodes[neighborCount].rValid;
             end 
         endcase
     end
