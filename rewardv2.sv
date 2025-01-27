@@ -52,11 +52,11 @@ module rewardv2 #(
     output logic    [2:0]               rPacketType,
     output logic    [WORD_WIDTH-1:0]    rChosenCH,
     output logic    [WORD_WIDTH-1:0]    rHopsFromCH,
-    output logic    [WORD_WIDTH-1:0]    rTimeslot, // additional signal
+    output logic    [5:0]    rTimeslot, // additional signal
 // output signals
     output logic    [5:0]               nTableIndex_reward,
     output logic                        tx_setting,
-    output logic    [WORD_WIDTH-1:0]    reward_done
+    output logic                        reward_done
 
 );
 
@@ -405,7 +405,15 @@ end
                 HBLock <= HBLock;
             end 
             */
-            if(state == s_done && okToSend) begin
+            if(fPacketType == 3'b000 && state == s_done && okToSend)
+                HBLock <= 1;
+            else if (okToSend == 1 && rPacketType == 3'b011) begin
+                HBLock <= 0; 
+            end
+            else begin
+                HBLock <= HBLock;
+            end
+/*             if(state == s_done && okToSend) begin
                 case(fPacketType) 
                     3'b000: begin
                         if(!HBLock) begin
@@ -422,7 +430,7 @@ end
             end
             else begin
                 HBLock <= HBLock;
-            end
+            end */
         end
     end
         
@@ -447,7 +455,7 @@ end
                     if(timeout != 0 && fPacketType == 3'b000) begin // ripple HB packet
                         rPacketType <= 3'b000;
                     end
-                    else if(timeout != 0 && fPacketType == 3'b010 && hopsFromCH < 4 || (role == 1 && HBLock)) begin // ripple INV
+                    else if(!iHaveData && timeout != 0 && (fPacketType == 3'b010 && hopsFromCH < 4) || (role == 1 && HBLock)) begin // ripple INV
                         rPacketType <= 3'b010;
                     end 
                     else if(timeout == 0 && timeout_type == 2'b10 && !role) begin // send MR
@@ -456,7 +464,7 @@ end
                     else if(timeout == 0 && timeout_type == 2'b01 && role) begin // send CHT as CH
                         rPacketType <= 3'b100;
                     end
-                    else if(timeout != 0 && (iAmDestination && fPacketType == 3'b101) || iHaveData ) begin  // data pkt
+                    else if((timeout != 0 && (iAmDestination && fPacketType == 3'b101)) || iHaveData ) begin  // data pkt
                         rPacketType <= 3'b101;
                     end
                     else if(timeout != 0 && (iAmDestination || iHaveData) && low_E) begin  // SOS pkt
@@ -640,9 +648,12 @@ end
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
                         rEnergyLeft <= myEnergy;
                     end
-                    else if (fPacketType == 3'b000 || fPacketType == 3'b010) begin
+                    else if (fPacketType == 3'b010) begin
                     // 3'b000 = HB, 3'b010 = INV
                         rEnergyLeft <= fEnergyLeft;
+                    end
+                    else if(fPacketType == 3'b000) begin
+                        rEnergyLeft <= myEnergy;
                     end
                     else begin
                         rEnergyLeft <= rEnergyLeft;
@@ -742,13 +753,13 @@ end
             case(state)
                 s_idle: begin
                     if(iHaveData || (timeout == 0 && timeout_type == 2'b10)) begin
-                        if(hopsFromSink == 1) begin
+                        /* if(hopsFromSink == 1) begin
                             rSourceHops <= hopsFromSink;
                         end
                         else begin
-                            rSourceHops <= hopsFromCH;
-                        end
-                        
+                            rSourceHops <= hopsFromSink;
+                        end */
+                        rSourceHops <= hopsFromSink;
                     end
                     else if (fPacketType == 3'b000) begin
                     // 3'b000 = HB
@@ -885,7 +896,7 @@ end
                         rHopsFromCH <= hopsFromCH;
                     end
                     else if(fPacketType == 3'b010) begin
-                        rHopsFromCH <= fHopsFromCH + 1;
+                        rHopsFromCH <= hopsFromCH + 1;
                     end
                     else begin
                         rHopsFromCH <= rHopsFromCH;

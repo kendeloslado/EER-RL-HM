@@ -62,7 +62,7 @@ module tb_reward;
 // output
     wire        [5:0]                   nTableIndex_reward;
     wire                                tx_setting;
-    wire        [`WORD_WIDTH-1:0]       reward_done;
+    wire                                reward_done;
 
 rewardv2 UUT(
         .clk(clk),
@@ -126,7 +126,7 @@ initial begin
     $vcdplusfile("tb_reward.vpd");
     $vcdpluson;
     $vcdplusmemon;
-    $sdf_annotate("../mapped/reward_mapped.sdf", UUT);
+/*     $sdf_annotate("../mapped/reward_mapped.sdf", UUT); */
 end
 /* 
     I wanted to simulate random packets and energy consumptions
@@ -207,12 +207,12 @@ initial begin
     en = 0;
     #`CLOCK_CYCLE
 //    okToSend = 1;
-    #`CLOCK_CYCLE
-    #(`CLOCK_CYCLE*5) // process and adjust as necessary
+    #(`CLOCK_CYCLE*3) // process and adjust as necessary
     okToSend = 1;
     #`CLOCK_CYCLE
+    myEnergy = myEnergy - `HOP1_TX;
     okToSend = 0;
-    #(`CLOCK_CYCLE*5)
+    #(`CLOCK_CYCLE)
 
 // receive an invitation packet and ripple it
 /*     fCH_ID = 16'd23;
@@ -220,11 +220,22 @@ initial begin
     fCH_QValue = 16'h3000; // Q-value = 0.75 */
     fSourceID = 16'd23;
     fSourceHops = 16'd1;
+    fEnergyLeft = 16'h7ffa;
+    chosenCH = 16'd23;
+    hopsFromCH = 16'd1;
     fQValue = 16'h3000;
     fPacketType = 3'b010;
+    fHopsFromCH = 16'd1;
     hopsFromCH = 16'd1;
-    myEnergy = myEnergy - `HOP1_TX;
+    en = 1;
     #(`CLOCK_CYCLE)
+    en = 0;
+    #`CLOCK_CYCLE
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    myEnergy = myEnergy - `HOP1_TX;
+    okToSend = 0;
+
 // send out a membership request packet
     // triggered by timeout
 /* 
@@ -236,22 +247,72 @@ initial begin
         rDestinationID (chosenCH)
         hopsFromCH
 */
-    chosenCH = 16'd23;
-    hopsFromCH = 16'd1;
-    myEnergy = myEnergy - `HOP1_TX;
-    #(`CLOCK_CYCLE * 15)
-    #(`CLOCK_CYCLE * 5)
+    #(`CLOCK_CYCLE*13)
     okToSend = 1;
+    #`CLOCK_CYCLE
+    okToSend = 0;
+    myEnergy = myEnergy - `HOP1_TX;
+    #`CLOCK_CYCLE
+/*     myNodeID = 16'h000c;
+    myQValue = 16'h3555;
+    hopsFromSink = 16'd3; */
+// receive CH Timeslot
+    timeslot = 16'd1;
+
+/*     #(`CLOCK_CYCLE * 15) */
+    #(`CLOCK_CYCLE * 5)
+/*     okToSend = 1;
     myEnergy = myEnergy - `HOP1_TX;
     #`CLOCK_CYCLE
     okToSend = 0;
-    #(`CLOCK_CYCLE * 4)
-
-
-// receive a CH timeslot
-/*  
-    this is outside this testbench na pala.
-*/
+    #(`CLOCK_CYCLE * 4) */
+// communication phase - iHaveData
+    en = 1;
+    iHaveData = 1;
+    chosenHop = 16'h17;
+    #`CLOCK_CYCLE
+    iHaveData = 0;
+    en = 0;
+    #`CLOCK_CYCLE
+    iHaveData = 0;
+    #`CLOCK_CYCLE
+    #`CLOCK_CYCLE
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    okToSend = 0;
+    #(`CLOCK_CYCLE*3)
+// Communication phase - you received data
+    fPacketType = 3'b101;
+    fSourceID = 16'd35;
+    fSourceHops = 16'd4;
+    fQValue = 16'h3000;
+    fEnergyLeft = 16'h7000;
+    fHopsFromCH = 16'd2;
+    fChosenCH = 16'h17;
+    iAmDestination = 1;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    iAmDestination = 0;
+    #(`CLOCK_CYCLE * 3)
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    okToSend = 0;
+    #`CLOCK_CYCLE
+// receive a heartbeat packet
+    fSourceID = 16'd0;
+    hopsFromSink = 16'd3;
+    myQValue = 16'h3123;
+    fPacketType = 3'b000;
+    myEnergy = myEnergy - `RX_PKT_NRG;
+    en = 1;
+    #`CLOCK_CYCLE
+    en = 0;
+    #`CLOCK_CYCLE
+    okToSend = 1;
+    #`CLOCK_CYCLE
+    okToSend = 0;
+    #`CLOCK_CYCLE
     $finish;
 end
 
