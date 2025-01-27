@@ -12,6 +12,7 @@ module tb_controller;
 // global inputs
     logic                         clk;
     logic                         nrst;
+    logic                         newpkt;
 // inputs from packet
     logic     [2:0]                   fPacketType;
     logic     [`WORD_WIDTH-1:0]       fHopsFromCH;
@@ -39,6 +40,7 @@ module tb_controller;
     controller UUT(
                     .clk                (clk),
                     .nrst               (nrst),
+                    .newpkt             (newpkt),
 
                     .fPacketType        (fPacketType),
                     .fHopsFromCH        (fHopsFromCH),
@@ -88,7 +90,8 @@ module tb_controller;
 
     // initial conditions
         nrst = 0;
-        
+        newpkt = 0;
+
         fPacketType = 3'b111;
         fHopsFromCH = 16'hffff;
         fChosenCH = 16'hffff;
@@ -109,7 +112,9 @@ module tb_controller;
         #`CLOCK_CYCLE
     // receive a heartbeat packet
         fPacketType = 3'b000;
+        newpkt = 1;
         #`CLOCK_CYCLE
+        newpkt = 0;
         #`CLOCK_CYCLE
         channel_clear = 1;
         #`CLOCK_CYCLE
@@ -117,13 +122,18 @@ module tb_controller;
         #`CLOCK_CYCLE
     // receive a cluster head election packet
         fPacketType = 3'b001;
+        newpkt = 1;
+        #`CLOCK_CYCLE
+        newpkt = 0;
         // relevant signals like the destinationID is not used for this,
         // this is up to myNodeInfo
         #(`CLOCK_CYCLE * 3)
     // receive an invitation packet
         fPacketType = 3'b010;
         fHopsFromCH = 3'd1;
+        newpkt = 1;
         #`CLOCK_CYCLE
+        newpkt = 0;
         channel_clear = 1;
         #`CLOCK_CYCLE
         channel_clear = 0;
@@ -136,6 +146,7 @@ module tb_controller;
         #(`CLOCK_CYCLE*3)
     // receive a membership request packet
         fPacketType = 3'b011;
+        newpkt = 1;
 /* 
         in this part, the node needs to see whether the MR packet belongs
         to their neighbor, so this portion needs
@@ -144,14 +155,23 @@ module tb_controller;
 */
         fChosenCH = 16'd35;
         chosenCH = 16'd23;
+        #`CLOCK_CYCLE
+        newpkt = 0;
+        #`CLOCK_CYCLE
         // mismatch, do not write as neighbors
         #(`CLOCK_CYCLE * 3)
         // next MR, match
         fChosenCH = 16'd23;
+        newpkt = 1;
+        #`CLOCK_CYCLE
+        newpkt = 0;
         #(`CLOCK_CYCLE * 3)
     // receive a CH Timeslot packet
         fPacketType = 3'b100;
         destinationID = 12'd3;      // not match
+        newpkt = 1;
+        #`CLOCK_CYCLE
+        newpkt = 0;
         #(`CLOCK_CYCLE * 3)
         destinationID = 12'd12;     // match
         #(`CLOCK_CYCLE * 3)

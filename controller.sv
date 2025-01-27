@@ -6,6 +6,7 @@ module controller #(
 // global inputs
     input logic                             clk,
     input logic                             nrst,
+    input logic                             newpkt, // en
 // inputs from packet
     input logic     [2:0]                   fPacketType,
     input logic     [WORD_WIDTH-1:0]        fHopsFromCH,
@@ -32,41 +33,50 @@ module controller #(
     output logic                            okToSend
 );
 
+    logic           [1:0]                   counter;
+
+
 // always block for en_QTU  
     always@(posedge clk or negedge nrst) begin
         if(!nrst) begin
             en_QTU_FMB <= 0;
         end
         else begin
-            case(fPacketType)
-                3'b011: begin       // Receive Membership Request Packet
-                    if(chosenCH == fChosenCH) begin
-                        en_QTU_FMB <= 1;
+            if(counter != 0) begin
+                case(fPacketType)
+                    3'b011: begin       // Receive Membership Request Packet
+                        if(chosenCH == fChosenCH) begin
+                            en_QTU_FMB <= 1;
+                        end
+                        else begin
+                            en_QTU_FMB <= 0;
+                        end
                     end
-                    else begin
+                    3'b101: begin       // data packet
+                        if(chosenCH == fChosenCH) begin
+                            en_QTU_FMB <= 1;
+                        end
+                        else begin
+                            en_QTU_FMB <= 0;
+                        end
+                    end
+                    3'b110: begin
+                        if(chosenCH == fChosenCH) begin
+                            en_QTU_FMB <= 1;
+                        end
+                        else begin
+                            en_QTU_FMB <= 0;
+                        end
+                    end
+                    default: begin
                         en_QTU_FMB <= 0;
                     end
-                end
-                3'b101: begin       // data packet
-                    if(chosenCH == fChosenCH) begin
-                        en_QTU_FMB <= 1;
-                    end
-                    else begin
-                        en_QTU_FMB <= 0;
-                    end
-                end
-                3'b110: begin
-                    if(chosenCH == fChosenCH) begin
-                        en_QTU_FMB <= 1;
-                    end
-                    else begin
-                        en_QTU_FMB <= 0;
-                    end
-                end
-                default: begin
-                    en_QTU_FMB <= 0;
-                end
-            endcase
+                endcase
+            end
+            else begin
+                en_QTU_FMB <= 0;
+            end
+            
         end
     end
 // always block for iAmDestination
@@ -89,23 +99,28 @@ module controller #(
             en_MNI <= 0;
         end
         else begin
-            case(fPacketType)
-                3'b000: begin       // Heartbeat
-                    en_MNI <= 1;
-                end
-                3'b001: begin       // Cluster Head Election
-                    en_MNI <= 1;
-                end
-                3'b100: begin       // Cluster Head Timeslot
-                    if(destinationID == myNodeID) begin
+            if(counter != 0) begin
+                case(fPacketType)
+                    3'b000: begin       // Heartbeat
                         en_MNI <= 1;
                     end
-                    else begin
-                        en_MNI <= 0;
+                    3'b001: begin       // Cluster Head Election
+                        en_MNI <= 1;
                     end
-                end
-                default: en_MNI <= 0;
-            endcase
+                    3'b100: begin       // Cluster Head Timeslot
+                        if(destinationID == myNodeID) begin
+                            en_MNI <= 1;
+                        end
+                        else begin
+                            en_MNI <= 0;
+                        end
+                    end
+                    default: en_MNI <= 0;
+                endcase
+            end
+            else begin
+                en_MNI <= 0;
+            end
         end
     end
 // always block for en_KCH
@@ -114,12 +129,17 @@ module controller #(
             en_KCH <= 0;
         end
         else begin
-            case(fPacketType)
-                3'b010: begin       // INV pkt
-                    en_KCH <= 1;
-                end
-                default: en_KCH <= 0;
-            endcase
+            if(counter != 0) begin
+                case(fPacketType)
+                    3'b010: begin       // INV pkt
+                        en_KCH <= 1;
+                    end
+                    default: en_KCH <= 0;
+                endcase
+            end
+            else begin
+                en_KCH <= 0;
+            end
         end
     end
 // always block for en_neighborTable
@@ -133,33 +153,38 @@ module controller #(
                 MR packet, fChosenCH == chosenCH
                 Data/SOS packet, fChosenCH == chosenCH
              */
-            case(fPacketType)
-                3'b011: begin           // membership request
-                    if(fChosenCH == chosenCH) begin
-                        en_neighborTable <= 1;
+            if(counter != 0) begin
+                case(fPacketType)
+                    3'b011: begin           // membership request
+                        if(fChosenCH == chosenCH) begin
+                            en_neighborTable <= 1;
+                        end
+                        else begin
+                            en_neighborTable <= 0;
+                        end
                     end
-                    else begin
-                        en_neighborTable <= 0;
+                    3'b101: begin           // data 
+                        if(fChosenCH == chosenCH) begin
+                            en_neighborTable <= 1;
+                        end
+                        else begin
+                            en_neighborTable <= 0;
+                        end
                     end
-                end
-                3'b101: begin           // data 
-                    if(fChosenCH == chosenCH) begin
-                        en_neighborTable <= 1;
+                    3'b110: begin           // SOS
+                        if(fChosenCH == chosenCH) begin
+                            en_neighborTable <= 1;
+                        end
+                        else begin
+                            en_neighborTable <= 0;
+                        end
                     end
-                    else begin
-                        en_neighborTable <= 0;
-                    end
-                end
-                3'b110: begin           // SOS
-                    if(fChosenCH == chosenCH) begin
-                        en_neighborTable <= 1;
-                    end
-                    else begin
-                        en_neighborTable <= 0;
-                    end
-                end
-                default: en_neighborTable <= 0;
-            endcase
+                    default: en_neighborTable <= 0;
+                endcase
+            end
+            else begin
+                en_neighborTable <= 0;
+            end
         end
     end
 
@@ -169,52 +194,57 @@ module controller #(
             en_reward <= 0;
         end
         else begin
-            case(fPacketType)
-                3'b000: begin       // Heartbeat
-                    en_reward <= 1;
-                end
-                3'b010: begin       // Invitation
-                    if(fHopsFromCH < 4) begin
+            if(counter != 0) begin
+                case(fPacketType)
+                    3'b000: begin       // Heartbeat
                         en_reward <= 1;
                     end
-                    else begin
-                        en_reward <= 0;
+                    3'b010: begin       // Invitation
+                        if(fHopsFromCH < 4) begin
+                            en_reward <= 1;
+                        end
+                        else begin
+                            en_reward <= 0;
+                        end
                     end
-                end
-                3'b011: begin       // Membership Request
-                    if(role) begin
-                        en_reward <= 1;
+                    3'b011: begin       // Membership Request
+                        if(role) begin
+                            en_reward <= 1;
+                        end
+                        else begin
+                            en_reward <= 0;
+                        end
                     end
-                    else begin
-                        en_reward <= 0;
+                    3'b100: begin       // CH Timeslot
+                        if(role) begin
+                            en_reward <= 1;
+                        end
+                        else begin
+                            en_reward <= 0;
+                        end
                     end
-                end
-                3'b100: begin       // CH Timeslot
-                    if(role) begin
-                        en_reward <= 1;
+                    3'b101: begin       // data 
+                        if((myNodeID == destinationID) || iHaveData) begin
+                            en_reward <= 1;
+                        end
+                        else begin
+                            en_reward <= 0;
+                        end
                     end
-                    else begin
-                        en_reward <= 0;
+                    3'b110: begin       // SOS
+                        if((myNodeID == destinationID) || iHaveData) begin
+                            en_reward <= 1;
+                        end
+                        else begin
+                            en_reward <= 0;
+                        end
                     end
-                end
-                3'b101: begin       // data 
-                    if((myNodeID == destinationID) || iHaveData) begin
-                        en_reward <= 1;
-                    end
-                    else begin
-                        en_reward <= 0;
-                    end
-                end
-                3'b110: begin       // SOS
-                    if((myNodeID == destinationID) || iHaveData) begin
-                        en_reward <= 1;
-                    end
-                    else begin
-                        en_reward <= 0;
-                    end
-                end
-                default: en_reward <= 0;
-            endcase
+                    default: en_reward <= 0;
+                endcase
+            end
+            else begin
+                en_reward <= 0;
+            end
         end
     end
 // always block for okToSend
@@ -228,6 +258,25 @@ module controller #(
             end
             else begin
                 okToSend <= 0;
+            end
+        end
+    end
+
+    
+// always block for counter
+    always@(posedge clk or negedge nrst) begin
+        if(!nrst) begin
+            counter <= 0;
+        end
+        else begin
+            if(newpkt) begin
+                counter <= 1;
+            end
+            else if(counter != 0) begin
+                counter <= counter - 1;
+            end
+            else begin
+                counter <= 0;
             end
         end
     end
