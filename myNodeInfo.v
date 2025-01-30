@@ -16,6 +16,7 @@ module myNodeInfo(
     input   [15:0]          timeslot,
     input   [15:0]          e_threshold, 
     output  [15:0]          myNodeID,
+    output  [15:0]          myTimeslot,
     output  [15:0]          hopsFromSink,
     output  [15:0]          myQValue,
     output                  role,
@@ -291,4 +292,5 @@ assign hopsFromSink = hopsFromSink_buf;
 assign myQValue = myQValue_buf;
 assign role = role_buf;
 assign low_E = low_E_buf;
+assign myTimeslot = timeslot_buf;
 endmodule

@@ -126,7 +126,7 @@ initial begin
     $vcdplusfile("tb_reward.vpd");
     $vcdpluson;
     $vcdplusmemon;
-/*     $sdf_annotate("../mapped/reward_mapped.sdf", UUT); */
+    $sdf_annotate("../mapped/reward_mapped.sdf", UUT);
 end
 /* 
     I wanted to simulate random packets and energy consumptions

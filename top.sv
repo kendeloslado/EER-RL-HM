@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
 
-`include "controller.sv"
-`include "EQComparator_16bit.sv"
-`include "knownCH_small.sv"
-`include "myNodeInfo.sv"
-`include "QTU_FMB.sv"
-`include "neighborTable.sv"
-`include "rewardv2.sv"
+`include "../rtl/controller.sv"
+`include "../rtl/EQComparator_16bit.sv"
+`include "../rtl/knownCH_small.sv"
+`include "../rtl/myNodeInfo.v"
+`include "../rtl/QTU_FMB.sv"
+`include "../rtl/neighborTable.sv"
+`include "../rtl/rewardv2.sv"
 
 `define WORD_WIDTH 16
 module top(
@@ -25,6 +25,9 @@ module top(
     input logic     [WORD_WIDTH-1:0]    fChosenCH,
     input logic     [WORD_WIDTH-1:0]    fTimeslot,
     input logic     [WORD_WIDTH-1:0]    destinationID,
+    input logic     [WORD_WIDTH-1:0]    e_min,
+    input logic     [WORD_WIDTH-1:0]    e_max,
+    input logic     [WORD_WIDTH-1:0]    hopsFromSink,
 // output logic 
     output logic    [WORD_WIDTH-1:0]    rSourceID,
     output logic    [WORD_WIDTH-1:0]    rEnergyLeft,
@@ -40,37 +43,11 @@ module top(
 
 // controller MODULE
 
-/* // global inputs
-    input logic                             clk,
-    input logic                             nrst,
-    input logic                             newpkt, // en
-// inputs from packet
-    input logic     [2:0]                   fPacketType,
-    input logic     [WORD_WIDTH-1:0]        fHopsFromCH,
-    input logic     [WORD_WIDTH-1:0]        fChosenCH,
-    input logic     [WORD_WIDTH-1:0]        fTimeslot,
-    input logic     [WORD_WIDTH-1:0]        destinationID,
-    input logic                             channel_clear,
-// from MNI
-    input logic     [WORD_WIDTH-1:0]        myTimeslot,
-    input logic     [WORD_WIDTH-1:0]        myNodeID,
-    input logic                             role,
+// control unit module
 
-// external signal 
-    input logic                             iHaveData,
-// from knownCH
-    input logic     [WORD_WIDTH-1:0]        chosenCH,
-// output signals
-    output logic                            en_KCH,
-    output logic                            en_MNI,
-    output logic                            en_QTU_FMB,
-    output logic                            en_neighborTable,
-    output logic                            en_reward,
-    output logic                            iAmDestination,
-    output logic                            okToSend */
-
-
-//    logic
+    logic en_KCH, en_MNI, en_QTU_FMB, en_neighborTable;
+    logic en_reward, iAmDestination, iHaveData, okToSend, role;
+    logic [WORD_WIDTH-1:0] myNodeID;
     /* list down your needed signals */
     controller control_unit(
                 clk, nrst, newpkt,
@@ -89,17 +66,20 @@ module top(
     );
 
 // myNodeInfo module
-// logic ;
+    logic [WORD_WIDTH-1:0]  timeslot, myQValue, myTimeslot;
+    logic role, low_E;
     myNodeInfo mni(
                 clk, nrst, en_MNI, .fPktType(fPacketType),
                 energy, destinationID, hops, timeslot,
                 e_threshold,
 
-                myNodeID, hopsFromSink, myQValue, role, low_E
+                myNodeID, hopsFromSink, myQValue, role, low_E,
+                myTimeslot
     );
 
 // knownCH module
-// logic ;
+    logic HB_Reset;
+    logic [WORD_WIDTH-1:0]  fCH_ID, fCH_Hops, fCH_QValue, chosenCH, hopsFromCH;
     knownCH_small kCH(
                 clk, nrst, en_KCH, HB_Reset, fCH_ID, fCH_Hops, fCH_QValue,
 
@@ -107,7 +87,9 @@ module top(
     );
 
 // QTU_FMB module
-// logic ;
+    logic [WORD_WIDTH-1:0] nodeID, nodeHops, nodeEnergy, nodeQValue, chosenHop;
+    logic [4:0] neighborIndex, neighborCount;
+    logic QTUFMB_done;
     QTU_FMB QTUFMB(
                 clk, nrst,
 
@@ -126,17 +108,21 @@ module top(
 
 // neighborTable module
 // logic ;
+    logic [WORD_WIDTH-1:0] nodeCHHops, mNodeID, mNodeHops, mNodeQValue;
+    logic [WORD_WIDTH-1:0] mNodeEnergy, mNodeCHHops;
     neighborTable nTable(
                 clk, nrst, wr_en, HB_Reset,
 
                 nodeID, nodeHops, nodeQValue, nodeEnergy, nodeCHHops,
 
                 neighborCount, mNodeID, mNodeHops, mNodeQValue, mNodeEnergy,
-                mNodeCHHops,
+                mNodeCHHops
     );
 
 // reward module
-// logic ;
+    logic [WORD_WIDTH-1:0] myEnergy;
+    logic [5:0] nTableIndex_reward;
+    logic reward_done;
     rewardv2 reward_unit(
                 clk, nrst, en,
                 myEnergy, iHaveData, okToSend,
